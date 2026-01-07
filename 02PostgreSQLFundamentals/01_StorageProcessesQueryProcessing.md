@@ -69,18 +69,17 @@ To ensure the **Planner** makes good decisions, it needs accurate data about the
 Postgres uses memory to minimize slow disk I/O operations.
 
 * **Shared Buffers (Buffer Pool):**
-* A large chunk of memory dedicated to caching **8KB data pages**.
-* Controlled by the parameter `shared_buffers`.
-* **How it works:** The Executor first checks if data is in the Shared Buffers.
-* *If found:* Data is read from memory (fast).
-* *If not found:* Data is read from storage into the buffer, then passed to the executor.
-
-
-
+  * A large chunk of memory dedicated to caching **8KB data pages**.
+  * Controlled by the parameter `shared_buffers`.
+  * **How it works:** The Executor first checks if data is in the Shared Buffers.
+    * *If found:* Data is read from memory (fast).
+    * *If not found:* Data is read from storage into the buffer, then passed to the executor.
 
 * **Local Memory:** Each backend process also has its own dedicated memory for specific tasks:
-* `work_mem`: Used for sorting data and hash tables.
-* `maintenance_work_mem`: Used for maintenance tasks like `REINDEX` or `VACUUM`.
+  * `work_mem`: Used for sorting data and hash tables.
+  * `maintenance_work_mem`: Used for maintenance tasks like `REINDEX` or `VACUUM`.
+
+<img width="1805" height="941" alt="image" src="https://github.com/user-attachments/assets/9d725c6a-aa4f-4e51-8c76-31b9001099ce" />
 
 
 
