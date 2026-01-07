@@ -90,6 +90,9 @@ One of the most important metrics for database performance is the **Buffer Cache
 * **Definition:** It measures how often the database finds the data it needs in memory (RAM) versus reading it from the disk.
 * **The Formula:**
 
+The Formula:
+
+$$\text{Hit Ratio} = \frac{\text{Blocks Read from Buffer}}{\text{Blocks Read from Buffer} + \text{Blocks Read from Disk}}$$
 
 * **Interpretation:** The higher the ratio, the better the performance. A high ratio (ideally > 99%) indicates that the `shared_buffers` pool is effectively caching frequently accessed data.
 
