@@ -13,13 +13,13 @@ Understanding how Postgres manages data on the physical disk.
 How the server handles connections and manages processes.
 
 * **The Postmaster Process:** This is the parent of all processes in the Postgres cluster.
-* It implements the **TCP Listener** (default port: `5432`).
-* It manages the startup and shutdown of the database.
-
+  - It implements the **TCP Listener** (default port: `5432`).
+  - It manages the startup and shutdown of the database.
 
 * **Backend Processes:** When a client connects to the Postmaster, it "forks" (creates) a dedicated **Backend Process**.
-* This process handles all queries and statements for that specific client.
-* There is a one-to-one relationship: **1 Client = 1 Backend Process**.
+  - This process handles all queries and statements for that specific client.
+  - There is a one-to-one relationship: **1 Client = 1 Backend Process**.
+    
 <img width="1377" height="726" alt="image" src="https://github.com/user-attachments/assets/f54227fc-349b-49c7-835b-0c596e5ee7d1" />
 
 
