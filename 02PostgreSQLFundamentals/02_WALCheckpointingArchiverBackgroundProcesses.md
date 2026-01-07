@@ -79,6 +79,8 @@ If Postgres crashes (producing a "Panic" message), the **Postmaster** (parent pr
 * **Role:** The Shared Buffer pool is limited. To read new data, old data must be evicted.
 * **Function:** The Background Writer continuously scans for dirty pages that might be evicted soon and writes them to storage.
 * **Benefit:** It ensures that when a page *needs* to be evicted, it is already clean, preventing delays for the user.
+* <img width="1104" height="504" alt="image" src="https://github.com/user-attachments/assets/5d4d61b3-d616-4667-97a8-b83f29c5d003" />
+
 
 ### **WAL Archiver**
 
