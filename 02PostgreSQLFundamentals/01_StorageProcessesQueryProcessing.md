@@ -53,7 +53,7 @@ When a backend process receives a query, it goes through **five distinct stages*
 * Follows the instructions in the plan.
 * Retrieves the data and sends the result set back to the client.
 
-
+<img width="1089" height="593" alt="image" src="https://github.com/user-attachments/assets/27c0518e-ebe9-41b4-8a9e-5f5db29dfc65" />
 
 ## 4. Statistics & Optimization
 
