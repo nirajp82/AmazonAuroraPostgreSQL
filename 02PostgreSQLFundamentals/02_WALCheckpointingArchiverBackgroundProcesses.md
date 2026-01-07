@@ -13,10 +13,12 @@ When you run a SQL update (insert,update, dekete), Postgres changes the data in 
 
 Think of the WAL as a fireproof **Ledger** that records every change before it happens in the main files.
 
+* **WAL Buffer:** Transaction data is first written to this temporary buffer in memory.
 * **WAL Writer Process:** This process picks up transactions from the WAL Buffer and writes them to **WAL Files** on persistent storage.
-* **Commit Acknowledgement:** The client receives a "Success" message **only** after the WAL Writer successfully writes the log to the disk.
+* **Commit Acknowledgement:** The client receives a "Success" message **only** after the WAL Writer successfully writes the log to the disk (WAL file).
 * **WAL Segments:** The log is managed in **16 MB** files (segments).
-* **LSN (Log Sequence Number):** Each entry in the log has a unique LSN. A transaction is only "committed" if its corresponding **X-Log** (Transaction Log) is safely on the disk.
+* **LSN (Log Sequence Number):** Each entry in the log has a unique LSN.
+* * *Note:* A transaction is marked committed only if its corresponding X-Log (Transaction Log) is written to the WAL segment.
 
 ---
 
@@ -32,11 +34,22 @@ Eventually, the transactions in the WAL must be applied to the actual data files
 4. **Flushing:** The **Checkpointer Process** flushes these dirty pages to the disk. This is when you will see **I/O spikes**.
 5. **Control File:** Finally, it updates the **pg_control** file with the new redo and checkpoint info.
 
-### **When does it trigger?**
+### **When Does Checkpointing Happen?**
 
-* **`checkpoint_timeout`:** Periodically (Default: 5 minutes).
-* **`max_wal_size`:** When the WAL grows too large (Default: 1 GB).
-* **Manual:** Running the `CHECKPOINT` command.
+Checkpointing occurs based on triggers to prevent the WAL from growing too large:
+
+1. **Time-Based:** Controlled by `checkpoint_timeout`.
+* *Default:* 5 minutes.
+
+
+2. **Size-Based:** Controlled by `max_wal_size`.
+* *Default:* 1 GB.
+* *Concept:* Tells Postgres how much WAL log data can accumulate before a forced checkpoint.
+
+
+3. **Manual:** Users can trigger it via the `CHECKPOINT` command.
+
+*Important:* **I/O spikes** are often observed during checkpoints because this is when the heavy writing to data files occurs.
 
 ---
 
