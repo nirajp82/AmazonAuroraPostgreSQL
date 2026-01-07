@@ -191,14 +191,3 @@ If PostgreSQL crashes (PANIC), the **Postmaster** restarts the system and begins
 * **Checkpoints** sync memory with data files
 * **BgWriter** prevents sudden I/O pressure
 * **Archiving** enables long-term recovery options
-
----
-
-If you want, I can also add:
-
-* 📘 **Glossary (LSN, XLOG, buffers, segments)**
-* 📊 **Simple diagrams**
-* ⚙️ **Key tuning parameters**
-* 🧪 **Real-world troubleshooting examples**
-
-Just tell me 👍
