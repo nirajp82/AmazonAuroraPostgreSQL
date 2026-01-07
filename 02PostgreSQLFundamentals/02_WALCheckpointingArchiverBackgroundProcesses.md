@@ -56,6 +56,8 @@ Checkpointing occurs based on triggers to prevent the WAL from growing too large
 
 ---
 
+----
+
 ## 4. Crash Recovery (The Redo Process)
 
 If Postgres crashes (producing a "Panic" message), the **Postmaster** (parent process) restarts and initiates recovery.
@@ -69,6 +71,20 @@ If Postgres crashes (producing a "Panic" message), the **Postmaster** (parent pr
 
 ---
 
+## 5. Other Key Background Processes
+
+### **Background Writer (BgWriter)**
+
+* **Role:** The Shared Buffer pool is limited. To read new data, old data must be evicted.
+* **Function:** The Background Writer continuously scans for dirty pages that might be evicted soon and writes them to storage.
+* **Benefit:** It ensures that when a page *needs* to be evicted, it is already clean, preventing delays for the user.
+
+### **WAL Archiver**
+
+* **Role:** Once WAL segments are processed, they are not deleted immediately. The WAL Archiver copies these files to a separate archive storage.
+* **Benefit:** Frees up space on the primary storage and allows for Point-In-Time Recovery later.
+
+---
 ## 5. Vital Background Processes
 
 | Process | Responsibility |
