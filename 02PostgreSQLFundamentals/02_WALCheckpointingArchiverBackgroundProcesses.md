@@ -4,6 +4,7 @@ When you run a SQL update (insert,update, dekete), Postgres changes the data in 
 
 * **The Problem:** These updated pages are called **Dirty Pages**. If the system fails now, that data is lost because it hasn't reached the disk.
 * **The "Slow" Solution:** You could write every change to the permanent data files immediately. However, this involves **Random I/O** across many files, leading to massive **I/O spikes** and terrible performance.
+  * The "Spike" Problem: If 1,000 users all click "Save" at once, and the database tries to open File A, File B, File C, etc., to write those changes immediately, the disk becomes overwhelmed. This is an I/O Spike. The system slows down to a crawl because the disk can't keep up with the physical "head movement" or write operations required to update scattered locations on the storage.
 * **The Postgres Solution:** Instead of updating the "heavy" data files immediately, Postgres writes the change to a fast, sequential buffer called the **Write-Ahead Log (WAL) Buffer**.
 <img width="1070" height="591" alt="image" src="https://github.com/user-attachments/assets/04ed354a-6654-464b-9f34-45729aaf3b95" />
 
