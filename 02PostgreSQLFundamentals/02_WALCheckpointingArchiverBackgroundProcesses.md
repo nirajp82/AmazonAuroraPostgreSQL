@@ -41,11 +41,11 @@ Eventually, the transactions in the WAL must be applied to the actual data files
 
 Checkpointing occurs based on triggers to prevent the WAL from growing too large:
 
-1. **Time-Based:** Controlled by `checkpoint_timeout`.
+1. **Time-Based:** Controlled by `show checkpoint_timeout`.
 * *Default:* 5 minutes.
 
 
-2. **Size-Based:** Controlled by `max_wal_size`.
+2. **Size-Based:** Controlled by `show max_wal_size`.
 * *Default:* 1 GB.
 * *Concept:* Tells Postgres how much WAL log data can accumulate before a forced checkpoint.
 
