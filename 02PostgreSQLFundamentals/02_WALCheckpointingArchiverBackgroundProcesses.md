@@ -35,7 +35,7 @@ Eventually, the transactions in the WAL must be applied to the actual data files
 4. **Flushing:** The **Checkpointer Process** flushes these dirty pages to the disk. This is when you will see **I/O spikes**.
 5. **Control File:** Finally, it updates the **pg_control** file with the new redo and checkpoint info.
 
-<img width="1054" height="463" alt="image" src="https://github.com/user-attachments/assets/8cb0c1bd-8cbd-4457-978e-4d63127d673a" />
+<img width="1068" height="506" alt="image" src="https://github.com/user-attachments/assets/b92928b4-bb25-4815-b7d0-aa9e59e69dac" />
 
 ### **When Does Checkpointing Happen?**
 
