@@ -68,6 +68,7 @@ If Postgres crashes (producing a "Panic" message), the **Postmaster** (parent pr
 4. **Finalize:** It adds a new checkpoint record and updates the control file. The database is now back to its pre-crash state.
 
 > **Note:** Recovery time depends on how many logs are pending. Frequent checkpointing ensures **Fast Recovery**.
+<img width="982" height="432" alt="image" src="https://github.com/user-attachments/assets/4dc2e9a0-5184-45f5-a6af-ef5ad8a37fd2" />
 
 ---
 
