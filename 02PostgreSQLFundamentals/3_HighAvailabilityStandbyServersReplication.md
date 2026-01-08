@@ -1,9 +1,5 @@
 # PostgreSQL High Availability and Replication Notes
 
-This document summarizes key concepts related to **high availability (HA)** and **replication** in PostgreSQL. It explains how PostgreSQL ensures database availability and keeps data in sync across primary and standby servers.
-
----
-
 ## 1. High Availability Overview
 
 High availability in PostgreSQL is achieved by maintaining **standby servers** that can take over if the **primary server** fails.
