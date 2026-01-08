@@ -30,6 +30,7 @@ Standby servers can be configured in two main ways:
 ## 3. Replication in PostgreSQL
 
 **Replication** is the process of keeping data in sync between primary and standby servers.
+<img width="1497" height="710" alt="image" src="https://github.com/user-attachments/assets/4e94437c-fc18-4ded-ab9e-1400085d42be" />
 
 **Purpose:**
 
