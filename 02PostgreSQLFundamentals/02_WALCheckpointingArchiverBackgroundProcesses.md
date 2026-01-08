@@ -68,7 +68,7 @@ Think of WAL as a **durable ledger** that records every change **before** it is 
 
 Eventually, PostgreSQL must apply WAL changes to the actual data files.
 This process is called **Checkpointing**.
-<img width="982" height="474" alt="image" src="https://github.com/user-attachments/assets/39c83638-6346-4a2f-8c31-1bcffa6115e3" />
+<img width="1586" height="887" alt="image" src="https://github.com/user-attachments/assets/4baf54cf-65b0-4773-9830-a31abff477dd" />
 
 ### What Happens During a Checkpoint
 
