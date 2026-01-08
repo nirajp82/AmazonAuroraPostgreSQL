@@ -190,6 +190,114 @@ If PostgreSQL crashes (PANIC), the **Postmaster** restarts the system and begins
 
 ---
 
+### Q: When a record is inserted, how do Shared Buffers and the Write-Ahead Log (WAL) store the change?
+
+**Example:**
+
+```sql
+INSERT INTO Customer (Id, Name)
+VALUES (1, 'JDoe');
+```
+
+### A: Shared Buffers and WAL store **different representations** of the same operation, each for a specific purpose.
+
+---
+
+## High-level view
+
+### Shared Buffers (Actual Data)
+
+Think of Shared Buffers as an **in-memory copy of table pages**.
+
+After the insert, a data page in Shared Buffers looks like:
+
+```
+Customer Table – Data Page (in memory)
+-------------------------------------
+| Id | Name |
+-------------------------------------
+| 1  | JDoe |
+-------------------------------------
+```
+
+* Contains the **real row data**
+* Page is marked **dirty**
+* Written to disk later by BGWriter or Checkpointer
+
+---
+
+### WAL (Write-Ahead Log – Change Description)
+
+Think of WAL as a **sequential instruction log**.
+
+A WAL record looks like (conceptual):
+
+```
+WAL Record
+----------
+Action  : INSERT
+Table   : Customer
+PageId  : 123
+Slot    : 4
+Values  : (1, 'JDoe')
+LSN     : 0/16B6A90
+```
+
+* Stores **how to reapply the change**
+* Append-only and sequential
+* Flushed on commit to guarantee durability
+
+---
+
+## Why they are different
+
+* Shared Buffers are optimized for **fast reads and writes**
+* WAL is optimized for **crash recovery**
+* WAL does **not** represent table data directly
+
+---
+
+## What happens step-by-step
+
+```
+INSERT statement
+   ↓
+Modify data page in Shared Buffers
+   ↓
+Write corresponding WAL record
+   ↓
+Commit → WAL flushed to disk
+   ↓
+Later → Data page written to data file
+```
+
+---
+
+## Important note (edge case)
+
+* After a checkpoint, the first change to a page may log the **entire page image** in WAL for safety.
+* Even then, Shared Buffers still hold the authoritative row data.
+
+---
+
+## Summary
+
+> Shared Buffers contain the actual table rows, while WAL contains a sequential description of changes that allows the database to recover those rows after a crash.
+
+**Q:** If BGWriter writes modified pages to the data files, does that mean the corresponding WAL records are no longer needed for data files and are therefore ready for archival?
+
+### Clarified Answer
+
+**A:** Not exactly.
+Even after BGWriter writes modified pages to the data files, the corresponding WAL records may still be required. BGWriter’s role is only to **gradually flush dirty pages** to reduce I/O pressure; it does **not** define a recovery boundary.
+
+WAL records become safe for **archival or reuse only after a checkpoint** is completed. A checkpoint ensures that all data pages up to a specific WAL position are persisted to disk and records this state in the WAL itself. Only then are earlier WAL segments no longer needed for crash recovery.
+
+**In summary:**
+
+> WAL records are not made archivable by BGWriter writes; they become archivable only after a checkpoint establishes a recovery point, at which time those WAL segments are used for archival and recovery purposes—not for writing data files.
+
+
 ## 7. Summary
 
 * **WAL** ensures durability using fast sequential writes
