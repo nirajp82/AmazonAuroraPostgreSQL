@@ -50,10 +50,13 @@ Many databases are **read-heavy**, meaning **SELECT statements far outnumber INS
   * Standby may lag behind primary.
   * Some stale data may be served.
   * Acceptable if eventual consistency is tolerable.
+  <img width="1653" height="757" alt="image" src="https://github.com/user-attachments/assets/acb3a67c-a4fd-478a-8599-cb2f183569ce" />
+
 * **Synchronous replication:**
 
   * Primary waits for standby confirmation for each write.
   * Ensures no data loss, but **reduces write performance**.
+  <img width="1664" height="769" alt="image" src="https://github.com/user-attachments/assets/6a6659e6-3918-43d2-9766-5b5734222cc9" />
 
 **Key Trade-off:** Performance vs. data freshness.
 
