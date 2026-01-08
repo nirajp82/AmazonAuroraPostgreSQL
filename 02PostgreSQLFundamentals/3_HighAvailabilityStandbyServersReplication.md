@@ -92,6 +92,7 @@ Standby servers can be configured in two main ways:
 * Always **asynchronous** between cascading standby and downstream standbys.
 * Can be useful for reducing load on primary or extending replication to multiple sites.
 * Cascading standby may be promoted to primary without affecting other standbys.
+<img width="1666" height="865" alt="image" src="https://github.com/user-attachments/assets/13203beb-b376-40e4-89d1-f7bba17ccb5c" />
 
 ---
 
