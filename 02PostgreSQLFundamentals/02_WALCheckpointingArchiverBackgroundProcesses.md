@@ -29,8 +29,14 @@ Instead of writing data files immediately, PostgreSQL:
 
 * Records every change in a **sequential log**
 * This log is the **Write-Ahead Log (WAL)**
-
+```sql
+LSN 100: T1 - INSERT row A
+LSN 101: T2 - UPDATE row B
+LSN 102: T1 - COMMIT
+LSN 103: T2 - COMMIT
+```
 Sequential writes are **fast**, predictable, and disk-friendly.
+- Note: There is **one logical Write-Ahead Log (WAL)** that records all changes in sequence, and internally it is **physically stored as multiple fixed-size files (e.g., 16 MB segments)** for manageability and recovery purposes.
 
 ---
 
