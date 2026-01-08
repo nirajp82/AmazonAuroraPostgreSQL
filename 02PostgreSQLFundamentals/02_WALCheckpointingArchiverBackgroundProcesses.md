@@ -6,8 +6,12 @@ Instead, it first modifies data in memory, inside the **Shared Buffer Pool (RAM)
 
 ### The Problem: Dirty Pages
 
-* Modified memory pages are called **dirty pages**
-* If PostgreSQL crashes before these pages are written to disk, the changes are lost because it hasn't reached the disk (It was only in RAM Memory)
+* After a page is modified in Shared Buffers, it becomes a **dirty page**
+* At that point:
+  * Shared Buffers contain the newer version
+  * The data file on disk contains the older version
+  * The disk copy is updated later by BGWriter or Checkpointer
+* If PostgreSQL crashes before these pages are written to disk, the changes (Newer version) are lost because it hasn't reached the disk (It was only in RAM Memory)
 
 ### The Naive (Slow) Solution
 
