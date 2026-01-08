@@ -128,16 +128,16 @@ If PostgreSQL crashes (PANIC), the **Postmaster** restarts the system and begins
 
 1. **Read `pg_control`**
 
-   * Identify the last checkpoint and redo LSN (Uses PG_Control file)
+   * Identify the last checkpoint and redo LSN (Uses PG_Control file, In this assume LSN #99 is applied)
 2. **Locate WAL Records**
 
    * Find WAL entries written after the last checkpoint
 3. **Redo Changes**
 
-   * Replay WAL records into data pages
+   * Replay WAL records into data pages (from 100 to 103)
 4. **Finalize**
 
-   * Write a new checkpoint
+   * Write a new checkpoint(104 WAL record to the log file) and update thes pg_control file. 
    * Database becomes consistent again
 
 > **Recovery Time Depends On:**
