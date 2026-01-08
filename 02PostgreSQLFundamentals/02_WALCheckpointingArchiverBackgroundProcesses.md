@@ -70,10 +70,10 @@ This process is called **Checkpointing**.
 
 1. **Redo Point**
 
-   * PostgreSQL identifies the last checkpoint’s ending LSN
+   * PostgreSQL identifies the last checkpoint’s ending LSN. (In this case LSN# 99)
 2. **Checkpoint Record**
 
-   * A new checkpoint record is written to the WAL
+   * A new checkpoint record is written to the WAL (LSN# 102, Changes after #102 are new changes by other transaction)
 3. **Candidate Pages**
 
    * All dirty pages modified between the redo point and checkpoint record become candidates for flushing
