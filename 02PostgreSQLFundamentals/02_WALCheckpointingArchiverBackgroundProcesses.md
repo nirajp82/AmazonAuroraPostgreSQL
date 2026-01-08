@@ -124,7 +124,7 @@ If PostgreSQL crashes (PANIC), the **Postmaster** restarts the system and begins
 
 1. **Read `pg_control`**
 
-   * Identify the last checkpoint and redo LSN
+   * Identify the last checkpoint and redo LSN (Uses PG_Control file)
 2. **Locate WAL Records**
 
    * Find WAL entries written after the last checkpoint
