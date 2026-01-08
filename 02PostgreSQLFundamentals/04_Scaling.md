@@ -16,6 +16,8 @@ Two main approaches:
    * Add additional database instances to distribute load.
    * Load is shared across multiple servers in a **database cluster**.
    * Focus of this lesson is on **horizontal scaling**.
+<img width="760" height="340" alt="image" src="https://github.com/user-attachments/assets/ec27f0d2-0db4-4c0c-be54-49ccfe8af6f7" />
+https://www.youtube.com/watch?v=dvRFHG2-uYs 
 
 ---
 
