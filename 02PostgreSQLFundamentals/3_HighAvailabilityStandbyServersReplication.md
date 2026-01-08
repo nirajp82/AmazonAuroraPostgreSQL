@@ -50,6 +50,11 @@ Standby servers can be configured in two main ways:
 * WAL records are sent **immediately** to the standby as they are generated.
 * Reduces replication lag compared to log shipping.
 * By default, **asynchronous**: primary does not wait for standby to commit.
+* With asynchronous replication (log shipping or streaming), a replication lag of zero is not possible.
+* Transactions committed on the primary may not yet appear on the standby at the time of a failure.
+* Implication: There is always a chance of data loss if the primary fails before the standby has applied all changes.
+* Asynchronous replication favors performance and low overhead.
+* If your application cannot tolerate data loss, consider synchronous replication, which waits for the standby to confirm transactions.
 * **Replication lag:** Time between transaction commit on primary and it appearing on standby.
 <img width="1591" height="861" alt="image" src="https://github.com/user-attachments/assets/0e0c6f4b-65fe-41c8-b2ba-288b72025102" />
 
