@@ -1,8 +1,4 @@
-# PostgreSQL Scalability Notes
-
-This document summarizes the concepts of **database scalability** in PostgreSQL, focusing on **horizontal and vertical scaling**, and strategies for handling read-heavy and write-heavy workloads.
-
----
+# PostgreSQL Scalability 
 
 ## 1. What is Scalability?
 
