@@ -73,6 +73,7 @@ Scaling writes is more complex:
 
 * PostgreSQL is **not inherently a distributed database**.
 * No out-of-the-box multi-master (multi-write) replication exists.
+<img width="1613" height="734" alt="image" src="https://github.com/user-attachments/assets/43578a27-8e90-4f24-bc97-bc896c192f80" />
 
 **Common Approaches for Scaling Writes:**
 
