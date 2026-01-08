@@ -78,10 +78,11 @@ Standby servers can be configured in two main ways:
 
   1. Client initiates a transaction on primary.
   2. Primary adds WAL record and sends it to standby.
-  3. Standby **commits the transaction** and confirms.
+  3. Standby **commits the transaction** and confirms (Send Ack back).
   4. Primary sends commit response to client **after confirmation from standby**.
 
 * **Trade-off:** Lower performance due to waiting for standby confirmation.
+<img width="1540" height="863" alt="image" src="https://github.com/user-attachments/assets/017999a4-d2c5-4053-88a7-581464a0102f" />
 
 ---
 
