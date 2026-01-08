@@ -29,7 +29,7 @@ Standby servers can be configured in two main ways:
 
 ## 3. Replication in PostgreSQL
 
-**Replication** is the process of synchronizing data from the primary server to standby servers.
+**Replication** is the process of keeping data in sync between primary and standby servers.
 
 **Purpose:**
 
@@ -43,6 +43,7 @@ Standby servers can be configured in two main ways:
 * WAL (Write-Ahead Log) segments of **16 MB each** are continuously sent from primary to standby.
 * Standby applies WAL segments to remain in sync.
 * **Lag:** Standby may lag behind primary because WAL segments must be filled before shipping.
+<img width="1469" height="850" alt="image" src="https://github.com/user-attachments/assets/f66c82f5-dcc4-466d-9ca3-a30ee2afacb5" />
 
 ### 3.2 Streaming Replication
 
@@ -50,6 +51,7 @@ Standby servers can be configured in two main ways:
 * Reduces replication lag compared to log shipping.
 * By default, **asynchronous**: primary does not wait for standby to commit.
 * **Replication lag:** Time between transaction commit on primary and it appearing on standby.
+  
 
 **Factors affecting replication lag:**
 
