@@ -51,7 +51,8 @@ Standby servers can be configured in two main ways:
 * Reduces replication lag compared to log shipping.
 * By default, **asynchronous**: primary does not wait for standby to commit.
 * **Replication lag:** Time between transaction commit on primary and it appearing on standby.
-  
+<img width="1591" height="861" alt="image" src="https://github.com/user-attachments/assets/0e0c6f4b-65fe-41c8-b2ba-288b72025102" />
+
 
 **Factors affecting replication lag:**
 
