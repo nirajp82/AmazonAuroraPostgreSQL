@@ -7,7 +7,7 @@ Instead, it first modifies data in memory, inside the **Shared Buffer Pool (RAM)
 ### The Problem: Dirty Pages
 
 * Modified memory pages are called **dirty pages**
-* If PostgreSQL crashes before these pages are written to disk, the changes are lost
+* If PostgreSQL crashes before these pages are written to disk, the changes are lost because it hasn't reached the disk (It was only in RAM Memory)
 
 ### The Naive (Slow) Solution
 
