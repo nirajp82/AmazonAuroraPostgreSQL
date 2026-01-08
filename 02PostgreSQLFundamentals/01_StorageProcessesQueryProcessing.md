@@ -95,6 +95,7 @@ The Formula:
 $$\text{Hit Ratio} = \frac{\text{Blocks Read from Buffer}}{\text{Blocks Read from Buffer} + \text{Blocks Read from Disk}}$$
 
 * **Interpretation:** The higher the ratio, the better the performance. A high ratio (ideally > 99%) indicates that the `shared_buffers` pool is effectively caching frequently accessed data.
+* Shared Buffers are an in-memory cached copy (replica) of data file pages from disk. All reads and writes happen against this in-memory copy
 
 ---
 
