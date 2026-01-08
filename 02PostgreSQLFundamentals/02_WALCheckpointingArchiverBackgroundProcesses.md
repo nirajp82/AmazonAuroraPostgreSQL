@@ -226,7 +226,7 @@ Customer Table – Data Page (in memory)
 
 ---
 
-### WAL (Write-Ahead Log – Change Description)
+### WAL (Write-Ahead Log
 
 Think of WAL as a **sequential instruction log**.
 
