@@ -114,8 +114,9 @@ Standby servers can be configured in two main ways:
 **Use cases:**
 
 * Incremental data capture
-* Consolidating changes from multiple databases
+* Consolidating changes from multiple databases into single databases. 
 * Controlling access to sensitive data for regulatory compliance
+<img width="1504" height="868" alt="image" src="https://github.com/user-attachments/assets/db1801d8-1e48-4710-838c-c15f03f1e517" />
 
 ---
 
