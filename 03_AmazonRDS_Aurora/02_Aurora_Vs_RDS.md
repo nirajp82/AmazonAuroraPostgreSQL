@@ -9,7 +9,7 @@
 | Managed Service         | Yes                  | Yes                                                   |
 | Underlying Engine       | Community Edition    | Built on Community Edition with architectural changes |
 | Application Perspective | No difference        | Compatible with existing PostgreSQL apps and schemas  |
-| Storage Type            | EBS attached storage | Purpose-built distributed storage across 3 AZs        |
+| Storage Type            | EBS attached storage | PPurpose-built, distributed storage replicated across three Availability Zones. Purpose-built distributed storage refers to a storage layer designed specifically for database workloads, providing high availability, durability, and performance through native replication across three Availability Zones.   |
 | Storage Understanding   | Block storage        | Database-aware storage tuned for Postgres I/O         |
 
 ---
