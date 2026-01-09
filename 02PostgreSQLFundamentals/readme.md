@@ -13,10 +13,10 @@
   * **Archiving** enables long-term recovery options*  
 
 * [PostgreSQL High Availability and Replication](https://github.com/nirajp82/AmazonAuroraPostgreSQL/edit/main/02PostgreSQLFundamentals/03_HighAvailabilityStandbyServersReplication.md)
- * High availability relies on standby servers.
- * **Replication lag** is a critical factor in failover planning.
- * **Synchronous replication** prevents data loss but reduces performance.
- * **Hot standby** allows read scaling; **warm standby** is simpler but only used for failover.
- * PostgreSQL provides multiple replication mechanisms to suit different use cases.
+  * High availability relies on standby servers.
+  * **Replication lag** is a critical factor in failover planning.
+  * **Synchronous replication** prevents data loss but reduces performance.
+  * **Hot standby** allows read scaling; **warm standby** is simpler but only used for failover.
+  * PostgreSQL provides multiple replication mechanisms to suit different use cases.
 
  * 
