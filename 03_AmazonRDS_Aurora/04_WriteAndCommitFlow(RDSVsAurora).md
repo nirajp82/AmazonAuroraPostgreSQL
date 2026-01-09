@@ -9,8 +9,9 @@ This section explains **what actually happens when an application writes data** 
 ### High-level idea
 
 * RDS follows **standard PostgreSQL behavior**
-* WAL is the source of truth
+* **WAL (Write-Ahead Log) is the primary replication and recovery mechanism**
 * Replication happens **between database instances**
+* Each instance maintains its **own independent copy of data files**
 
 ---
 
@@ -30,7 +31,7 @@ This section explains **what actually happens when an application writes data** 
 
    * Receives WAL
    * Replays WAL
-   * Updates its own data files
+   * Updates its **own local data files**
 
 ---
 
@@ -39,7 +40,7 @@ This section explains **what actually happens when an application writes data** 
 * Transaction is considered **committed** when:
 
   * WAL is safely written on the primary
-  * (If Multi-AZ) WAL is synchronously written to the standby
+  * (If Multi-AZ) WAL is synchronously written to the standby instance
 
 ---
 
@@ -68,12 +69,12 @@ Primary DB Instance
 ### Implications (RDS)
 
 * Replication lag can grow under heavy write load
-* Replicas consume CPU to replay WAL
+* Replicas consume CPU and I/O to replay WAL
 * Failover requires:
 
   * Promoting standby
-  * Re-establishing connections
-  * Possible delay due to WAL sync
+  * Applying remaining WAL
+  * Re-establishing client connections
 
 ---
 
@@ -81,9 +82,10 @@ Primary DB Instance
 
 ### High-level idea
 
-* Aurora separates **compute** and **storage**
-* Replication happens **inside the storage layer**
-* Database instances never ship WAL to each other
+* Aurora **decouples compute from storage**
+* Replication happens **inside the storage layer**, not between DB instances
+* **Database instances do NOT ship WAL to each other**
+* Aurora still uses WAL internally for PostgreSQL correctness, **but not for replication**
 
 ---
 
@@ -94,14 +96,15 @@ Primary DB Instance
 
    * Modifies pages in shared buffers
    * Generates **Aurora redo records**
+     *(a lightweight, storage-specific form of WAL information)*
 3. Writer sends redo records to **Aurora distributed storage**
 4. Storage layer:
 
    * Applies changes to database pages
    * Replicates data across **3 AZs (6 copies)**
-   * Confirms durability using quorum
+   * Confirms durability using a quorum-based protocol
 5. Transaction commits
-6. Reader instances immediately see the change by reading from storage
+6. Reader instances immediately see the change by reading from the **same shared storage**
 
 ---
 
@@ -109,8 +112,9 @@ Primary DB Instance
 
 * Transaction is considered **committed** when:
 
-  * Redo is durably written to a quorum of storage nodes
+  * Redo records are durably written to a quorum of storage nodes
 * No replica acknowledgment is required
+* No WAL replay occurs on reader instances
 
 ---
 
@@ -130,20 +134,24 @@ Writer DB Instance
                                   └── Quorum acknowledgment
 
 Reader DB Instances
-  └── Read latest pages directly from storage
+  └── Read latest pages directly from shared storage
 ```
 
 ---
 
 ## 14.3 Key Difference Highlight (WAL vs Aurora Redo)
 
-| Aspect               | RDS PostgreSQL | Aurora PostgreSQL |
-| -------------------- | -------------- | ----------------- |
-| What is shipped      | WAL            | Aurora redo       |
-| Shipped to replicas  | Yes            | No                |
-| Replicas replay logs | Yes            | No                |
-| Replication location | DB engine      | Storage layer     |
-| Replication latency  | Seconds        | Sub-100 ms        |
+| Aspect                  | RDS PostgreSQL  | Aurora PostgreSQL       |
+| ----------------------- | --------------- | ----------------------- |
+| Primary log type        | PostgreSQL WAL  | Aurora redo             |
+| WAL shipped to replicas | Yes             | No                      |
+| Replicas replay logs    | Yes             | No                      |
+| Replication location    | Database engine | Storage layer           |
+| Storage ownership       | Per instance    | Shared across instances |
+| Replication latency     | Seconds         | Sub-100 ms              |
+
+> **Important clarification:**
+> Aurora still uses WAL internally for PostgreSQL transaction semantics and crash recovery, but **WAL is not used for replication between instances**.
 
 ---
 
@@ -165,8 +173,8 @@ Reader DB Instances
 
 1. Writer instance fails
 2. Aurora detects failure
-3. A reader is promoted to writer
-4. Storage remains unchanged
+3. A reader instance is promoted to writer
+4. Storage remains unchanged and already consistent
 5. Clients reconnect
 
 ⏱ **Typical time:** ~30 seconds
@@ -182,7 +190,7 @@ Primary fails
    ↓
 Standby promoted
    ↓
-WAL sync / recovery
+WAL replay / recovery
    ↓
 Clients reconnect
 ```
@@ -194,7 +202,7 @@ Writer fails
    ↓
 Reader promoted
    ↓
-Same storage, no sync
+Same shared storage
    ↓
 Clients reconnect
 ```
@@ -205,19 +213,21 @@ Clients reconnect
 
 ### Aurora advantages explained by the flow
 
-* No WAL replay = near-zero replica lag
-* Shared storage = faster failover
-* Redo is smaller than WAL = faster commits
-* Storage replication = higher durability
+* No WAL replay on replicas → near-zero replication lag
+* Shared storage → faster and simpler failover
+* Redo is smaller than WAL → faster commits
+* Storage-level replication → higher durability
 
 ### RDS trade-offs
 
-* Simpler, pure PostgreSQL model
-* Predictable behavior
-* More replication overhead at scale
+* Pure PostgreSQL behavior
+* Simple and predictable architecture
+* Higher replication and failover overhead at scale
 
 ---
 
 ## 14.6 Final One-Line Comparison
 
-> **RDS PostgreSQL replicates by shipping logs between databases; Aurora PostgreSQL replicates by applying changes directly in a shared, distributed storage system.**
+> **RDS PostgreSQL replicates by shipping and replaying WAL between database instances, whereas Aurora PostgreSQL applies redo directly to a shared, distributed storage layer that all instances read from.**
+
+---
