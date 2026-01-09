@@ -1,10 +1,10 @@
-## 14. Step-by-Step Write and Commit Flow (RDS vs Aurora)
+##  Step-by-Step Write and Commit Flow (RDS vs Aurora)
 
 This section explains **what actually happens when an application writes data** and how **commit, durability, replication, and failover** differ between RDS PostgreSQL and Aurora PostgreSQL.
 
 ---
 
-## 14.1 Write & Commit Flow – RDS PostgreSQL
+## 1 Write & Commit Flow – RDS PostgreSQL
 
 ### High-level idea
 
@@ -78,7 +78,7 @@ Primary DB Instance
 
 ---
 
-## 14.2 Write & Commit Flow – Aurora PostgreSQL
+## 2 Write & Commit Flow – Aurora PostgreSQL
 
 ### High-level idea
 
@@ -139,7 +139,7 @@ Reader DB Instances
 
 ---
 
-## 14.3 Key Difference Highlight (WAL vs Aurora Redo)
+## 3 Key Difference Highlight (WAL vs Aurora Redo)
 
 | Aspect                  | RDS PostgreSQL  | Aurora PostgreSQL       |
 | ----------------------- | --------------- | ----------------------- |
@@ -155,7 +155,7 @@ Reader DB Instances
 
 ---
 
-## 14.4 Failover Flow Comparison
+## 4 Failover Flow Comparison
 
 ### RDS PostgreSQL Failover
 
@@ -209,7 +209,7 @@ Clients reconnect
 
 ---
 
-## 14.5 Why This Matters in Real Systems
+## 5 Why This Matters in Real Systems
 
 ### Aurora advantages explained by the flow
 
@@ -226,7 +226,7 @@ Clients reconnect
 
 ---
 
-## 14.6 Final One-Line Comparison
+## 6 Final One-Line Comparison
 
 > **RDS PostgreSQL replicates by shipping and replaying WAL between database instances, whereas Aurora PostgreSQL applies redo directly to a shared, distributed storage layer that all instances read from.**
 
