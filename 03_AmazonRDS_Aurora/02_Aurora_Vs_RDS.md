@@ -1,7 +1,5 @@
 # Comparing Amazon RDS (PostgreSQL) and Amazon Aurora (PostgreSQL)
 
-This document explains the architectural and operational differences between **Amazon RDS for PostgreSQL** and **Amazon Aurora PostgreSQL-Compatible Edition**, focusing on *storage, replication, scaling, availability, and recovery*.
-
 ---
 
 ## 1. Managed Database Overview
