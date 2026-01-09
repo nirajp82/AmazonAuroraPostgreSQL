@@ -30,6 +30,7 @@
   * RDS uses **EBS block storage** attached to the database instance.
   * Aurora uses a **purpose-built distributed storage system**, automatically replicated six ways across **three AZs** (2 copies per AZ).
     * Purpose-built distributed storage refers to a storage layer designed specifically for database workloads, providing high availability, durability, and performance through native replication across three Availability Zones.
+<img width="1264" height="508" alt="image" src="https://github.com/user-attachments/assets/aaaf78c3-0c8d-436a-9ac4-474b3e878b56" />
 
 * **Storage Understanding**
 
