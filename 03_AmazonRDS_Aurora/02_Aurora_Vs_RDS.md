@@ -1,7 +1,5 @@
 # Comparing Amazon RDS (Postgres) and Amazon Aurora (Postgres)
 
-This document provides a **high-level comparison** between Amazon RDS Postgres and Aurora Postgres, covering **storage, read replicas, high availability, disaster recovery, and backups**.
-
 ---
 
 ## 1. Managed Database Overview
