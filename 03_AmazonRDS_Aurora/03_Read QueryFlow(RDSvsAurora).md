@@ -1,185 +1,146 @@
-## 15. Read Query Flow (RDS vs Aurora)
+##  Step-by-Step Read Query Flow (RDS vs Aurora)
 
-This section explains **how SELECT queries are served**, how **read replicas work**, and why **Aurora read latency and consistency behave differently** from RDS PostgreSQL.
+This section explains **how SELECT queries are executed** and how **read consistency, caching, and replication** differ between RDS PostgreSQL and Aurora PostgreSQL.
 
----
-
-## 15.1 Read Query Flow – RDS PostgreSQL
-
-### High-level idea
-
-* Each instance (primary or replica) has:
-
-  * Its **own buffer cache**
-  * Its **own data files**
-* Replicas serve reads **only after WAL replay**
-* Read consistency depends on **replication lag**
+It also clarifies **shared buffer behavior** and why Aurora readers can see fresh data without WAL shipping.
 
 ---
 
-### Step-by-step read flow (SELECT)
+### 1 RDS PostgreSQL Read Flow
 
-1. Application sends a SELECT query
+#### High-Level Idea
+
+* Each database instance (primary or replica) maintains **its own shared buffers** and **local storage (EBS)**.
+* Replication occurs via **WAL shipping and replay**.
+* A read from a replica **may not see the latest committed data** if WAL replay is delayed.
+* PostgreSQL **always loads pages from storage into shared buffers** when they are not already cached.
+
+---
+
+#### Step-by-Step Read Flow
+
+1. Application sends a SELECT query.
 2. Query is routed to:
 
    * Primary instance **or**
-   * A read replica
-3. PostgreSQL checks:
+   * Read replica
+3. PostgreSQL checks **shared buffers** (instance memory cache):
 
-   * Shared buffers (memory cache)
-4. If page is not cached:
-
-   * Reads from **local EBS storage**
-5. Query returns results
+   * **Cache hit:** page is in memory → return rows immediately
+   * **Cache miss:** page is not in memory → fetch from **local EBS storage**
+4. Page is **loaded into shared buffers** for future reads.
+5. Query results are returned to the application.
 
 ---
 
-### Diagram: RDS PostgreSQL Read Flow
+#### Diagram: RDS PostgreSQL Read Flow
 
 ```
 Application
      |
      v
-Read Replica (or Primary)
-  ├── Check shared buffers
+Primary / Read Replica
+  ├── Check shared buffers (memory cache)
   |      ├── Cache hit → return rows
   |      └── Cache miss
+  |            ├── Read from local EBS storage
+  |            └── Load page into shared buffers
   |
-  └── Read from local EBS
-         └── Data files owned by this instance
+  └── Return result to application
 ```
 
 ---
 
-### Important behavior in RDS
+#### Implications
 
-* Each replica:
-
-  * Has its **own cache**
-  * Has its **own disk I/O**
-* Recently committed writes:
-
-  * May **not be visible** yet on replicas
-* Stale reads are possible if:
-
-  * WAL replay is delayed
+* **Read freshness:** Replicas may lag due to WAL replay, so reads may not reflect the latest writes.
+* **CPU / I/O usage:** Each replica must replay WAL to maintain consistency.
+* **Caching:** Shared buffers improve repeated read performance, but are **per instance**, not shared across replicas.
 
 ---
 
-## 15.2 Read Query Flow – Aurora PostgreSQL
+### 2 Aurora PostgreSQL Read Flow
 
-### High-level idea
+#### High-Level Idea
 
-* All DB instances:
-
-  * Share **the same distributed storage**
-* Only caches are per-instance
-* Reads are always from **the same source of truth**
+* Aurora separates **compute from storage**.
+* All instances (writer and readers) share the **same distributed storage**.
+* Replication happens **inside storage**, so **no WAL shipping or replay** is needed for readers.
+* Each instance still maintains a **local buffer cache** for performance.
 
 ---
 
-### Step-by-step read flow (SELECT)
+#### Step-by-Step Read Flow
 
-1. Application sends SELECT query
+1. Application sends a SELECT query.
 2. Query is routed to:
 
    * Writer instance **or**
-   * Any reader instance
-3. PostgreSQL checks:
+   * Reader instance
+3. PostgreSQL checks **local buffer cache**:
 
-   * Local buffer cache
-4. If page is not cached:
-
-   * Reads from **Aurora distributed storage**
-5. Query returns results
+   * **Cache hit:** page is in memory → return rows immediately
+   * **Cache miss:** page is not in memory → fetch from **Aurora distributed storage**
+4. Page is **loaded into the instance’s buffer cache** for future reads.
+5. Query results are returned to the application.
 
 ---
 
-### Diagram: Aurora PostgreSQL Read Flow
+#### Diagram: Aurora PostgreSQL Read Flow
 
 ```
 Application
      |
      v
-Reader or Writer Instance
+Reader / Writer Instance
   ├── Check local buffer cache
   |      ├── Cache hit → return rows
   |      └── Cache miss
+  |            ├── Read from Aurora Distributed Storage
+  |            └── Load page into local buffer cache
   |
-  └── Read from Aurora Distributed Storage
-         └── Same data pages for all instances
+  └── Return result to application
 ```
 
 ---
 
-## 15.3 Read Consistency Comparison
+#### Key Advantages
 
-| Aspect                 | RDS PostgreSQL         | Aurora PostgreSQL          |
-| ---------------------- | ---------------------- | -------------------------- |
-| Source of data         | Instance-local storage | Shared distributed storage |
-| Read replica freshness | Depends on WAL replay  | Near-real-time             |
-| Stale reads possible   | Yes                    | Extremely rare             |
-| Cache ownership        | Per instance           | Per instance               |
-| Disk ownership         | Per instance           | Shared                     |
+* **Fresh reads:** Readers see the latest committed data almost immediately because all instances share the same storage.
+* **No WAL shipping:** Reduces CPU and network overhead.
+* **Read scaling:** Adding more reader instances has minimal replication cost.
+* **Buffer cache:** Improves performance for repeated reads without affecting other instances.
 
 ---
 
-## 15.4 Why Aurora Reads Are Faster and More Consistent
+### 3 Read Consistency and Caching Comparison
 
-### RDS Reads
-
-* Replicas may lag
-* Each replica must:
-
-  * Replay WAL
-  * Maintain its own data files
-* Cache warm-up happens **per replica**
-
----
-
-### Aurora Reads
-
-* No WAL replay
-* Storage already has latest committed data
-* Readers immediately see changes
-* Adding a reader does not increase replication load
+| Feature         | RDS PostgreSQL              | Aurora PostgreSQL                                |
+| --------------- | --------------------------- | ------------------------------------------------ |
+| Source of truth | Instance-local storage      | Shared distributed storage                       |
+| Buffer cache    | Shared buffers per instance | Local buffer per instance                        |
+| Read freshness  | Depends on WAL replay       | Near real-time                                   |
+| Replication     | WAL shipped to replicas     | Storage-level replication                        |
+| Stale reads     | Possible                    | Extremely rare                                   |
+| Scaling reads   | Limited by WAL replay       | Easy to add readers without replication overhead |
 
 ---
 
-## 15.5 Read Scaling Behavior
-
-### RDS PostgreSQL
-
-* Adding replicas:
-
-  * Increases WAL shipping overhead
-  * Increases replay cost
-* Practical limits under heavy writes
-
----
-
-### Aurora PostgreSQL
-
-* Adding replicas:
-
-  * Only adds compute
-  * Does not increase replication overhead
-* Scales reads horizontally with minimal impact
-
----
-
-## 15.6 Read Flow Summary (One-liner)
-
-> **RDS replicas read their own copies of data after replaying WAL, while Aurora readers read the same shared, already-replicated storage.**
-
----
-
-## 15.7 Combined Mental Model (Write + Read)
+### 4 Combined Mental Model (Write + Read)
 
 ```
 RDS PostgreSQL:
-  Write → WAL → Replica → Replay → Read
-
+Write → WAL → Replica → Replay → Read (may lag)
 Aurora PostgreSQL:
-  Write → Storage → Read (no replay)
+Write → Storage → Read (all instances read same storage, no WAL)
 ```
+
+---
+
+### 5 Key Takeaways
+
+* **RDS replicas** have independent copies of data; reads may lag behind writes.
+* **Aurora replicas** read directly from **shared, replicated storage**; reads are almost instant.
+* In both RDS and Aurora, **pages read from storage are loaded into the instance buffer cache** for faster subsequent reads.
+* Aurora avoids **WAL shipping/replay** overhead because **storage itself is authoritative**.
+
