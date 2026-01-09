@@ -1,6 +1,12 @@
 * [Postgres SQL Internal Architecture & Operations Guide](https://github.com/nirajp82/AmazonAuroraPostgreSQL/blob/main/02PostgreSQLFundamentals/01_StorageProcessesQueryProcessing.md?utm_source=chatgpt.com)  
   *  **Storage:** Data is split into 1GB files and 8KB pages.
-  *  **Processes:** Postmaster listens; Backend processes execute queries.
+  *  **Processes:**
+     * **The Postmaster Process:** This is the parent of all processes in the Postgres cluster.
+      - It implements the **TCP Listener** (default port: `5432`).
+      - It manages the startup and shutdown of the database.
+    * **Backend Processes:** When a client connects to the Postmaster, it "forks" (creates) a dedicated **Backend Process**.
+      - This process handles all queries and statements for that specific client.
+      - There is a one-to-one relationship: **1 Client = 1 Backend Process**.
   *  **Query Flow:** Parse  Analyze  Rewrite  Plan  Execute.
   *  **Tuning:** Keep stats updated with `ANALYZE`; check plans with `EXPLAIN`.
   *  **Caching:** Monitor Hit Ratio using the provided script and tune `shared_buffers` accordingly.
