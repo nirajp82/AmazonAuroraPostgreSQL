@@ -27,17 +27,17 @@
   * For write-heavy scaling, consider **sharding** or **commercial multi-master solutions**.
   * PostgreSQL does not provide a native out-of-the-box mechanism for scaling writes across multiple servers.
      
-  * [PostgreSQL Tools, Configuration, and System Catalog](https://github.com/nirajp82/AmazonAuroraPostgreSQL/blob/main/02PostgreSQLFundamentals/05_Tools.md)
-   * **Tools:**
-     * `psql` → command-line SQL client
-     * `pgAdmin` → web-based GUI
-     * `pgBench` → benchmarking tool
-   * **Configuration:**
-     * Managed in `postgresql.conf`
-     * Can be overridden per session or per database/role
-     * Logging controlled by configuration parameters
-   * **System Catalog:**
-     * Schema: `pg_catalog`
-     * Contains metadata for databases, roles, and rules
-     * Important views: `pg_settings`, `pg_roles`, `pg_rules`
-     > These tools and configurations are essential for PostgreSQL administration and performance management. You will use them extensively throughout the course.
+* [PostgreSQL Tools, Configuration, and System Catalog](https://github.com/nirajp82/AmazonAuroraPostgreSQL/blob/main/02PostgreSQLFundamentals/05_Tools.md)
+  * **Tools:**
+    * `psql` → command-line SQL client
+    * `pgAdmin` → web-based GUI
+    * `pgBench` → benchmarking tool
+  * **Configuration:**
+    * Managed in `postgresql.conf`
+    * Can be overridden per session or per database/role
+    * Logging controlled by configuration parameters
+  * **System Catalog:**
+    * Schema: `pg_catalog`
+    * Contains metadata for databases, roles, and rules
+    * Important views: `pg_settings`, `pg_roles`, `pg_rules`
+    > These tools and configurations are essential for PostgreSQL administration and performance management. You will use them extensively throughout the course.
