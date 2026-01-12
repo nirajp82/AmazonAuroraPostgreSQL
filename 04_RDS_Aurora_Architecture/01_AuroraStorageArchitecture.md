@@ -72,6 +72,7 @@ The database engine will propagates logs to the backend storage, and the backend
   * Data is copied from peers
   * **No impact on database availability or performance**
 * This gives Aurora **self-healing storage** capabilities.
+<img width="1021" height="602" alt="image" src="https://github.com/user-attachments/assets/09ec6ad7-490a-4f58-a68a-069e9845d98a" />
 
 ---
 
@@ -83,6 +84,7 @@ The database engine will propagates logs to the backend storage, and the backend
   * Adds additional protection groups as the database grows
 * Maximum storage per Aurora cluster: **128 TB**
 * A collection of protection groups is referred to as the **Aurora cluster volume**.
+<img width="1098" height="573" alt="image" src="https://github.com/user-attachments/assets/44c31fe5-807f-4345-9003-629a3bd92b92" />
 
 ---
 
@@ -92,12 +94,16 @@ The database engine will propagates logs to the backend storage, and the backend
 
   * Multiple compute instances (up to **16**) can attach to the same Aurora storage volume
   * No storage-level replication needed
+ 
+    <img width="997" height="513" alt="image" src="https://github.com/user-attachments/assets/73363aaa-1870-4bb1-8073-4a5e77a23a10" />
+
 * **Multi-tenant:**
 
   * Storage nodes are shared across **multiple independent Aurora clusters**
   * Aurora ensures **data isolation** between clusters
   * Metadata (storage allocation mappings) is managed by Aurora and is **invisible to users**
   * Capacity is **dynamically managed** by AWS
+<img width="1009" height="550" alt="image" src="https://github.com/user-attachments/assets/1f2ed268-46ab-433c-a54e-db5bd5247d73" />
 
 ---
 
