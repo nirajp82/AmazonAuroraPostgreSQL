@@ -13,6 +13,7 @@ In this lesson, we will cover how **Aurora storage works**, including **storage 
   1. **Reducing the number of I/O operations**
   2. **Increasing I/O bandwidth**
 * Aurora targets these challenges by **re-architecting the storage layer** from the ground up.
+<img width="892" height="603" alt="image" src="https://github.com/user-attachments/assets/554e383f-7289-41df-8f0f-694a2c845d03" />
 
 ---
 
