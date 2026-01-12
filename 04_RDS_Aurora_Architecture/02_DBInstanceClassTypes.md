@@ -1,27 +1,27 @@
-# Amazon Aurora – Instance Types & Storage Architecture
+# Amazon Aurora – Database Instances & Storage Architecture
 
 This README covers **Aurora database instance types** and **Aurora storage architecture**, including:
 
-* Traditional DB storage vs Aurora
+* Traditional database storage vs Aurora
 * Burstable vs memory-optimized instances
-* Instance classes and sizes
-* Network & storage bandwidth
+* Instance classes, sizes, and processors
 * Local storage and I/O performance
+* Network and Aurora storage bandwidth
 * Aurora storage nodes, protection groups, and fault tolerance
 * Multi-touch and multi-tenant storage
-* How to select the right instance type and understand storage performance
+* How to select the right instance type for your workload
 
 ---
 
 ## 1. Traditional Database Storage vs Aurora
 
-* **Traditional relational databases** rely on **attached instance storage** or **networked storage** (EBS, SAN)
+* Traditional relational databases rely on **attached instance storage** or **networked storage** (EBS, SAN)
 * Main **performance bottleneck**: I/O operations (IOPS)
 * **Performance improvements** can be achieved by:
 
   1. **Reducing the number of I/O operations**
   2. **Increasing I/O bandwidth**
-* **Aurora targets these challenges** by **re-architecting the storage layer from the ground up**, moving away from traditional attached/networked storage to a **distributed, database-aware storage system**
+* **Aurora addresses these challenges** by re-architecting storage from the ground up into a **distributed, database-aware storage system**
 
 **Memory Hook:**
 
@@ -38,9 +38,9 @@ Aurora provides multiple DB instance types:
 * **Burstable Performance (B-class / t types)**
 
   * Suitable for workloads with **variable CPU usage**
-  * Accumulates **CPU credits** during low utilization
+  * Accumulates **CPU credits** during low utilization periods
   * Spends credits during CPU spikes
-  * Cost-efficient for workloads with **intermittent or unpredictable traffic**
+  * Cost-efficient for workloads with **intermittent traffic**
 
 * **Memory-Optimized (R/X-class / r & x types)**
 
@@ -48,53 +48,56 @@ Aurora provides multiple DB instance types:
   * Ideal for analytics, large tables, and high-concurrency queries
   * Provides **consistent CPU and memory performance**
 
-**Memory-Optimized R Family – Detailed Instance Classes:**
+**Memory Hook:**
+
+> “B-class saves cost with CPU credits; R/X-class gives memory and power”
+
+<img width="1066" height="431" alt="Aurora Instance Types" src="https://github.com/user-attachments/assets/bdc8fa7c-07bc-475b-ae05-1022dc58a26c" />
+
+---
+
+## 3. Memory-Optimized Instance Classes – Detailed
 
 | Instance Class | Processor          | Notes                                                                                                                               |
 | -------------- | ------------------ | ----------------------------------------------------------------------------------------------------------------------------------- |
 | db.r8g         | Graviton4          | Up to 3x more vCPUs & memory than db.r7g; ideal for memory-intensive workloads; AWS Nitro System                                    |
-| db.r7g         | Graviton3          | Memory-intensive workloads; powered by AWS Nitro System                                                                             |
+| db.r7g         | Graviton3          | Memory-intensive workloads; AWS Nitro System                                                                                        |
 | db.r7i         | Intel Xeon 4th Gen | SAP-Certified; memory-intensive workloads; AWS Nitro System                                                                         |
 | db.r6g         | Graviton2          | Memory-intensive workloads; AWS Nitro System                                                                                        |
 | db.r6i         | Intel Xeon 3rd Gen | SAP-Certified; memory-intensive workloads                                                                                           |
 | db.r5          | Intel/AMD          | Memory-intensive applications; improved networking & EBS performance; AWS Nitro System                                              |
 | db.r4          | Intel/AMD          | Supported only for Aurora MySQL 2.x & Aurora PostgreSQL 11/12; not available for I/O-Optimized cluster storage; upgrade recommended |
 
-* **Memory-Optimized X Family – Detailed Instance Classes:**
+**Memory-Optimized X Family:**
 
 | Instance Class | Processor | Notes                                                     |
 | -------------- | --------- | --------------------------------------------------------- |
 | db.x2g         | Graviton2 | Memory-intensive applications; low cost per GiB of memory |
 
-* **Graviton Instances (suffix `g`)**
-
-  * Uses AWS Graviton processor
-  * **Better price/performance** ratio
+* **Graviton suffix (`g`)** indicates AWS Graviton processor → better price/performance
 
 **Memory Hook:**
 
-> “B-class saves cost with CPU credits; R/X-class gives memory and power; `g` = Graviton”
-
-<img width="1066" height="431" alt="Aurora Instance Types" src="https://github.com/user-attachments/assets/bdc8fa7c-07bc-475b-ae05-1022dc58a26c" />
+> “R/X-class = power; `g` = Graviton; B-class = burst”
 
 ---
 
-## 3. Database Instance Classes and Sizes
+## 4. DB Instance Classes and Sizes
 
-* **DB Instance Classes** define:
+* DB instance classes define:
 
-  * Number of vCPUs
-  * Memory size
-  * Maximum network bandwidth
+  * **Number of vCPUs**
+  * **Memory size**
+  * **Maximum network bandwidth**
 
 * **Naming convention:**
 
   * Always starts with `db`
-  * `db.r5` or `db.x1` → Memory-optimized (r/x types)
-  * `db.t3` → Burstable performance
-  * Suffix `g` indicates **Graviton processor**
+  * Memory-optimized → `db.r5`, `db.x1`
+  * Burstable → `db.t3`, `db.t4g`
+  * Graviton suffix → `g`
 
-* **Instance sizes example:**
+* **Instance sizes examples:**
 
   * `r5.8xlarge` = 32 vCPUs, 256 GB RAM, 10 Gbps network
   * `r5.16xlarge` = 64 vCPUs, 512 GB RAM, 20 Gbps network
@@ -107,31 +110,28 @@ Aurora provides multiple DB instance types:
 
 ---
 
-## 4. Local Storage for Instances
+## 5. Local Storage for Instances
 
 * Aurora DB instances require **local storage** for:
 
   * Logs
   * Query processing
   * Temporary database operations
-
-* **EBS volume** is attached automatically based on instance class
-
-* **Users cannot resize EBS** volumes
-
+* **EBS volume** attached automatically based on instance class
+* **Cannot resize** the EBS volume
 * Running out of local storage → **query failures or performance issues**
 
 **Best Practice:**
 
-> Monitor local storage and consider **vertical scaling** if CPU or memory pressure occurs.
+> Monitor local storage and consider **vertical scaling** if CPU or memory pressure occurs
 
 ---
 
-## 5. Instance I/O Performance
+## 6. Instance I/O Performance
 
-* **I/O depends on instance network bandwidth**:
+* I/O depends on **instance network bandwidth**:
 
-  * **Local storage I/O** → EBS bandwidth
+  * **Local storage I/O** → uses EBS bandwidth
   * **Aurora storage I/O** → network to Aurora cluster volume
 
 * Example:
@@ -147,45 +147,64 @@ Aurora provides multiple DB instance types:
 
 ---
 
-## 6. How to Select a DB Instance Type
+## 7. Aurora Storage Architecture
 
-* **Workload Characteristics**:
+* **Distributed storage** of thousands of Aurora storage nodes across multiple AZs
+* **Nodes are database-aware** → can apply WAL records
+* **Storage allocated in 10 GB logical blocks** → called **protection groups**
+* **Data replicated to 6 nodes across 3 AZs** (2 copies per AZ)
+* **Nodes (peers) use gossip protocol** for data consistency
+* **Self-healing** → failing nodes replaced without downtime
+* **Multi-touch** → up to 16 compute instances can attach to same storage volume
+* **Multi-tenant** → storage shared across multiple Aurora clusters with isolation
 
-  * Mostly steady CPU → B-class is cost-efficient
-  * High concurrency / large memory → R/X-class recommended
-
-* **Database Size**:
-
-  * Larger DB → more memory → better caching → fewer I/O bottlenecks
-
-* **Query Characteristics**:
-
-  * Complex joins, filters, analytics → higher CPU & memory required
-
-* **CPU Spikes**:
-
-  * Burstable instances handle temporary spikes
-  * Sustained high CPU → upgrade instance class
-
-* **Instance Availability**:
-
-  * Check **Aurora documentation** for supported **PostgreSQL versions** per instance class and region
-
-**Memory Hook:**
-
-> “Match instance type to CPU, memory, network, PostgreSQL version & storage needs”
+<img width="1012" height="564" alt="Aurora Storage Overview" src="https://github.com/user-attachments/assets/32a84e48-251a-4eec-8371-c0db8ea79f8a" />
 
 ---
 
-## 8. Key Takeaways
+## 8. How to Select a DB Instance Type (Right-Sizing)
 
-* **Instance type** determines vCPU, memory, local storage, network & Aurora storage I/O bandwidth
-* **Burstable instances** = low cost, variable workloads
-* **Memory-optimized instances** = high performance, memory-intensive workloads
-* **Graviton instances** = cost-efficient, high performance
-* **Local storage** = fixed-size EBS attached, monitor usage
-* **Aurora storage** = distributed, database-aware, self-healing, multi-tenant, multi-touch
-* **Vertical scaling** may be needed for large workloads or storage pressure
+1. **Understand workload characteristics**:
+
+   * Max connections
+   * Transactions per second
+   * Query response time
+   * CPU/memory usage pattern
+
+2. **Design a benchmark test**:
+
+   * Mimic real workload as closely as possible
+   * Use custom SQL queries, generate realistic test data
+   * Define max concurrent connections
+
+3. **Run benchmarks iteratively**:
+
+   * Start with burstable if workload allows, otherwise memory-optimized
+   * Gather performance metrics
+   * Adjust instance class or size until performance targets are met
+
+4. **Continuous monitoring & tuning**:
+
+   * Workload and application changes over time
+   * Optimize database engine, application queries, and infrastructure
+
+**Memory Hook:**
+
+> “Right-sizing is continuous: benchmark, monitor, tune”
+
+---
+
+## 9. Key Takeaways
+
+* Instance type determines:
+
+  * vCPU, memory, local storage, network & Aurora storage I/O bandwidth
+* Burstable = low-cost, variable workloads
+* Memory-optimized = high-performance, memory-intensive workloads
+* Graviton = cost-efficient, high-performance
+* Local storage = EBS attached, monitor usage
+* Aurora storage = distributed, database-aware, self-healing, multi-tenant, multi-touch
+* Right-sizing = continuous process
 
 | Feature                  | Key Detail                                                           |
 | ------------------------ | -------------------------------------------------------------------- |
@@ -199,3 +218,4 @@ Aurora provides multiple DB instance types:
 | Instance selection       | Based on workload, query type, DB size, CPU & memory                 |
 
 ---
+Do you want me to do that next?
