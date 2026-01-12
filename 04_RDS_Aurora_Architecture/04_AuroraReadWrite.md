@@ -84,7 +84,7 @@ Aurora storage nodes within a **protection group** form a **quorum group**.
 
 1. Client sends a WRITE request
 2. Database engine processes SQL
-3. Database engine generates **WAL (Write-Ahead Log) records**
+3. Database engine generates **WAL (Write-Ahead Log) records**, The WAL log reord is in 100s of bytes (Insted of the full PostgreSQL Page - 8KB)
 4. WAL records are sent to **all 6 storage nodes**
 5. Database engine enters a **non-blocking wait state**
 6. Storage nodes:
