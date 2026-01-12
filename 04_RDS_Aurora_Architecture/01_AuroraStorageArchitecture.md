@@ -39,6 +39,8 @@ In this lesson, we will cover how **Aurora storage works**, including **storage 
   * Offloads storage processing from compute instances
   * More efficient use of compute resources
   * Reduced latency for database operations
+    
+<img width="1008" height="596" alt="image" src="https://github.com/user-attachments/assets/2f20da4a-ca41-4255-bccf-f7397073d4c7" />
 
 ---
 
@@ -53,6 +55,7 @@ In this lesson, we will cover how **Aurora storage works**, including **storage 
 
   * A lagging node can fetch missing data from peers
   * A recovering node can synchronize its data from peers
+<img width="1015" height="567" alt="image" src="https://github.com/user-attachments/assets/8e6b2731-e1dd-4acb-8f47-65e0dda73aaa" />
 
 ---
 
