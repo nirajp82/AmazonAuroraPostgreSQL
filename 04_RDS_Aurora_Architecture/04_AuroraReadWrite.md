@@ -27,7 +27,7 @@ Aurora storage is **distributed by design**, which introduces challenges that do
 Aurora storage consists of **6 storage nodes across 3 AZs**, and the **database instance communicates with them over the network**.
 
 > More components = higher probability of partial or full failure
-<img width="1051" height="402" alt="image" src="https://github.com/user-attachments/assets/4ce809c4-b213-436a-8761-f456ce0b7398" />
+<img width="585" height="284" alt="image" src="https://github.com/user-attachments/assets/f3b86c43-c150-4128-af5c-9f02821f7a56" />
 
 ---
 
