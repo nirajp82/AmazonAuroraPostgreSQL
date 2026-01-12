@@ -30,6 +30,8 @@ Aurora provides multiple types of DB instances:
 
 ## 2. Database Instance Classes and Sizes
 
+<img width="1057" height="514" alt="image" src="https://github.com/user-attachments/assets/d2cb7279-b718-4475-a56d-0a568bb38dda" />
+
 * **DB Instance Classes** define:
 
   * **Number of vCPUs**
