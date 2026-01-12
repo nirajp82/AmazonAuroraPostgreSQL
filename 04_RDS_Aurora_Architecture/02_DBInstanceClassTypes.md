@@ -19,6 +19,8 @@ Aurora provides multiple types of DB instances:
   * Designed for **memory-intensive, high-performance workloads**.
   * Ideal for analytics, large tables, and high concurrency queries.
   * Provides **consistent CPU and memory performance**.
+ 
+<img width="1066" height="431" alt="image" src="https://github.com/user-attachments/assets/bdc8fa7c-07bc-475b-ae05-1022dc58a26c" />
 
 **Memory Hook:**
 
