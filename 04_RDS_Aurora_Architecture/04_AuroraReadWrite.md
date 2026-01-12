@@ -94,6 +94,8 @@ Aurora storage nodes within a **protection group** form a **quorum group**.
 7. As soon as **4 acknowledgements** are received:
 
    * Database returns **COMMIT SUCCESS** to client
+     <img width="1088" height="588" alt="image" src="https://github.com/user-attachments/assets/3b76e89f-4a0e-4e18-b614-732cc3e0439a" />
+
 
 ### 4.3 Why This Is Fast
 
