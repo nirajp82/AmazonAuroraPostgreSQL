@@ -2,6 +2,8 @@
 
 In this lesson, we will cover how **Aurora storage works**, including **storage nodes, protection groups**, and **fault tolerance mechanisms**. We’ll also explain how Aurora achieves **high availability, scalability, and efficiency** in its storage layer.
 
+The database engine will propagates logs to the backend storage, and the backend storage utilizes a quorum based synchronization scheme to ensure the consistency of the database.
+
 ---
 
 ## 1. Traditional Database Storage vs Aurora
