@@ -26,6 +26,7 @@ The database engine will propagates logs to the backend storage, and the backend
 * **Database compute instances** connect to this storage over the network.
 
   * Network bandwidth is critical, as heavy write traffic directly impacts performance.
+<img width="1012" height="564" alt="image" src="https://github.com/user-attachments/assets/32a84e48-251a-4eec-8371-c0db8ea79f8a" />
 
 ---
 
