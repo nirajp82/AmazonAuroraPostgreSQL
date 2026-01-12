@@ -1,7 +1,5 @@
 # Amazon Aurora – Instance Types & Storage Architecture
 
-This README covers **Aurora database instance types** and **Aurora storage architecture**, including:
-
 * Traditional DB storage vs Aurora
 * Burstable vs memory-optimized instances
 * Instance classes and sizes
