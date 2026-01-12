@@ -45,7 +45,7 @@ In a traditional synchronous distributed write model:
 ### 2.2 Problems with This Model
 
 * Database performance depends on the **slowest node**
-* Any node failure or network delay blocks writes
+* Any node failure or network delay blocks writes(1 of out of 6 node has issue entire transaction will fail)
 * Partial failures cause transaction failures
 * Poor tail latency
 
