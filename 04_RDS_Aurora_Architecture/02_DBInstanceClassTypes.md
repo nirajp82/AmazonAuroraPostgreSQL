@@ -76,8 +76,8 @@ Aurora provides multiple DB instance types:
 
 * **Instance sizes example:**
 
-  * `r5.8xlarge` = 32 vCPUs, 256 GB RAM, 10 Gbps network
-  * `r5.16xlarge` = 64 vCPUs, 512 GB RAM, 20 Gbps network
+<img width="1211" height="553" alt="image" src="https://github.com/user-attachments/assets/af33b202-0822-499d-b6a2-520d4a32fab1" />
+
 
 **Memory Hook:**
 
