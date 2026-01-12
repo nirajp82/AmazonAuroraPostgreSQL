@@ -1,5 +1,7 @@
 # Amazon Aurora – Instance Types & Storage Architecture
 
+This README covers **Aurora database instance types** and **Aurora storage architecture**, including:
+
 * Traditional DB storage vs Aurora
 * Burstable vs memory-optimized instances
 * Instance classes and sizes
@@ -46,6 +48,24 @@ Aurora provides multiple DB instance types:
   * Ideal for analytics, large tables, and high-concurrency queries
   * Provides **consistent CPU and memory performance**
 
+**Memory-Optimized R Family – Detailed Instance Classes:**
+
+| Instance Class | Processor          | Notes                                                                                                                               |
+| -------------- | ------------------ | ----------------------------------------------------------------------------------------------------------------------------------- |
+| db.r8g         | Graviton4          | Up to 3x more vCPUs & memory than db.r7g; ideal for memory-intensive workloads; AWS Nitro System                                    |
+| db.r7g         | Graviton3          | Memory-intensive workloads; powered by AWS Nitro System                                                                             |
+| db.r7i         | Intel Xeon 4th Gen | SAP-Certified; memory-intensive workloads; AWS Nitro System                                                                         |
+| db.r6g         | Graviton2          | Memory-intensive workloads; AWS Nitro System                                                                                        |
+| db.r6i         | Intel Xeon 3rd Gen | SAP-Certified; memory-intensive workloads                                                                                           |
+| db.r5          | Intel/AMD          | Memory-intensive applications; improved networking & EBS performance; AWS Nitro System                                              |
+| db.r4          | Intel/AMD          | Supported only for Aurora MySQL 2.x & Aurora PostgreSQL 11/12; not available for I/O-Optimized cluster storage; upgrade recommended |
+
+* **Memory-Optimized X Family – Detailed Instance Classes:**
+
+| Instance Class | Processor | Notes                                                     |
+| -------------- | --------- | --------------------------------------------------------- |
+| db.x2g         | Graviton2 | Memory-intensive applications; low cost per GiB of memory |
+
 * **Graviton Instances (suffix `g`)**
 
   * Uses AWS Graviton processor
@@ -76,8 +96,8 @@ Aurora provides multiple DB instance types:
 
 * **Instance sizes example:**
 
-<img width="1211" height="553" alt="image" src="https://github.com/user-attachments/assets/af33b202-0822-499d-b6a2-520d4a32fab1" />
-
+  * `r5.8xlarge` = 32 vCPUs, 256 GB RAM, 10 Gbps network
+  * `r5.16xlarge` = 64 vCPUs, 512 GB RAM, 20 Gbps network
 
 **Memory Hook:**
 
@@ -127,53 +147,7 @@ Aurora provides multiple DB instance types:
 
 ---
 
-## 6. Aurora Storage Architecture
-
-Aurora uses **distributed, database-aware storage** instead of traditional attached storage:
-
-* **Storage nodes**:
-
-  * Thousands of nodes across **multiple AZs**
-  * Each node contains **high-performance SSD** (IO1/IO2)
-  * **Database-aware**: understands Postgres pages/blocks and applies WAL records
-
-* **Protection groups**:
-
-  * Storage allocated in **10 GB blocks**
-  * Data replicated across **6 nodes in 3 AZs (2 copies per AZ)**
-  * Nodes in a group are **peers**
-  * **Peer-to-peer gossip protocol** ensures data consistency
-  * Lagging/recovering nodes fetch missing data from peers
-
-* **Fault tolerance & self-healing**:
-
-  * Continuous node health monitoring
-  * Detects performance degradation or failure
-  * **Proactively replaces failing nodes** with healthy ones
-  * Data copied from peers with **zero impact on database availability**
-
-* **Auto-scaling storage**:
-
-  * Adds new protection groups as data grows
-  * Maximum cluster storage = 128 TB
-  * Collection of protection groups = **Aurora cluster volume**
-
-* **Multi-touch & Multi-tenant**:
-
-  * Up to **16 compute instances** can attach to the same storage volume
-  * Storage nodes are shared across multiple clusters
-  * Aurora ensures **data isolation and metadata management**
-  * Capacity managed automatically by AWS
-
-**Memory Hook:**
-
-> “Aurora storage is self-healing, multi-tenant, multi-touch, and scales automatically”
-
-<img width="1021" height="602" alt="Aurora Storage Nodes & Protection Groups" src="https://github.com/user-attachments/assets/09ec6ad7-490a-4f58-a68a-069e9845d98a" />
-
----
-
-## 7. How to Select a DB Instance Type
+## 6. How to Select a DB Instance Type
 
 * **Workload Characteristics**:
 
