@@ -13,8 +13,10 @@ Amazon Aurora PostgreSQL is **not a direct mirror** of the community PostgreSQL 
 
 ### Example
 
-* Community PostgreSQL version: **12.4**
-* Aurora PostgreSQL engine version: **4.4.2**
+*  ```SELECT Version()```
+  * Community PostgreSQL version: **12.4**
+* ```SELECT Aurora_Version()```
+  * Aurora PostgreSQL engine version: **4.4.2**
 
 Even though Aurora is compatible with PostgreSQL, the **version numbers are different**, and this distinction must be kept in mind when planning upgrades or enabling features.
 
