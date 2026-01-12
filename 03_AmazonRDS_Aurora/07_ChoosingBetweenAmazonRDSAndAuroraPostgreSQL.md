@@ -1,5 +1,146 @@
 # Choosing Between Amazon RDS for PostgreSQL and Aurora PostgreSQL
 
+# RDS PostgreSQL vs Aurora PostgreSQL – Decision Guide
+
+## 1. Quick Decision Table
+
+| Criteria                      | RDS for PostgreSQL                | Aurora PostgreSQL                   | Choose This When…                        |
+| ----------------------------- | --------------------------------- | ----------------------------------- | ---------------------------------------- |
+| **Max Database Size**         | Up to **64 TB**                   | Up to **128 TB**                    | DB > 64 TB → **Aurora**                  |
+| **Max IOPS**                  | ~**80,000 IOPS** (EBS dependent)  | No hard limit (instance dependent)  | IOPS > 80K → **Aurora**                  |
+| **Instance Types**            | Wider range (incl. smaller sizes) | Limited but optimized               | Need specific/smaller instance → **RDS** |
+| **Read Replicas**             | Up to **5**                       | Up to **15**                        | >5 replicas → **Aurora**                 |
+| **Replication Mechanism**     | PostgreSQL streaming replication  | Storage-level replication           | Need ultra-low lag → **Aurora**          |
+| **Replica Lag**               | Seconds (up to ~30s worst case)   | < 100 ms                            | Low-latency reads → **Aurora**           |
+| **Failover Time**             | 60–120 seconds                    | ~30 seconds                         | Fast failover → **Aurora**               |
+| **Post-Failover Performance** | Cache may be cold                 | Warm cache (Cluster Cache Mgmt)     | No perf drop allowed → **Aurora**        |
+| **Cross-Region DR**           | Read replicas (manual recovery)   | Global Database (<1s lag)           | Low RPO/RTO → **Aurora**                 |
+| **Advanced Features**         | Limited                           | Serverless, Global DB, Cloning, QPM | Need advanced features → **Aurora**      |
+| **Cost Predictability**       | High                              | Variable (I/O + storage growth)     | Fixed cost needed → **RDS**              |
+| **Migration Flexibility**     | Easy to move to Aurora            | Easy to move back                   | Both                                     |
+
+---
+
+## 2. Step-by-Step Decision Checklist
+
+Use this checklist from top to bottom 👇
+
+### Step 1: Database Size
+
+* ❓ Will the database exceed **64 TB**?
+
+  * ✅ Yes → **Aurora**
+  * ❌ No → Continue
+
+---
+
+### Step 2: Performance (IOPS)
+
+* ❓ Do you need **more than 80,000 IOPS**?
+
+  * ✅ Yes → **Aurora**
+  * ❌ No → Continue
+
+---
+
+### Step 3: Read Scaling
+
+* ❓ Do you need **more than 5 read replicas**?
+
+  * ✅ Yes → **Aurora**
+  * ❌ No → Continue
+
+* ❓ Do you need **replica lag < 100 ms**?
+
+  * ✅ Yes → **Aurora**
+  * ❌ No → Continue
+
+---
+
+### Step 4: High Availability & Failover
+
+* ❓ Must failover complete in **< 30 seconds**?
+
+  * ✅ Yes → **Aurora**
+  * ❌ No → Continue
+
+* ❓ Is **any performance degradation after failover unacceptable**?
+
+  * ✅ Yes → **Aurora (Cluster Cache Management)**
+  * ❌ No → Continue
+
+---
+
+### Step 5: Disaster Recovery
+
+* ❓ Do you need **very low RPO/RTO for region-wide failures**?
+
+  * ✅ Yes → **Aurora Global Database**
+  * ❌ No → Continue
+
+* ❓ Are **manual DR steps acceptable**?
+
+  * ✅ Yes → **RDS**
+  * ❌ No → **Aurora**
+
+---
+
+### Step 6: Feature Requirements
+
+* ❓ Do you need any of the following?
+
+  * Global Databases
+
+  * Serverless scaling
+
+  * Fast database cloning
+
+  * Query Plan Management
+
+  * Cluster cache warm failover
+
+  * ✅ Yes → **Aurora**
+
+  * ❌ No → Continue
+
+---
+
+### Step 7: Cost Considerations
+
+* ❓ Do you require **fixed and predictable database costs**?
+
+  * ✅ Yes → **RDS PostgreSQL**
+  * ❌ No → **Aurora PostgreSQL**
+
+---
+
+## 3. Simple Rule of Thumb
+
+* **Choose RDS PostgreSQL when:**
+
+  * Workload is moderate
+  * Cost predictability matters
+  * Fewer replicas are sufficient
+  * Slightly slower failover is acceptable
+
+* **Choose Aurora PostgreSQL when:**
+
+  * High scale or high performance is required
+  * Very low replica lag is needed
+  * Fast failover is critical
+  * Global disaster recovery is required
+  * Advanced database features add value
+
+---
+
+## 4. Final Note
+
+* Moving **from RDS PostgreSQL to Aurora** (or back) is **straightforward**
+* Start with what fits your **current needs**
+* Optimize later as your workload evolves
+
+----
+
 Once you decide to use a **managed PostgreSQL service on AWS**, the next key decision is whether to use:
 
 * **Amazon RDS for PostgreSQL**
@@ -226,147 +367,3 @@ An important point to note:
 
 * Choose the option that best fits your **current requirements**
 * Switching later is **not difficult**
-
----
-
-# RDS PostgreSQL vs Aurora PostgreSQL – Decision Guide
-
-## 1. Quick Decision Table
-
-| Criteria                      | RDS for PostgreSQL                | Aurora PostgreSQL                   | Choose This When…                        |
-| ----------------------------- | --------------------------------- | ----------------------------------- | ---------------------------------------- |
-| **Max Database Size**         | Up to **64 TB**                   | Up to **128 TB**                    | DB > 64 TB → **Aurora**                  |
-| **Max IOPS**                  | ~**80,000 IOPS** (EBS dependent)  | No hard limit (instance dependent)  | IOPS > 80K → **Aurora**                  |
-| **Instance Types**            | Wider range (incl. smaller sizes) | Limited but optimized               | Need specific/smaller instance → **RDS** |
-| **Read Replicas**             | Up to **5**                       | Up to **15**                        | >5 replicas → **Aurora**                 |
-| **Replication Mechanism**     | PostgreSQL streaming replication  | Storage-level replication           | Need ultra-low lag → **Aurora**          |
-| **Replica Lag**               | Seconds (up to ~30s worst case)   | < 100 ms                            | Low-latency reads → **Aurora**           |
-| **Failover Time**             | 60–120 seconds                    | ~30 seconds                         | Fast failover → **Aurora**               |
-| **Post-Failover Performance** | Cache may be cold                 | Warm cache (Cluster Cache Mgmt)     | No perf drop allowed → **Aurora**        |
-| **Cross-Region DR**           | Read replicas (manual recovery)   | Global Database (<1s lag)           | Low RPO/RTO → **Aurora**                 |
-| **Advanced Features**         | Limited                           | Serverless, Global DB, Cloning, QPM | Need advanced features → **Aurora**      |
-| **Cost Predictability**       | High                              | Variable (I/O + storage growth)     | Fixed cost needed → **RDS**              |
-| **Migration Flexibility**     | Easy to move to Aurora            | Easy to move back                   | Both                                     |
-
----
-
-## 2. Step-by-Step Decision Checklist
-
-Use this checklist from top to bottom 👇
-
-### Step 1: Database Size
-
-* ❓ Will the database exceed **64 TB**?
-
-  * ✅ Yes → **Aurora**
-  * ❌ No → Continue
-
----
-
-### Step 2: Performance (IOPS)
-
-* ❓ Do you need **more than 80,000 IOPS**?
-
-  * ✅ Yes → **Aurora**
-  * ❌ No → Continue
-
----
-
-### Step 3: Read Scaling
-
-* ❓ Do you need **more than 5 read replicas**?
-
-  * ✅ Yes → **Aurora**
-  * ❌ No → Continue
-
-* ❓ Do you need **replica lag < 100 ms**?
-
-  * ✅ Yes → **Aurora**
-  * ❌ No → Continue
-
----
-
-### Step 4: High Availability & Failover
-
-* ❓ Must failover complete in **< 30 seconds**?
-
-  * ✅ Yes → **Aurora**
-  * ❌ No → Continue
-
-* ❓ Is **any performance degradation after failover unacceptable**?
-
-  * ✅ Yes → **Aurora (Cluster Cache Management)**
-  * ❌ No → Continue
-
----
-
-### Step 5: Disaster Recovery
-
-* ❓ Do you need **very low RPO/RTO for region-wide failures**?
-
-  * ✅ Yes → **Aurora Global Database**
-  * ❌ No → Continue
-
-* ❓ Are **manual DR steps acceptable**?
-
-  * ✅ Yes → **RDS**
-  * ❌ No → **Aurora**
-
----
-
-### Step 6: Feature Requirements
-
-* ❓ Do you need any of the following?
-
-  * Global Databases
-
-  * Serverless scaling
-
-  * Fast database cloning
-
-  * Query Plan Management
-
-  * Cluster cache warm failover
-
-  * ✅ Yes → **Aurora**
-
-  * ❌ No → Continue
-
----
-
-### Step 7: Cost Considerations
-
-* ❓ Do you require **fixed and predictable database costs**?
-
-  * ✅ Yes → **RDS PostgreSQL**
-  * ❌ No → **Aurora PostgreSQL**
-
----
-
-## 3. Simple Rule of Thumb
-
-* **Choose RDS PostgreSQL when:**
-
-  * Workload is moderate
-  * Cost predictability matters
-  * Fewer replicas are sufficient
-  * Slightly slower failover is acceptable
-
-* **Choose Aurora PostgreSQL when:**
-
-  * High scale or high performance is required
-  * Very low replica lag is needed
-  * Fast failover is critical
-  * Global disaster recovery is required
-  * Advanced database features add value
-
----
-
-## 4. Final Note
-
-* Moving **from RDS PostgreSQL to Aurora** (or back) is **straightforward**
-* Start with what fits your **current needs**
-* Optimize later as your workload evolves
-
-
-
