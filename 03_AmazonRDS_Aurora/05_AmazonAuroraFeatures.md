@@ -25,7 +25,8 @@ Aurora Global Database is designed for **globally distributed applications**. It
 * Disaster recovery for **region-wide outages**
 * Applications requiring **very low RTO (Recovery Time Objective) and RPO (Recovery Point Objective)**
 * Applications needing **fast read access across multiple regions**
-
+<img width="1888" height="616" alt="image" src="https://github.com/user-attachments/assets/144d401a-f85d-4445-828e-55c35d54cd71" />
+https://aws.amazon.com/blogs/industries/amazon-aurora-for-core-banking-systems/ 
 ---
 
 ## 2. Aurora Serverless
