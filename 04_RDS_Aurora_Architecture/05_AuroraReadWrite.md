@@ -179,6 +179,7 @@ This is the **most critical difference** between Aurora and traditional PostgreS
 3. Higher CPU and network overhead
 
 > Correct, but expensive
+<img width="1085" height="510" alt="image" src="https://github.com/user-attachments/assets/362ef7ce-b08f-44aa-b4f1-966b3155a974" />
 
 ---
 
