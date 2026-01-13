@@ -44,7 +44,7 @@ Key points:
 * Nodes are designed to be **easily rebuilt**
 
 > A storage node is a **mini storage engine** that understands redo, not SQL.
-<img width="2300" height="1448" alt="image" src="https://github.com/user-attachments/assets/e9a835c9-b2db-477f-ae63-2bb24b878de3" />
+<img width="1478" height="912" alt="image" src="https://github.com/user-attachments/assets/bd779a40-8892-41d7-89b3-d7f11aea72c1" />
 
 ---
 
