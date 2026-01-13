@@ -47,6 +47,7 @@ The **AZ+1 model** defines the **maximum fault tolerance** for an Aurora cluster
 * Plus **one additional node fails in the remaining AZs**
 
 > While the probability of this scenario is low, it is **not zero**, so planning is essential.
+<img width="1175" height="500" alt="image" src="https://github.com/user-attachments/assets/806ccea0-c930-4ef4-9280-546652dd42a8" />
 
 ---
 
