@@ -109,9 +109,6 @@ are attached via:
 * Storage access
 
 ---
-
-### Clarification (Transcript Correction)
-
 * EBS and Aurora storage are **network-attached**
 * Network health directly impacts storage performance
 
@@ -197,12 +194,6 @@ Enhanced Monitoring provides:
 Enhanced monitoring metrics are stored in **CloudWatch Logs**
 
 ---
-
-### Clarification (Transcript Cleanup)
-
-> “allows the gathering of highly granular OS level metrics”
-
-✔️ Correct:
 
 * Standard CloudWatch → coarse metrics (1–5 min)
 * Enhanced Monitoring → fine-grained OS metrics (seconds)
