@@ -169,7 +169,7 @@ This is the **most critical difference** between Aurora and traditional PostgreS
 
 ### 8.1 Quorum Read Rule
 
-* Read quorum = **3 of 6 nodes**
+* Read quorum = **3 of 6 nodes**(Requires 3 of 6 nodes provides consistent data)
 * Tolerates **up to 3 node failures**
 
 ### 8.2 Why Quorum Reads Are Expensive
