@@ -56,6 +56,7 @@ Aurora storage is **shared across all DB instances**, so:
 So why replicate at all?
 
 ### The Real Problem: Buffer Cache Inconsistency
+<img width="1097" height="506" alt="image" src="https://github.com/user-attachments/assets/948fa63f-b160-4cd6-9ade-bfc013ad4c35" />
 
 Each Aurora DB instance (primary and replicas):
 
