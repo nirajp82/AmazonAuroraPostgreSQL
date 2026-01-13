@@ -203,6 +203,7 @@ Aurora tracks:
 5. Returns result
 
 > Minimal overhead, consistent results
+<img width="1127" height="612" alt="image" src="https://github.com/user-attachments/assets/c920d5ba-6f96-479f-a5bc-3e1e7b628cec" />
 
 ### 9.3 When Quorum Reads Are Used
 
