@@ -112,10 +112,6 @@ are attached via:
 
 ### Clarification (Transcript Correction)
 
-> “Both the local EBS volume and the Aurora cluster volume are attached to the virtual machine or the network”
-
-✔️ Correct meaning:
-
 * EBS and Aurora storage are **network-attached**
 * Network health directly impacts storage performance
 
