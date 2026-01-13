@@ -143,6 +143,14 @@ In traditional PostgreSQL:
 In Aurora:
 
 * WAL is **never written to local disk**
+  - * WAL records are still generated (redo/XLog) - “Aurora uses WAL logic, not WAL files”)
+  - * But they are:
+      - Generated in memory
+      - Sent directly to storage nodes
+      - Storage nodes apply redo immediately → pages always current
+      - Streamed to S3 for backups
+      - Checkpoints are not needed
+      - Crash recovery is fast
 * Redo is shipped directly from memory to storage
 * Storage nodes apply redo immediately
 
