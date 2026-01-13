@@ -105,6 +105,7 @@ Aurora replication exists **only** to keep **buffer caches consistent**.
    * Sends page changes to replicas
 7. Replica updates its buffer cache
 8. Replicas become **eventually consistent**
+<img width="1092" height="514" alt="image" src="https://github.com/user-attachments/assets/200e95ef-411c-43bb-b45b-79ec31ef8dda" />
 
 ---
 
