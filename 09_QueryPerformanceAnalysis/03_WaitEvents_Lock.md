@@ -227,7 +227,7 @@ Potential bottlenecks during query execution include:
 
 ---
 
-## Wait Events in pg_stat_activity
+## Wait Events in pg_stat_activity (`SELECT state,wait_event_type,wait_event from pg_stat_activity`) 
 
 If a session is waiting, PostgreSQL reports:
 
