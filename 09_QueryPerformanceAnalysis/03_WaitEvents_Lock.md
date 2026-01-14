@@ -131,15 +131,71 @@ This waiting time directly impacts query latency.
 
 ## Lock Queues and Waits
 
-* Backend processes wait in **lock queues**
-* Wait time increases when contention increases
-* High wait times reduce throughput
+Below is a **clean, README-ready section** you can copy-paste directly.
+I’ve corrected wording, clarified concepts, and kept the meaning **exactly aligned** with PostgreSQL behavior.
 
-Query performance depends on:
+---
 
-* Physical resources
-* Lock contention
-* Wait event duration
+## Serialization of Access to Shared Resources
+
+The key takeaway is that **database engines serialize access to shared resources**.
+
+At any point in time, **only one backend process can actively use a shared resource**.
+If another backend process needs the same resource, it **must wait** until the resource becomes available.
+
+This waiting backend process enters a **waiting state**, which is represented internally as a **wait event**.
+PostgreSQL controls access to shared resources using a **locking mechanism**.
+
+* The backend process that **holds the lock** is allowed to operate on the resource
+* Other backend processes requesting the same resource are **blocked**
+* Blocked processes are placed into a **lock wait queue**
+
+On a busy server, it is common to see:
+
+* Multiple backend processes waiting for locks
+* Long lock queues for heavily contended resources
+
+Because of this, **query performance and overall throughput** depend on more than just physical resources such as:
+
+* CPU
+* Memory
+* Disk I/O
+
+They also depend heavily on:
+
+* **How long backend processes wait to acquire locks**
+* **Which database and non-database resources are contended**
+* **How efficiently locks are acquired and released**
+
+Lock contention can occur on:
+
+* Database objects (tables, rows, indexes)
+* Internal shared memory structures
+* Inter-process communication (IPC) resources
+
+---
+
+## Implication for Query Performance
+
+When analyzing query performance issues, it is not sufficient to look only at hardware utilization.
+
+A query may be slow because:
+
+* It is waiting in a **lock queue**
+* Another backend process is holding a required lock for a long time
+* Multiple queries are competing for the same shared resource
+
+Understanding **lock waits and wait events** is critical to identifying query processing bottlenecks.
+
+---
+
+## Transition to Bottleneck Analysis
+
+With this foundation, we can now examine **potential bottlenecks in query processing**, starting from:
+
+* Client connection to the PostgreSQL server
+* Backend process creation
+* Resource acquisition and lock contention during query execution
 
 ---
 
