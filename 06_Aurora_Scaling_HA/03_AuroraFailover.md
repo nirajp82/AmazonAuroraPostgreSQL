@@ -65,7 +65,10 @@ In a **multi-instance cluster**, each replica has a **promotion priority** (also
 
 * Aurora uses this priority to decide **which replica becomes the new primary** during failover
 * Replicas with higher priority are promoted first
+* <img width="1026" height="598" alt="image" src="https://github.com/user-attachments/assets/3b58b37f-4914-4ba9-b693-e2bcea91a990" />
+
 * If the highest-priority replica is unavailable, Aurora selects the next eligible replica
+<img width="1035" height="615" alt="image" src="https://github.com/user-attachments/assets/e555db75-245f-43e6-841a-b743edc73e68" />
 
 This allows controlled and predictable failover behavior.
 
