@@ -34,6 +34,7 @@ Aurora provides **two types of parameter groups**:
 * Each instance may have **different resources**.
 * Max connections can be tuned per instance using a **DB instance parameter group**.
 * Formulas can calculate max connections **dynamically** based on instance memory or CPU.
+<img width="977" height="579" alt="image" src="https://github.com/user-attachments/assets/9a477c2c-057e-4202-a683-e52bb174b9ed" />
 
 ---
 
