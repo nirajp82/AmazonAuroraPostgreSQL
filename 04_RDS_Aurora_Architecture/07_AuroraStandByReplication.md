@@ -70,32 +70,58 @@ This means:
 
 ---
 
-Understood 👍
-Here is the **correct text**, written in the **same format**, clean and README-ready, with **no mention of what was wrong**.
+Below is a **clean, correct, README-ready rewrite**, smaller and clearer, focused only on **how Aurora keeps replica shared buffers consistent**, with no extra commentary.
 
 ---
 
-## Aurora Replication
+## Aurora Replica Buffer Cache Consistency
 
-Aurora replication keeps database instances consistent by replicating **changes at the storage layer**, not by sharing memory.
+**(Log-Based Cache Invalidation)**
 
-## What Aurora Replication Does
+In Amazon Aurora PostgreSQL, replicas do not share buffer cache memory with the writer.
+To prevent **stale data in replica shared buffers**, Aurora uses **log-based cache invalidation**.
 
-* Propagates **redo records** for page-level changes
-* Writes changes **directly to shared distributed storage**
-* Makes committed data visible to replicas with low latency
-* Enables fast failover using already-synchronized storage
+Even though all instances read from the same shared storage, each instance maintains its **own buffer cache in memory**. Aurora uses the log stream to keep cached pages consistent.
 
-## What Aurora Replication Does NOT Do
+## How It Works
 
-❌ Does not replicate buffer cache contents
-❌ Does not copy memory pages between instances
-❌ Does not use traditional WAL shipping between instances
-❌ Does not perform disk-to-disk replication between instances
+### 1. Log Records Are Sent, Not Data Pages
+
+* When the writer modifies a page, it generates **redo log records**
+* These log records are sent to reader instances
+* Pages themselves are **not transferred**
+* Storage already contains the durable version of the data
+
+### 2. Replica Checks Its Buffer Cache
+
+When a reader receives a log record:
+
+* **If the page is NOT in the buffer cache**
+
+  * The log record is ignored
+  * Next read fetches the updated page directly from shared storage
+
+* **If the page IS in the buffer cache**
+
+  * The log record is applied to the cached page
+  * This keeps the in-memory copy consistent with storage
+
+### 3. Metadata Consistency
+
+* Catalog and metadata changes are also propagated via the log stream
+* Ensures replicas have a consistent view of schemas and structures
+
+## What This Achieves
+
+* Prevents stale pages in replica shared buffers
+* Avoids disk I/O on replicas
+* Keeps replication lag very low
+* Enables fast and safe failover
 
 ## Summary (Memory Hook)
 
-> **Aurora replicates data at the shared storage layer; each instance maintains its own buffer cache.**
+> **Aurora uses redo logs to invalidate or update cached pages on replicas; buffer caches are updated only if the page is already in memory.**
+
 
 ---
 
