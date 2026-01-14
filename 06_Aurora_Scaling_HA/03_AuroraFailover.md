@@ -84,6 +84,8 @@ The impact of a failure depends on the cluster configuration.
 * Primary instance failure causes a **database outage**
 * Recovery requires restarting or replacing the instance
 * Application downtime is **longer**
+* Recoery may take up to 10 minutes
+<img width="1036" height="578" alt="image" src="https://github.com/user-attachments/assets/42484ecb-596e-43ba-b361-6beb06b7b960" />
 
 ### Multi-Instance Cluster
 
