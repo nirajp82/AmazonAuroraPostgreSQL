@@ -169,4 +169,5 @@ This section focuses on understanding **query performance bottlenecks** in Postg
 * Minimal for most workloads. `pg_stat_statements` adds slight overhead, but benefits usually outweigh cost.
 
 ---
+<img width="1536" height="1024" alt="image" src="https://github.com/user-attachments/assets/6afd8655-2f3b-4abc-b1fa-d68b5581cc18" />
 
