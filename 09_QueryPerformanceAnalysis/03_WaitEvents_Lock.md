@@ -125,6 +125,7 @@ PostgreSQL **serializes access** to many of these resources using locks.
 * Waiting process resumes execution
       
 This waiting time directly impacts query latency.
+<img width="1261" height="563" alt="image" src="https://github.com/user-attachments/assets/3f38f2e8-f8fa-46bf-be1a-159bcb0624de" />
 
 ---
 
@@ -162,7 +163,6 @@ Potential bottlenecks during query execution include:
 * Slow disk IO
 
 ### 4. Shared Resource Locks
-<img width="1261" height="563" alt="image" src="https://github.com/user-attachments/assets/3f38f2e8-f8fa-46bf-be1a-159bcb0624de" />
 
 * Shared buffers
 * IPC queues
