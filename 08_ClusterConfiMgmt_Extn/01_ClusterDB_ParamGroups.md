@@ -25,7 +25,7 @@ Aurora provides **two types of parameter groups**:
 | Type                            | Scope / Description                       | Examples                              |
 | ------------------------------- | ----------------------------------------- | ------------------------------------- |
 | **Cluster Parameter Group**     | Applies to **all instances** in a cluster | Port number, Time zone                |
-| **DB Instance Parameter Group** | Applies to **individual instances**       | Max connections, Work memory settings |
+| **DB Instance Parameter Group** | Applies to **individual instances**       | Max DB connections, Work memory settings |
 
 > **Memory Hook:** Cluster = global settings, DB Instance = instance-specific settings
 
