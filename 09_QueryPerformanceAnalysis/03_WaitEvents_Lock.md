@@ -170,6 +170,7 @@ Potential bottlenecks during query execution include:
 
 * Extensions run **synchronously** inside backend process
 * Slow extensions directly slow query execution
+<img width="1101" height="567" alt="image" src="https://github.com/user-attachments/assets/75d1abf0-d1a4-485c-8b1b-f306ade16fdf" />
 
 ---
 
