@@ -67,6 +67,7 @@ Default Parameter Group < Cluster Parameter Group < DB Instance Parameter Group 
 4. Apply the custom group to clusters or instances
 <img width="1144" height="406" alt="image" src="https://github.com/user-attachments/assets/a4a5a019-2477-4628-b59e-2978987d2aaf" />
 <img width="1085" height="575" alt="image" src="https://github.com/user-attachments/assets/6d85d9d4-10e7-477a-9d98-1013d6848d4e" />
+<img width="1737" height="659" alt="image" src="https://github.com/user-attachments/assets/9581dab8-658b-4c28-bf75-53662e87e8b1" />
 
 **Application Notes:**
 
