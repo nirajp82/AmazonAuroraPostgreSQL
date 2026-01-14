@@ -123,3 +123,11 @@ Yes. Use the `SCHEMA` option when creating the extension; otherwise, it defaults
 > **Memory Hook:**
 > Extensions = **Plug-and-Play Features for PostgreSQL**
 > Only load what you need, no access to server required on Aurora, modular and safe.
+>
+---
+<img width="1075" height="555" alt="image" src="https://github.com/user-attachments/assets/ed53ab77-bfe8-41d6-9bee-7df39600c71e" />
+
+<img width="1136" height="277" alt="image" src="https://github.com/user-attachments/assets/56b3eda4-84ea-4a8e-8ba2-292e7f9232a7" />
+
+
+
