@@ -13,6 +13,7 @@ A poorly performing query:
 On a busy database server, **multiple backend processes execute queries in parallel**, all competing for the same shared resources. PostgreSQL serializes access to critical resources to maintain **data consistency and isolation**, which introduces waits.
 
 Understanding *where* a query is waiting is the key to fixing performance issues.
+<img width="1268" height="595" alt="image" src="https://github.com/user-attachments/assets/847a51eb-4e10-4cf2-9eea-bcf68138b870" />
 
 ---
 
