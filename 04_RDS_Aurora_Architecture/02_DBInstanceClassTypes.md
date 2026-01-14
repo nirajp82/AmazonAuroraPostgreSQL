@@ -216,6 +216,3 @@ Aurora provides multiple DB instance types:
 | I/O performance          | Depends on network and instance class                                |
 | Aurora storage           | Distributed, database-aware, self-healing, multi-tenant, multi-touch |
 | Instance selection       | Based on workload, query type, DB size, CPU & memory                 |
-
----
-Do you want me to do that next?
