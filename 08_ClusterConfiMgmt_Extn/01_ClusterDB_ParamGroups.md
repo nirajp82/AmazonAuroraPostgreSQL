@@ -65,6 +65,7 @@ Default Parameter Group < Cluster Parameter Group < DB Instance Parameter Group 
 2. Select **DB engine family**
 3. All parameters are initially set to default values
 4. Apply the custom group to clusters or instances
+<img width="1144" height="406" alt="image" src="https://github.com/user-attachments/assets/a4a5a019-2477-4628-b59e-2978987d2aaf" />
 
 **Application Notes:**
 
