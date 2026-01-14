@@ -240,5 +240,6 @@ max_connections = LEAST( {DBInstanceClassMemory} / 9531392 , 5000 )
 > Default → Cluster → Instance → Formula → **Effective DB behavior**
 
 ---
+<img width="1825" height="554" alt="image" src="https://github.com/user-attachments/assets/4714ea0f-b16a-4bb7-af91-c34a2073f8f1" />
 
 
