@@ -13,7 +13,6 @@ A poorly performing query:
 On a busy database server, **multiple backend processes execute queries in parallel**, all competing for the same shared resources. PostgreSQL serializes access to critical resources to maintain **data consistency and isolation**, which introduces waits.
 
 Understanding *where* a query is waiting is the key to fixing performance issues.
-<img width="1268" height="595" alt="image" src="https://github.com/user-attachments/assets/847a51eb-4e10-4cf2-9eea-bcf68138b870" />
 
 ---
 
@@ -113,6 +112,7 @@ On a database server:
 * Internal queues and IPC structures
 
 PostgreSQL **serializes access** to many of these resources using locks.
+<img width="1268" height="595" alt="image" src="https://github.com/user-attachments/assets/847a51eb-4e10-4cf2-9eea-bcf68138b870" />
 
 ---
 
@@ -123,7 +123,7 @@ PostgreSQL **serializes access** to many of these resources using locks.
 * Other process waits in a **lock queue**
 * Once the first transaction commits, the lock is released
 * Waiting process resumes execution
-
+      
 This waiting time directly impacts query latency.
 
 ---
@@ -162,6 +162,7 @@ Potential bottlenecks during query execution include:
 * Slow disk IO
 
 ### 4. Shared Resource Locks
+<img width="1261" height="563" alt="image" src="https://github.com/user-attachments/assets/3f38f2e8-f8fa-46bf-be1a-159bcb0624de" />
 
 * Shared buffers
 * IPC queues
