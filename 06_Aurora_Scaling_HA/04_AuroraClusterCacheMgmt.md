@@ -133,10 +133,6 @@ The graph illustrates **transaction throughput (transactions per second)** durin
 
 ---
 
-If you want, I can also **draw a simple ASCII-style graph** for your README so it visually matches your screenshot. It works well for text-based documentation. Do you want me to do that?
-
----
-
 ## Memory Hooks (Quick Recall)
 
 * **Failover = new primary may have cold cache**
