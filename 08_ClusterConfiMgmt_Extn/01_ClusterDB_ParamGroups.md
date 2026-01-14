@@ -90,10 +90,12 @@ Default Parameter Group < Cluster Parameter Group < DB Instance Parameter Group 
 * Arrays
 
 > **Memory Hook:** Always check **static vs dynamic** before changing a parameter.
+<img width="1032" height="260" alt="image" src="https://github.com/user-attachments/assets/b6dee045-f3b5-497e-b0b2-6598e0d69740" />
 
 ---
 
 ## 6. Parameter Formulas
+- Expression created using variables,operators and functions. 
 
 Some parameters (like **max_connections**) can use **formulas**:
 
@@ -105,6 +107,7 @@ Some parameters (like **max_connections**) can use **formulas**:
   * `Port` → Connection port
 * Formulas can include arithmetic and logical operators
 * Boolean formulas return **1 or 0** (not true/false)
+<img width="1028" height="133" alt="image" src="https://github.com/user-attachments/assets/6f327af5-fc6f-4f99-8caf-06cc0f66e35d" />
 
 **Example: Max Connections Formula**
 
