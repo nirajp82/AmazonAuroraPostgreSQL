@@ -102,7 +102,38 @@ Aurora PostgreSQL provides **Cluster Cache Management (CCM)** to address this is
 * **Cluster Cache Management** keeps replicas' buffer cache synchronized with primary
 * Enables **fast recovery of application performance** after failover
 * Duration of failover is unaffected by CCM, but CCM reduces post-failover performance impact
+  
+### Cluster Cache Management – Transaction Performance Graph
 <img width="1312" height="612" alt="image" src="https://github.com/user-attachments/assets/caedade1-adc1-41b7-96ed-be6020a1bc37" />
+
+The graph illustrates **transaction throughput (transactions per second)** during a failover scenario with and without **Cluster Cache Management (CCM)** enabled.
+
+* **X-axis**: Time (seconds)
+* **Y-axis**: Transactions per second (TPS) or CPU utilization
+
+**Observations:**
+
+* **Red line**: Cluster with CCM enabled
+
+  * Transactions per second remain stable
+  * No visible drop during failover
+  * Indicates that pre-warmed buffer cache on the replica maintains performance
+
+* **Blue line** (or line representing system without CCM):
+
+  * Shows a noticeable **dip in TPS** immediately after failover
+  * Occurs because the buffer cache on the new primary is cold
+  * Cluster performance gradually recovers as the cache warms up
+
+**Key Takeaways:**
+
+* CCM ensures that replicas maintain a pre-loaded buffer cache, **eliminating post-failover performance degradation**
+* Without CCM, the cluster experiences temporary reduced throughput until the buffer cache is rebuilt
+* The duration of the failover itself is independent of CCM; the difference lies in **post-failover performance**
+
+---
+
+If you want, I can also **draw a simple ASCII-style graph** for your README so it visually matches your screenshot. It works well for text-based documentation. Do you want me to do that?
 
 ---
 
