@@ -102,6 +102,7 @@ Aurora PostgreSQL provides **Cluster Cache Management (CCM)** to address this is
 * **Cluster Cache Management** keeps replicas' buffer cache synchronized with primary
 * Enables **fast recovery of application performance** after failover
 * Duration of failover is unaffected by CCM, but CCM reduces post-failover performance impact
+<img width="1312" height="612" alt="image" src="https://github.com/user-attachments/assets/caedade1-adc1-41b7-96ed-be6020a1bc37" />
 
 ---
 
