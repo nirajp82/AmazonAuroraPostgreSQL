@@ -129,5 +129,10 @@ Yes. Use the `SCHEMA` option when creating the extension; otherwise, it defaults
 
 <img width="1136" height="277" alt="image" src="https://github.com/user-attachments/assets/56b3eda4-84ea-4a8e-8ba2-292e7f9232a7" />
 
+<img width="835" height="402" alt="image" src="https://github.com/user-attachments/assets/9a9b001e-ef1b-4c1e-95f9-9a5e8f31382e" />
+
+<img width="748" height="155" alt="image" src="https://github.com/user-attachments/assets/f513fa0b-d506-42d2-aaee-07360431a360" />
+
+<img width="1590" height="351" alt="image" src="https://github.com/user-attachments/assets/07956646-075e-421a-9492-b0d346863b5e" />
 
 
