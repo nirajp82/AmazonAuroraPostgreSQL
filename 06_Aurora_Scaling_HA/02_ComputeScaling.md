@@ -13,7 +13,377 @@ Aurora uses **three types of storage**:
 
 | Storage Type               | Purpose                  | Managed By User?    |
 | -------------------------- | ------------------------ | ------------------- |
-| **Local Instance Storage** | Temporary operations     | ❌ No                |
+| **Local Instance Storage** | Temporary operations     | ❌ No                |# Aurora PostgreSQL Compute Scaling
+
+## Lesson Objective
+
+Understand how **Amazon Aurora PostgreSQL** supports:
+
+* **Vertical scaling** (scale up / scale down DB instances)
+* **Horizontal scaling** (read replicas)
+* **Automatic scaling** (Aurora Auto Scaling)
+* Operational impact during scaling
+* Why downtime is minimal during scaling
+* Monitoring and events related to scaling activities
+
+---
+
+## Types of Compute Scaling in Aurora
+
+Aurora supports **three forms of compute scaling**:
+
+| Scaling Type           | Description                                           |
+| ---------------------- | ----------------------------------------------------- |
+| **Vertical Scaling**   | Change DB instance class (bigger or smaller instance) |
+| **Horizontal Scaling** | Add or remove read replicas                           |
+| **Automatic Scaling**  | Automatically add/remove replicas based on policies   |
+
+---
+
+## Vertical Scaling (Scale Up / Scale Down)
+
+### What Is Vertical Scaling?
+
+Vertical scaling means **changing the DB instance class** to one with:
+
+* More CPU
+* More memory
+* Higher network bandwidth
+
+Examples:
+
+* Scale up: `db.r5.xlarge → db.r5.2xlarge`
+* Scale down: `db.r5.2xlarge → db.r5.xlarge`
+
+---
+
+### Key Characteristics
+
+* Applies to **individual DB instances**
+* **Manual operation**
+* Can be performed on an **active cluster**
+* Target instance class must be:
+
+  * Available in the region
+  * Supported for the PostgreSQL engine version
+
+---
+
+### Why Vertical Scaling Is Important
+
+Aurora PostgreSQL supports:
+
+* **Only one writer (primary) instance** per cluster
+
+From an infrastructure perspective:
+
+* If the **writer becomes CPU or memory bound**, the only way to increase capacity is **vertical scaling**
+
+---
+
+### Seasonal Scaling Example
+
+A database with **seasonal traffic** does not need large capacity year-round.
+
+Example:
+
+* Online retail store
+* Scale up during:
+
+  * Holiday season
+* Scale down after:
+
+  * Traffic normalizes
+
+✔ Saves cost by avoiding unused capacity
+
+---
+
+### How to Perform Vertical Scaling
+
+#### Using AWS Console
+
+1. Select the DB instance
+2. Click **Modify**
+3. Choose the target instance class
+4. Apply immediately or during maintenance window
+
+#### Using AWS CLI
+
+```bash
+aws rds modify-db-instance \
+  --db-instance-identifier mydb \
+  --db-instance-class db.r5.2xlarge
+```
+
+---
+
+### Impact During Vertical Scaling
+
+| Cluster Setup               | Impact                      |
+| --------------------------- | --------------------------- |
+| **Single-instance cluster** | Application outage          |
+| **Cluster with ≥ 1 reader** | Failover → minimal downtime |
+
+---
+
+### ❓ Why Is Downtime Minimal?
+
+During vertical scaling, Aurora performs the following automatically:
+
+1. **Primary instance is taken offline** for modification
+2. **A reader is promoted to writer** (if available)
+3. **Endpoints are updated transparently**
+
+Aurora automatically adjusts:
+
+* **Writer endpoint** → points to the newly promoted writer
+* **Reader endpoint** → continues routing read traffic
+
+⏱ **Typical failover time:**
+
+* ~30 seconds to 2 minutes (varies by workload and instance size)
+
+📌 Applications that:
+
+* Use **cluster writer endpoint** for writes
+* Use **cluster reader endpoint** for reads
+
+Experience **minimal or no noticeable downtime**.
+
+---
+
+### Memory Hook 🧠
+
+**Vertical scaling = engine swap**
+Same car, stronger engine — brief stop unless another engine is already running.
+
+---
+
+## Horizontal Scaling (Read Replicas)
+
+### What Is Horizontal Scaling?
+
+Horizontal scaling means **adding or removing reader instances**.
+
+Benefits:
+
+* Increases **read throughput**
+* Improves **availability**
+* Reduces load on writer
+
+Aurora automatically:
+
+* Distributes read traffic via the **reader endpoint**
+
+---
+
+### Manual Horizontal Scaling
+
+Users may:
+
+* Add read replicas manually
+* Remove read replicas manually
+
+Best for:
+
+* Predictable workloads
+* Planned scaling events
+
+---
+
+## Automatic Scaling (Aurora Auto Scaling)
+
+### What Is Aurora Auto Scaling?
+
+Aurora Auto Scaling automatically:
+
+* Adds read replicas (scale out)
+* Removes read replicas (scale in)
+
+Based on a **scaling policy** attached to the cluster.
+
+---
+
+### Requirements for Auto Scaling
+
+✔ At least **one reader instance** must exist
+✔ All instances must be in **Available** state
+✔ Applications must connect to:
+
+```
+Cluster Reader Endpoint
+```
+
+❌ Connecting directly to instance endpoints bypasses auto scaling benefits
+
+---
+
+### Auto Scaling Metrics (Target Metrics)
+
+Each auto scaling policy tracks **one target metric**.
+
+Predefined metrics:
+
+| Metric                           | Description                     |
+| -------------------------------- | ------------------------------- |
+| **Average CPU Utilization**      | Average CPU across replicas     |
+| **Average Database Connections** | Avg connections across replicas |
+
+Example:
+
+* Target CPU = **50%**
+
+  * CPU > 50% → scale out
+  * CPU < 50% → scale in
+
+📌 One metric per policy
+📌 Multiple policies per cluster allowed
+
+---
+
+### How Auto Scaling Works
+
+* Policy maintains the **target metric value**
+* Adds replicas as load increases
+* Removes replicas as load decreases
+* New replicas use:
+
+  * **Same instance class as the writer**
+
+---
+
+### Cooldown Periods
+
+Cooldowns prevent rapid scaling oscillation.
+
+| Cooldown Type          | Purpose                            |
+| ---------------------- | ---------------------------------- |
+| **Scale-out cooldown** | Wait time after adding a replica   |
+| **Scale-in cooldown**  | Wait time after removing a replica |
+
+Cooldown values are specified in **seconds**.
+
+---
+
+### Replica Removal Rules
+
+* Auto scaling removes **only replicas it created**
+* Manually created replicas:
+
+  * Are not removed automatically
+  * Must be deleted manually
+
+Auto scaling may also be:
+
+* Temporarily disabled
+
+---
+
+### Memory Hook 🧠
+
+**Auto scaling = thermostat**
+Adds or removes heaters (replicas) to maintain temperature (metric).
+
+---
+
+## Scaling Events & Monitoring
+
+### Scaling Events
+
+Scaling generates **DB instance events**, including:
+
+* Replica creation
+* Replica deletion
+* Failover
+* Instance modification
+
+---
+
+### Where to View Scaling Activity
+
+* AWS Console → DB Cluster
+* **Logs & Events** tab
+
+Users may:
+
+* Subscribe to events
+* Trigger alerts or automation
+
+---
+
+## Summary of Compute Scaling
+
+| Scaling Type | Manual / Auto | Primary Use Case         |
+| ------------ | ------------- | ------------------------ |
+| Vertical     | Manual        | Increase writer capacity |
+| Horizontal   | Manual        | Increase read capacity   |
+| Auto Scaling | Automatic     | Dynamic read scaling     |
+
+---
+
+## Key Takeaways
+
+* Aurora supports:
+
+  * Vertical scaling of DB instances
+  * Horizontal scaling using replicas
+  * Automatic scaling via policies
+* Vertical scaling:
+
+  * Is manual
+  * May cause outage without readers
+* Auto scaling:
+
+  * Applies only to **read replicas**
+  * Requires use of **reader endpoint**
+* Failover keeps downtime minimal when readers exist
+
+---
+
+## FAQ
+
+### Q1. Can Aurora scale the writer automatically?
+
+❌ No. Writer scaling is **manual (vertical only)**.
+
+---
+
+### Q2. Does auto scaling change instance size?
+
+❌ No. Auto scaling only **adds or removes replicas**.
+
+---
+
+### Q3. What happens during vertical scaling?
+
+* Primary becomes unavailable
+* Reader is promoted (if present)
+* Endpoints are updated automatically
+
+---
+
+### Q4. Can I attach multiple auto scaling policies?
+
+✔ Yes
+❌ One target metric per policy
+
+---
+
+### Q5. Why must apps use the reader endpoint?
+
+Because replicas are added/removed dynamically, and the reader endpoint always routes correctly.
+
+---
+
+### Final Memory Hook 🧠
+
+```
+Vertical scaling → Bigger instance
+Horizontal scaling → More replicas
+Auto scaling → Automatic replica management
+```
+
 | **Aurora Cluster Volume**  | Persistent database data | ❌ No (auto-managed) |
 | **Amazon S3**              | Automated backups        | ❌ No                |
 
