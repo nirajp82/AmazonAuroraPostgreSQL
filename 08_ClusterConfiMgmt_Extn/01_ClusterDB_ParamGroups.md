@@ -167,10 +167,6 @@ max_connections = LEAST( {DBInstanceClassMemory} / 9531392 , 5000 )
 * **Backup the cluster** before applying changes
 * Avoid invalid formulas to prevent **instability or performance degradation**
 ---
-Perfect! Here’s a **diagram and explanation** you can include in your README to visualize **Aurora parameter groups and formula evaluation**. I’ll also describe it so you can refer to it easily.
-
----
-
 ## Parameter Group Diagram
 
 ```
