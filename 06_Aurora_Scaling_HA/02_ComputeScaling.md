@@ -209,140 +209,111 @@ If auto scaling is disabled:
 
 ## Endpoint Behavior During Scaling and Failover
 
-## Key Concepts (Must Understand)
-
-### What Is an Endpoint in Aurora?
-
-An **endpoint** is a **logical DNS name** provided by Aurora. Applications connect to endpoints, not to individual instances.
-
-| Endpoint Type       | What It Always Points To                       |
-| ------------------- | ---------------------------------------------- |
-| **Writer endpoint** | The current **primary (writer)** instance      |
-| **Reader endpoint** | Load-balanced set of **healthy read replicas** |
-
-> **Best Practice**: Applications should never connect directly to instance endpoints in production.
+This section explains how **Aurora PostgreSQL endpoints behave during instance scaling and modification**, and how Aurora minimizes application impact.
 
 ---
 
-## What Happens During Writer Instance Modification (Scale Up / Down)?
+## Aurora Endpoints
 
-When the **writer DB instance** is modified, Aurora must temporarily make that instance unavailable.
+Aurora provides **logical cluster-level endpoints** that abstract individual DB instances. Applications connect to these endpoints instead of directly to instances.
 
-Aurora behavior depends on whether **read replicas exist**.
+| Endpoint Type       | Description                                                 |
+| ------------------- | ----------------------------------------------------------- |
+| **Writer endpoint** | Routes traffic to the current primary (writer) instance     |
+| **Reader endpoint** | Load-balances read traffic across all healthy read replicas |
 
----
+Using cluster endpoints allows Aurora to handle scaling, failover, and maintenance transparently.
 
-### Case 1: No Read Replica Exists
-
-* Writer instance is taken offline for modification
-* No instance is available to take over
-* ❌ **Application outage occurs**
-
-This is why single-instance clusters experience downtime during vertical scaling.
+> **Best Practice**: Production applications should always use the cluster writer and reader endpoints, not instance endpoints.
 
 ---
 
-### Case 2: At Least One Read Replica Exists
+## Writer Instance Modification (Scale Up / Scale Down)
 
-Aurora performs a **planned failover-style promotion**.
-
-What happens internally:
-
-1. Aurora selects a **read replica**
-2. Promotes it to become the **new writer**
-3. Modifies the old writer instance in the background
-
-This process minimizes application impact.
+When the writer DB instance is scaled up or down, Aurora must briefly take that instance out of service. The resulting behavior depends on the cluster configuration.
 
 ---
 
-## Clarifying the Commonly Confusing Statements
+### Cluster Without Read Replicas
 
-### “Aurora automatically adjusts the writer endpoint”
+If no read replicas exist:
 
-**Meaning**:
+* The writer instance is taken offline for modification
+* No other instance can assume the writer role
+* Applications experience an outage for the duration of the change
 
-* Writer endpoint always points to the **active writer**
-* If the writer changes, Aurora updates DNS automatically
-
-**Why it matters**:
-
-* No application configuration changes required
-* Connection strings remain the same
+This is the expected behavior for single-instance Aurora clusters during vertical scaling.
 
 ---
 
-### “Aurora automatically adjusts the reader endpoint”
+### Cluster With One or More Read Replicas
 
-**Meaning**:
+If at least one read replica exists, Aurora performs a **planned promotion** to reduce downtime:
 
-* Reader endpoint always includes **only healthy replicas**
-* Replicas added, removed, or promoted are automatically reflected
+1. A read replica is selected
+2. The replica is promoted to become the new writer
+3. The original writer is modified in the background
 
-**Example**:
-
-* Two replicas → reader endpoint load-balances
-* One replica promoted → removed from reader pool
-* New replica added → automatically included
+This process is similar to failover but is **planned and controlled**, resulting in minimal application disruption.
 
 ---
 
-### “A reader may be promoted during modification”
+## Endpoint Updates During Promotion
 
-This refers to a **planned promotion**, not a failure.
+Aurora automatically maintains endpoint accuracy during scaling operations.
 
-* Promotion mechanism is similar to crash failover
-* Triggered intentionally during scaling or maintenance
+### Writer Endpoint Behavior
+
+* Always resolves to the active writer instance
+* Automatically updated when a new writer is promoted
+* No application-side configuration changes are required
+
+### Reader Endpoint Behavior
+
+* Routes traffic only to healthy read replicas
+* Automatically reflects replica additions, removals, and promotions
+* Promoted replicas are removed from the reader pool
 
 ---
 
-## Visual Flow
+## Example Flow
 
-### Before Scaling
+**Before scaling**:
 
 ```
 Writer endpoint → Instance A (writer)
 Reader endpoint → Instance B, Instance C (readers)
 ```
 
-### During Scaling
+**During scaling**:
 
 ```
 Instance A → temporarily unavailable
-Aurora promotes Instance B → new writer
+Instance B → promoted to writer
 ```
 
-### After Scaling
+**After scaling**:
 
 ```
 Writer endpoint → Instance B
 Reader endpoint → Instance C
 ```
 
-✔ Endpoints unchanged
-✔ Minimal downtime
-✔ Transparent to applications
+Applications continue using the same endpoints throughout the process.
 
 ---
 
-## Why This Architecture Matters
+## Operational Benefits
 
-* Applications are **decoupled from instance-level changes**
-* Scaling, maintenance, and failover are transparent
-* AWS strongly recommends:
+* Applications are decoupled from instance-level changes
+* Scaling and maintenance operations are transparent
+* Downtime is minimized when replicas are present
 
-  * Always having **at least one read replica**
-  * Always using **cluster endpoints**
-
----
-
-## One-Line Memory Hook
-
-> **Aurora endpoints are smart DNS names that always point to the correct instance, even when the writer changes.**
+For these reasons, AWS recommends maintaining at least one read replica in production clusters.
 
 ---
 
-## Monitoring and Events
+## Monitoring and Ev
 
 Scaling activities generate **RDS events**, including:
 
