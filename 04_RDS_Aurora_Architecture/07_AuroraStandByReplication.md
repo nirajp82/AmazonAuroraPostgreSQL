@@ -70,10 +70,6 @@ This means:
 
 ---
 
-Below is a **clean, correct, README-ready rewrite**, smaller and clearer, focused only on **how Aurora keeps replica shared buffers consistent**, with no extra commentary.
-
----
-
 ## Aurora Replica Buffer Cache Consistency
 
 **(Log-Based Cache Invalidation)**
