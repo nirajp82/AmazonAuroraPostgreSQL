@@ -37,6 +37,7 @@ Assume a cluster with **1 primary and 1 replica** and a shared cluster volume wi
 | 9    | Yes               | No                |
 
 After failover, the new primary (former replica) **lacks pages 6 and 9**, which are needed by the web application. These pages must be read from storage, causing temporary performance degradation.
+<img width="1195" height="238" alt="image" src="https://github.com/user-attachments/assets/3a1e4026-5108-49a7-8096-a11c9c5807d2" />
 
 > In real workloads, the number of pages needing to be loaded may be **hundreds of thousands**, magnifying the performance impact.
 
