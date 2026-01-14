@@ -1,13 +1,12 @@
 # Aurora PostgreSQL High Availability and Failover
 
-## Lesson Objective
-
 Understand how **Amazon Aurora PostgreSQL** maintains high reliability and availability by:
 
 * Monitoring the health of DB instances
 * Automatically detecting failures
 * Promoting replicas to become the primary instance
 * Recovering from infrastructure and database-level failures
+<img width="966" height="492" alt="image" src="https://github.com/user-attachments/assets/b328cc46-dc13-45ad-b3cf-d1067f7f1bb9" />
 
 ---
 
