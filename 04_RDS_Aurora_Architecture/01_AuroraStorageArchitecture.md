@@ -54,8 +54,8 @@ The database engine propagates **WAL logs** to the storage layer, which uses a *
 
 ## 4. Protection Groups
 
-* Storage allocated in **10 GB logical blocks** = **protection groups**
-* **Replicated across 6 nodes in 3 AZs** (2 copies per AZ)
+* Amazon Aurora currently builds its storage volumes in **10 GB logical blocks** called **protection groups**. 
+* **Replicated across 6 storaege nodes in 3 AZs** (2 copies per AZ) (One protection group = 6 storage nodes total)
 * Nodes in a group = **peers**
 * **Peer-to-peer gossip protocol** ensures synchronization
 
