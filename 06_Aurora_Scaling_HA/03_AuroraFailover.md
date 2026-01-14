@@ -129,6 +129,7 @@ The total recovery time depends on:
 * **Replica priority decides new primary**
 * **Single instance = longer downtime**
 * **Multi-instance = fast recovery**
+<img width="1160" height="278" alt="image" src="https://github.com/user-attachments/assets/e8e3ae7a-3511-437b-8d75-4005bb26d392" />
 
 ---
 
