@@ -138,7 +138,7 @@ Aurora Auto Scaling automatically:
 Based on a **scaling policy** attached to the cluster.
 <img width="1037" height="223" alt="image" src="https://github.com/user-attachments/assets/91eb6ba3-0ef9-48d5-9c3b-00325f202d75" />
 <img width="640" height="510" alt="image" src="https://github.com/user-attachments/assets/4d458214-8c58-43d6-89c4-871e9ebbe69b" />
-<img width="602" height="391" alt="image" src="https://github.com/user-attachments/assets/9013261f-bbee-4f6f-a205-8a86d053f94d" />
+<img width="708" height="533" alt="image" src="https://github.com/user-attachments/assets/a9c1846f-0d24-4659-bbe2-ae860df70316" />
 
 ---
 
