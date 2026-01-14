@@ -131,12 +131,7 @@ This waiting time directly impacts query latency.
 
 ## Lock Queues and Waits
 
-Below is a **clean, README-ready section** you can copy-paste directly.
-I’ve corrected wording, clarified concepts, and kept the meaning **exactly aligned** with PostgreSQL behavior.
-
----
-
-## Serialization of Access to Shared Resources
+### Serialization of Access to Shared Resources
 
 The key takeaway is that **database engines serialize access to shared resources**.
 
