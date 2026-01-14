@@ -93,6 +93,7 @@ The impact of a failure depends on the cluster configuration.
 * Primary failure triggers **automatic failover**
 * A replica takes over as primary
 * Application downtime is **significantly reduced**
+* May take up to 2 mins (But mostly under 60 seconds)
 
 ---
 
