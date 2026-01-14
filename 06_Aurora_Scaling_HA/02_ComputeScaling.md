@@ -209,10 +209,6 @@ If auto scaling is disabled:
 
 ## Endpoint Behavior During Scaling and Failover
 
-This section clarifies how **Aurora endpoints, instance modification, and failover** work together. These concepts are often confusing because they happen simultaneously during scaling.
-
----
-
 ## Key Concepts (Must Understand)
 
 ### What Is an Endpoint in Aurora?
