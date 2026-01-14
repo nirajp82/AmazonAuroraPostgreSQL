@@ -75,6 +75,7 @@ Default Parameter Group < Cluster Parameter Group < DB Instance Parameter Group 
 * **Switching a DB instance parameter group** → reboot **only that instance**
 
 > **Memory Hook:** Reboot = apply static parameters. Dynamic parameters apply instantly.
+<img width="262" height="79" alt="image" src="https://github.com/user-attachments/assets/dc809e52-df67-495a-a3db-1bf0e153eed7" />
 
 ---
 
