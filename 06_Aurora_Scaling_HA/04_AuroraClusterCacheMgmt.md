@@ -75,6 +75,7 @@ Aurora PostgreSQL provides **Cluster Cache Management (CCM)** to address this is
 * Primary responds with missing pages 6 and 9
 * Replica loads these pages into its cache
 * Subsequent pages (10, 13, etc.) are also synchronized as workloads evolve
+<img width="1283" height="428" alt="image" src="https://github.com/user-attachments/assets/9c05ee46-e3f0-4786-a39f-feab27d2ffd1" />
 
 **Result:** Replica is kept in **lockstep** with primary, minimizing performance impact after failover.
 
