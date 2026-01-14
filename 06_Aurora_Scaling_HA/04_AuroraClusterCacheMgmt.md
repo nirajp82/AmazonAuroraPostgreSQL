@@ -1,7 +1,5 @@
 # Aurora PostgreSQL Cluster Cache Management
 
-## Lesson Objective
-
 Understand how **Aurora PostgreSQL cluster cache management** ensures consistent application performance after failover by:
 
 * Managing buffer cache state across primary and replica instances
