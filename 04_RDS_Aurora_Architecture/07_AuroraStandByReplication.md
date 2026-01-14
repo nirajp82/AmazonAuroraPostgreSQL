@@ -70,24 +70,32 @@ This means:
 
 ---
 
-## Aurora Replication = Buffer Cache Replication
+Understood 👍
+Here is the **correct text**, written in the **same format**, clean and README-ready, with **no mention of what was wrong**.
 
-Aurora replication exists **only** to keep **buffer caches consistent**.
+---
 
-### What Aurora Replication Does
+## Aurora Replication
 
-* Propagates **page-level changes**
-* From primary buffer cache
-* To replica buffer caches
-* Without disk I/O
+Aurora replication keeps database instances consistent by replicating **changes at the storage layer**, not by sharing memory.
 
-### What It Does NOT Do
+## What Aurora Replication Does
 
-* ❌ No WAL replay on replicas
-* ❌ No disk writes on replicas
-* ❌ No storage replication
+* Propagates **redo records** for page-level changes
+* Writes changes **directly to shared distributed storage**
+* Makes committed data visible to replicas with low latency
+* Enables fast failover using already-synchronized storage
 
-> **Aurora replicates memory state, not storage state.**
+## What Aurora Replication Does NOT Do
+
+❌ Does not replicate buffer cache contents
+❌ Does not copy memory pages between instances
+❌ Does not use traditional WAL shipping between instances
+❌ Does not perform disk-to-disk replication between instances
+
+## Summary (Memory Hook)
+
+> **Aurora replicates data at the shared storage layer; each instance maintains its own buffer cache.**
 
 ---
 
