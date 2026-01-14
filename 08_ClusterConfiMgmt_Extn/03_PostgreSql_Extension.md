@@ -56,8 +56,6 @@ SELECT * FROM pg_extension;
 CREATE EXTENSION extension_name;
 ```
 
-<img width="1136" height="485" alt="image" src="https://github.com/user-attachments/assets/7a771e90-dbbf-4772-b661-32ee032f35ff" />
-
 *Note:* Only extensions pre-packaged with Aurora PostgreSQL can be installed.
 
 4. **Remove an Extension**
@@ -65,6 +63,8 @@ CREATE EXTENSION extension_name;
 ```sql
 DROP EXTENSION extension_name [CASCADE];
 ```
+
+<img width="1018" height="568" alt="image" src="https://github.com/user-attachments/assets/253ea432-2dd3-41cf-9fef-0f06916090e3" />
 
 * The `CASCADE` option automatically removes dependent objects.
 
