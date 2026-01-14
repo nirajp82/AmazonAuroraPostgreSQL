@@ -56,6 +56,8 @@ SELECT * FROM pg_extension;
 CREATE EXTENSION extension_name;
 ```
 
+<img width="1136" height="485" alt="image" src="https://github.com/user-attachments/assets/7a771e90-dbbf-4772-b661-32ee032f35ff" />
+
 *Note:* Only extensions pre-packaged with Aurora PostgreSQL can be installed.
 
 4. **Remove an Extension**
