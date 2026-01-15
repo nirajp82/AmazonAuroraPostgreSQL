@@ -117,6 +117,8 @@ The **Rewriter** component in PostgreSQL is part of the **Query Rewriting System
 
 **Memory Hook:** “Planner is the strategist—calculates the cheapest path to query victory.”
 
+<img width="1087" height="478" alt="image" src="https://github.com/user-attachments/assets/04a03ab5-a491-48e3-92a9-37923a450df4" />
+In this example query generates 2 plans, One that is using Index (Exists on ID column)
 ---
 
 ### 2.5 Executor
