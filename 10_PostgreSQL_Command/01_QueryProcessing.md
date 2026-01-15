@@ -35,7 +35,6 @@ When a client sends a SQL query to PostgreSQL, the backend process handles it th
 
 ### 2.2 Analyzer
 
-* **Responsibility:** Semantic validation and transformation of the parse tree into a query tree.
 * **Actions:**
 
   * Checks the database catalog for referenced objects (tables, columns).
