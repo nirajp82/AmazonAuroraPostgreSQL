@@ -40,7 +40,7 @@ When a client sends a SQL query to PostgreSQL, the backend process handles it th
 
   * Checks the database catalog for referenced objects (tables, columns).
   * Assigns **object IDs** for valid references.
-  * Returns errors if the query references missing objects.
+  * Returns errors if the query references missing objects.(It make sure that table and column exists in the database and they are valid)
 * **Memory Hook:** “Analyzer is the fact-checker—ensures the query refers to real database objects.”
 <img width="1092" height="515" alt="image" src="https://github.com/user-attachments/assets/e5193b87-6da8-4fd3-89c4-fe063ff6f262" />
 
@@ -48,10 +48,57 @@ When a client sends a SQL query to PostgreSQL, the backend process handles it th
 
 ### 2.3 Rewriter
 
-* **Responsibility:** Transform query trees using rules in the catalog.
-* **Use Case:** Views or virtual tables mapping to physical tables.
-* **Example:** Querying `MyTestView` (mapped to `TableA` and `TableB`) is rewritten to query underlying tables.
-* **Memory Hook:** “Rewriter turns virtual queries into real actions.”
+Got it! Here’s the revised **Rewriter section** with your requested clarifications:
+
+---
+
+## PostgreSQL Query Rewriter
+
+The **Rewriter** component in PostgreSQL is part of the **Query Rewriting System**. Its main responsibility is to **transform queries that reference virtual objects (views) or rules** into queries that operate on the underlying physical tables, applying all predefined rules from the catalog.
+
+### How It Works
+
+1. **Views (Virtual Objects):**
+
+   * When a query references a **view** (a virtual table), the Rewriter expands the view so that the query references the underlying physical tables instead.
+   * This ensures the Planner and Executor see a query that can actually access real data.
+
+2. **Rules:**
+
+   * Rules allow queries to be **automatically modified or extended** before execution.
+
+   * Example:
+
+     ```sql
+     -- Rule: Any insert into employee should also insert into audit_table
+     CREATE RULE employee_insert AS
+     ON INSERT TO employee
+     DO ALSO INSERT INTO audit_table(user_id, action) VALUES (NEW.id, 'INSERT');
+     ```
+
+     * Original Query:
+
+       ```sql
+       INSERT INTO employee(id, name) VALUES (1, 'John Doe');
+       ```
+     * Rewritten by Rewriter:
+
+       ```sql
+       INSERT INTO employee(id, name) VALUES (1, 'John Doe');
+       INSERT INTO audit_table(user_id, action) VALUES (1, 'INSERT');
+       ```
+
+   * The Rewriter applies this **at query rewrite time**, producing a **Rewritten Query Tree** that is passed to the Planner.
+
+### Note on Rules vs Triggers
+
+* **Rules**: Rewrite the query **before execution**; the Planner sees the modified query. They operate at the **query level**.
+* **Triggers**: Fire **during execution** (row or statement level) and run procedural code. Triggers react to events; rules rewrite queries.
+
+**Memory Hook:**
+
+* “The Rewriter is the translator and rule enforcer—it converts views into physical table queries and applies catalog-defined rules before execution.”
+* “Rules rewrite the query; triggers react to events.”
 
 ---
 
