@@ -435,3 +435,4 @@ SELECT pg_stat_statements_reset(userid := <user_oid>);
   * System metrics
 
 ---
+<img width="948" height="273" alt="image" src="https://github.com/user-attachments/assets/d54756cd-3637-455b-9b53-f8ae3f405294" />
