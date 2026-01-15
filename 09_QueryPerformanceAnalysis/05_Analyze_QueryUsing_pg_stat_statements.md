@@ -439,7 +439,9 @@ SELECT pg_stat_statements_reset(userid := <user_oid>);
 <img width="524" height="216" alt="image" src="https://github.com/user-attachments/assets/32e044df-8a60-4810-8c5f-eb09b2be9bd3" />
 
 - ```sql
-  pgbench -i -s 100 -h localhost -p 5432 -U postgres test_pg_stat_statements (From Powershell no psql)
+  pgbench -i -s 100 -h localhost -p 5432 -U postgres test_pg_stat_statements
   ```
+   (From Powershell directly no psql)
   <img width="1186" height="206" alt="image" src="https://github.com/user-attachments/assets/e71777d9-4910-45bc-ad4b-45621b45abc2" />
   
+- <img width="1325" height="773" alt="image" src="https://github.com/user-attachments/assets/c78e91a5-a4a4-49f3-ae8a-d5bf3cd483e3" />
