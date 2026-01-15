@@ -99,6 +99,56 @@ Each **line in EXPLAIN output** represents a **plan node**. The key details incl
 * Explore **plan nodes** individually to understand operations (e.g., Hash Aggregate, Seq Scan, Nested Loop).
 
 ---
+```sql
+--Query
+EXPLAIN (ANALYZE, BUFFERS)
+SELECT
+    b.bid,
+    b.bbalance,
+    COUNT(a.aid)    AS account_count,
+    SUM(a.abalance) AS total_balance
+FROM pgbench_branches b
+JOIN pgbench_accounts a
+    ON a.bid = b.bid
+WHERE a.abalance > 0
+GROUP BY b.bid, b.bbalance
+ORDER BY total_balance DESC
+LIMIT 5;
+
+--Output
+"Limit  (cost=218696.56..218696.56 rows=1 width=24) (actual time=2915.437..2915.538 rows=5 loops=1)"
+"  Buffers: shared hit=15905 read=149314"
+"  ->  Sort  (cost=218696.56..218696.56 rows=1 width=24) (actual time=2915.435..2915.534 rows=5 loops=1)"
+"        Sort Key: (sum(a.abalance)) DESC"
+"        Sort Method: top-N heapsort  Memory: 25kB"
+"        Buffers: shared hit=15905 read=149314"
+"        ->  GroupAggregate  (cost=1000.14..218696.55 rows=1 width=24) (actual time=1975.291..2915.212 rows=100 loops=1)"
+"              Group Key: b.bid"
+"              Buffers: shared hit=15902 read=149314"
+"              ->  Nested Loop  (cost=1000.14..218696.53 rows=1 width=16) (actual time=1058.426..2904.942 rows=47917 loops=1)"
+"                    Join Filter: (b.bid = a.bid)"
+"                    Rows Removed by Join Filter: 4743783"
+"                    Buffers: shared hit=15902 read=149314"
+"                    ->  Index Scan using pgbench_branches_pkey on pgbench_branches b  (cost=0.14..96.66 rows=100 width=8) (actual time=0.025..0.966 rows=100 loops=1)"
+"                          Buffers: shared hit=71 read=11"
+"                    ->  Materialize  (cost=1000.00..218598.37 rows=1 width=12) (actual time=0.007..22.683 rows=47917 loops=100)"
+"                          Buffers: shared hit=15831 read=149303"
+"                          ->  Gather  (cost=1000.00..218598.37 rows=1 width=12) (actual time=0.705..1946.976 rows=47917 loops=1)"
+"                                Workers Planned: 2"
+"                                Workers Launched: 2"
+"                                Buffers: shared hit=15831 read=149303"
+"                                ->  Parallel Seq Scan on pgbench_accounts a  (cost=0.00..217598.27 rows=1 width=12) (actual time=0.463..1812.001 rows=15972 loops=3)"
+"                                      Filter: (abalance > 0)"
+"                                      Rows Removed by Filter: 3317361"
+"                                      Buffers: shared hit=15831 read=149303"
+"Planning:"
+"  Buffers: shared hit=101 read=12"
+"Planning Time: 4.097 ms"
+"Execution Time: 2916.409 ms"
+```
+
+<img width="1658" height="775" alt="image" src="https://github.com/user-attachments/assets/27c7f616-a143-4718-96ea-4b69b1ada722" />
+---
 
 ## 8. FAQ
 
