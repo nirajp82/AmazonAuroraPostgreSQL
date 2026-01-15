@@ -42,6 +42,7 @@ When a client sends a SQL query to PostgreSQL, the backend process handles it th
   * Assigns **object IDs** for valid references.
   * Returns errors if the query references missing objects.
 * **Memory Hook:** “Analyzer is the fact-checker—ensures the query refers to real database objects.”
+<img width="1092" height="515" alt="image" src="https://github.com/user-attachments/assets/e5193b87-6da8-4fd3-89c4-fe063ff6f262" />
 
 ---
 
