@@ -29,6 +29,7 @@ When a client sends a SQL query to PostgreSQL, the backend process handles it th
   * Does **not** check semantic validity (e.g., whether tables/columns exist).
   * If syntax is invalid, an error is returned immediately.
 * **Memory Hook:** “Parser is the grammar teacher—it only cares if your query speaks SQL correctly.”
+<img width="1081" height="592" alt="image" src="https://github.com/user-attachments/assets/2d0e1308-e1de-4bd6-9715-9a59c852ee58" />
 
 ---
 
