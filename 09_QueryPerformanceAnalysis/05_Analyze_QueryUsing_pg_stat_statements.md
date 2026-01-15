@@ -436,3 +436,5 @@ SELECT pg_stat_statements_reset(userid := <user_oid>);
 
 ---
 <img width="948" height="273" alt="image" src="https://github.com/user-attachments/assets/d54756cd-3637-455b-9b53-f8ae3f405294" />
+<img width="524" height="216" alt="image" src="https://github.com/user-attachments/assets/32e044df-8a60-4810-8c5f-eb09b2be9bd3" />
+
