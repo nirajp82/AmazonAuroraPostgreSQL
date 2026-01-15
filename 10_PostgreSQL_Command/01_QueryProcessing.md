@@ -15,6 +15,7 @@ When a client sends a SQL query to PostgreSQL, the backend process handles it th
 5. **Executor** – Executes the instructions in the plan tree and returns the result set to the client.
 
 **Memory Hook:** “Think of PostgreSQL query processing as an assembly line: each stage refines the query until the final result emerges.”
+<img width="1077" height="507" alt="image" src="https://github.com/user-attachments/assets/c23cbabd-e760-4887-96f5-f8aac7f9e1d2" />
 
 ---
 
