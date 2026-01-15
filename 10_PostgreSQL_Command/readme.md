@@ -128,6 +128,4 @@ This section focuses on query analysis, optimization, and database maintenance i
 
 * Keep autovacuum enabled and run manual VACUUM periodically for very large tables.
 
-
-
-If you want, I can create a **diagram showing MVCC, table bloat, and VACUUM workflow** next—it’s a great memory hook to visualize these concepts. Do you want me to do that?
+<img width="1434" height="494" alt="image" src="https://github.com/user-attachments/assets/f1acc6a2-070b-4cf9-b23f-5f013219d44a" />
