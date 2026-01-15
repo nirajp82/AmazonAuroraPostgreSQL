@@ -128,6 +128,7 @@ The **Rewriter** component in PostgreSQL is part of the **Query Rewriting System
 * **Flow:** From leaf nodes → intermediate nodes → root node.
 * **Output:** Result set sent to the client.
 * **Memory Hook:** “Executor is the worker—follows the plan to deliver results.”
+<img width="1071" height="390" alt="image" src="https://github.com/user-attachments/assets/19ae60c8-43df-4fe6-9e8d-ee1280df4128" />
 
 ---
 
