@@ -168,12 +168,13 @@ FROM pg_stat_statements
 ORDER BY shared_blks_read DESC
 LIMIT 10;
 ```
-
-High disk read percentage usually means:
-
-* Poor indexing
-* Cold data access
-* Inefficient access patterns
+- “Percentage of total reads that actually went to disk”
+- High disk read percentage usually means:
+    * Poor indexing
+    * Cold data access
+    * Inefficient access patterns
+- Higher value = **more disk I/O** (slower query)
+- Lower value = query mostly **served from cache** (fast)
 
 ---
 
@@ -182,12 +183,29 @@ High disk read percentage usually means:
 ```sql
 SELECT
     query,
+    shared_blks_read,
     shared_blks_hit,
-    shared_blks_read
+    ROUND(
+      shared_blks_hit * 100.0 /
+      NULLIF(shared_blks_hit + shared_blks_read, 0), 2
+    ) AS cache_hit_pct
 FROM pg_stat_statements
-ORDER BY shared_blks_hit DESC
+ORDER BY shared_blks_read DESC
 LIMIT 10;
 ```
+### What it calculates:
+
+```
+disk_read_pct = (shared_blks_hit / (shared_blks_hit + shared_blks_read)) * 100
+```
+
+* **Actually this is the cache hit percentage**, not disk read.
+* High value = query mostly served from **cache** (fast)
+* Low value = query reads **more from disk** (slower)
+
+**Use case:** Identify queries that are **cache-friendly**, not disk-heavy.
+
+> Naming the column `disk_read_pct` here is misleading — it should be `cache_hit_pct`.
 
 Use these as **reference patterns** for good query design.
 
