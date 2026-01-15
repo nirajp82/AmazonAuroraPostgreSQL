@@ -47,10 +47,6 @@ When a client sends a SQL query to PostgreSQL, the backend process handles it th
 
 ### 2.3 Rewriter
 
-Got it! Here’s the revised **Rewriter section** with your requested clarifications:
-
----
-
 ## PostgreSQL Query Rewriter
 
 The **Rewriter** component in PostgreSQL is part of the **Query Rewriting System**. Its main responsibility is to **transform queries that reference virtual objects (views) or rules** into queries that operate on the underlying physical tables, applying all predefined rules from the catalog.
