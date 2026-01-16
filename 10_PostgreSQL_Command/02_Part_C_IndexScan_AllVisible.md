@@ -17,14 +17,10 @@ However, you may notice `Heap Fetches` in your execution plan even when using an
 
 ## 🔹 The "All-Visible" Requirement
 
-PostgreSQL uses **MVCC (Multi-Version Concurrency Control)**, which tracks row visibility for each transaction.
+Because of **MVCC** (Multi-Version Concurrency Control), PostgreSQL needs to know if a specific row version is actually visible to your current transaction (e.g., has it been deleted or updated by someone else recently?).
 
-### Problem:
-
-* **Indexes** only store the indexed columns and a pointer to the row in the heap.
-* Indexes **don’t know** if the row is “alive” for your transaction.
-
-### Solution: The **Visibility Map (VM)**
+1. **The Index Problem:** Indexes only store the data and a pointer to the row. They don't know if that row is "dead" or "alive" for your specific snapshot.
+2. **The Visibility Map (VM):** To avoid checking the table for every single row, Postgres uses a **Visibility Map**. This is a tiny bitmask where each bit represents a page (block) in the table.
 
 * A **tiny bitmask**, one bit per page in the table, tells PostgreSQL if all rows on a page are visible to all transactions.
 
@@ -32,6 +28,16 @@ PostgreSQL uses **MVCC (Multi-Version Concurrency Control)**, which tracks row v
 | --------- | ------------------------------------------------------------- |
 | 1         | All rows on the page are visible (“all-visible”)              |
 | 0         | Some rows are recently updated or deleted; visibility unknown |
+
+* **Bit = 1 (All-Visible):** Every single row on that page is old enough to be visible to all current and future transactions.
+* **Bit = 0 (Not All-Visible):** Someone recently changed a row on this page.
+
+### Why it "Falls Back" to Heap Fetches
+- If you see an Index-Only Scan that is slower than expected due to heap fetches, the issue is almost always that the Visibility Map is out of date.
+- When the database performs an Index-Only Scan, it checks the Visibility Map for every row it finds in the index:
+
+* **If the page is marked All-Visible:** Great! The database trusts the index data and skips the heap entirely.
+* **If the page is NOT marked All-Visible:** The database **must** fetch the row from the heap to manually verify its visibility. This is why your plan might say "Index Only Scan" but still show a high number of `Heap Fetches`.
 
 ---
 
