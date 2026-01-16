@@ -426,9 +426,3 @@ Understanding planner trade-offs, not memorizing node names.
 
 ---
 
-## Cleanup
-
-```sql
-DROP TABLE table_a;
-DROP TABLE table_b;
-```
