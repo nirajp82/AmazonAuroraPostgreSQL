@@ -135,10 +135,10 @@ Visibility rule:
 * Transactions with TXID **greater than `xmax`** do not
 
 ### Example
-
-* TXID 14 deletes a row → `xmax=14`
 * TXID 13 → row visible
+* TXID 14 deletes a row → `xmax=14`
 * TXID 15 → row invisible
+<img width="1100" height="496" alt="image" src="https://github.com/user-attachments/assets/d26b89c4-cf63-4bbc-86cd-a081b8d1a997" />
 
 ---
 
