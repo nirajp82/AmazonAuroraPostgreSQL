@@ -481,16 +481,12 @@ ORDER BY a.id;
    Merge walk: 100,000 + 100,000
    ```
 
----
-
 ### Why Merge Join Is Chosen
 
 * Join condition is equality
 * Sorted output required (`ORDER BY`)
 * One side already sorted via index
 * Efficient streaming, no random access
-
----
 
 ### When Merge Join Is BAD
 
@@ -504,8 +500,6 @@ ORDER BY a.id;
 
 > Merge Join = sort once, walk both lists once
 
----
-
 ## Side-by-Side Comparison (Numbers)
 
 | Join Type   | Core Cost Pattern          |
@@ -514,16 +508,12 @@ ORDER BY a.id;
 | Hash Join   | build once + probe once    |
 | Merge Join  | sort + single linear merge |
 
----
 
 ### Final Intuition 
 
 * **Nested Loop** → “Do I have very few outer rows AND fast inner lookup?”
 * **Hash Join** → “Do I have large tables with equality join?”
 * **Merge Join** → “Are my inputs already sorted or do I need ordered output?”
-
-
----
 
 ### Choosing the Best Join (Planner Trade-offs)
 
@@ -572,8 +562,6 @@ ORDER BY a.id;
 | Big row misestimate       | Increase statistics target |
 | Hash spill to disk        | Increase work_mem          |
 | Slow aggregation          | Materialized view          |
-
----
 
 ## Memory Hooks (Quick Recall)
 
@@ -705,5 +693,3 @@ Perfect! Here’s the detailed rephrasing for both, in the same style as your Ne
   * Nested Loop → outer × inner lookup
   * Hash Join → build once, probe many
   * Merge Join → walk two sorted lists
-
----
