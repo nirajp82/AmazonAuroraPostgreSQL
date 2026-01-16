@@ -324,137 +324,195 @@ WHERE a.id < 100;
 * Performance: O(N × M) → very slow for large tables
 
 ---
-
 ### Hash Join (Most Common for Large Tables)
 
+Query:
+
 ```sql
-EXPLAIN
 SELECT *
 FROM table_a a
 JOIN table_b b ON a.id = b.id;
 ```
 
-**How Hash Join Works (Step by Step)**
+### How Hash Join Works
 
-1. **Planner identifies equality join condition:**
-   In this query, `a.id = b.id`. Hash Join only works efficiently for equality joins.
+1. **Planner detects equality condition**
 
-2. **Build phase (smaller table):**
-   PostgreSQL builds a hash table in memory using all rows from the **smaller table** (in this example, assume **table_b**).
+   ```
+   a.id = b.id
+   ```
 
-   * Each **hash entry** contains:
+2. **Planner chooses the smaller input to build the hash table**
+   Assume (for this example):
 
-     1. **Hash key** – result of hashing `b.id`
-     2. **Join key / ID** – the actual `b.id` value
-     3. **Reference / pointer** – points to the full row in `table_b`
+   * `table_b` is chosen as the **build side**
+   * `table_b` → 100,000 rows
+   * `table_a` → 100,000 rows (probe side)
 
-3. **Probe phase (larger table):**
-   PostgreSQL reads each row from the **larger table** (`table_a`).
+3. **Build phase (done once)**
 
-   * Computes the hash of `a.id`
-   * Looks up matching hash entries in the hash table
-   * Compares actual values to confirm matches (resolves hash collisions)
-   * Combines the matching rows from `table_a` and `table_b`
+   PostgreSQL scans **table_b once** and builds an in-memory hash table.
 
-4. **Output:**
-   Matching rows are passed to the parent nodes for further processing (filtering, aggregation, etc.)
+   For each row in `table_b`, it stores:
 
-**Memory Hook:**
+   ```
+   hash(id) → { id, row pointer }
+   ```
 
-> *Hash Join = build hash table once on smaller table, probe many rows from larger table using hash + pointer*
+   Work done:
+
+   ```
+   100,000 rows scanned once
+   ```
+
+4. **Probe phase (done once per probe row)**
+
+   PostgreSQL scans `table_a` row by row.
+
+   For each row in `table_a`:
+
+   * Compute `hash(a.id)`
+   * Look up matching entries in hash table
+   * Verify actual value (to handle collisions)
+   * Output matching rows
+
+   Work done:
+
+   ```
+   100,000 probe rows × O(1) hash lookup
+   ```
+
+5. **Total work**
+
+   ```
+   Build: 100,000
+   Probe: 100,000
+   ----------------
+   Total ≈ 200,000 operations
+   ```
 
 ---
 
-**Why Hash Join is Good:**
+### Why Hash Join Is Chosen Here
 
-* Large tables with equality join conditions
-* Input order doesn’t matter (no sorting needed)
-
-**Why Hash Join is Bad:**
-
-* Low memory environment → hash may spill to disk
-* Non-equality joins
-
-**Example Visualization:**
-
-| Step | Table           | Action                                                     |
-| ---- | --------------- | ---------------------------------------------------------- |
-| 1    | table_b (small) | Build hash table with [hash(id), id, pointer]              |
-| 2    | table_a (large) | For each row, compute hash(a.id), probe table_b hash table |
-| 3    | Both tables     | If match found, combine rows and send to parent node       |
+* Both tables are large
+* Equality join (`=`)
+* No need for indexes
+* Avoids N × M behavior
 
 ---
 
-Exactly! Let me clarify that in **Merge Join** and rewrite the section with that extra detail about indexed vs non-indexed tables.
+### When Hash Join Is BAD
+
+* Hash table does not fit in memory
+* Hash spills to disk → slow
+* Non-equality joins (`>`, `<`, `BETWEEN`)
+
+🧠 **Memory Hook**
+
+> Hash Join = build once (100k), probe many (100k)
 
 ---
 
-### Merge Join (Efficient for Sorted Inputs)
+---
+
+## Merge Join – (Efficient for Sorted Inputs)
+
+Query:
 
 ```sql
-EXPLAIN
 SELECT *
 FROM table_a a
 JOIN table_b b ON a.id = b.id
 ORDER BY a.id;
 ```
 
-**How Merge Join Works (Step by Step)**
+### How Merge Join Works
 
-1. **Planner identifies join condition:**
-   `a.id = b.id` in this query. Merge Join works best when **inputs are already sorted** or can be sorted efficiently.
+1. **Planner requires sorted inputs**
+   Merge Join works only if **both sides are sorted on join key**.
 
-2. **Prepare sorted inputs:**
+2. **Prepare sorted inputs**
 
-   * **table_a:** Already sorted because `a.id` has an index → no explicit sort needed
-   * **table_b:** No index on `b.id` → PostgreSQL will use a **Sort node** to sort rows in memory before merge
+   * `table_a`
 
-3. **Merge phase:**
+     * Has index on `a.id`
+     * Rows already sorted → **no sort needed**
 
-   * PostgreSQL walks through both sorted lists (table_a and table_b) **simultaneously**:
+   * `table_b`
 
-     1. Start with the first row of each table
-     2. Compare `a.id` and `b.id`
-     3. If they match, combine rows and send to parent node
-     4. If not, advance the pointer of the smaller value to the next row
-   * Repeat until all rows are processed
+     * No index on `b.id`
+     * PostgreSQL adds a **Sort node**
 
-4. **Output:**
-   Matched rows are sent to parent nodes for further operations (filtering, aggregation, etc.)
+   Work done:
 
-**Memory Hook:**
+   ```
+   table_b → 100,000 rows sorted
+   ```
 
-> *Merge Join = walk two sorted lists, combining matching rows efficiently*
+3. **Merge phase (single pass)**
+
+   PostgreSQL walks both sorted inputs **at the same time**:
+
+   ```
+   pointer_a → table_a
+   pointer_b → table_b
+   ```
+
+   Logic:
+
+   * If `a.id == b.id` → output row
+   * If `a.id < b.id` → advance pointer_a
+   * If `a.id > b.id` → advance pointer_b
+
+4. **Total work**
+
+   ```
+   Sort table_b: 100,000 log N
+   Merge walk: 100,000 + 100,000
+   ```
 
 ---
 
-**Why Merge Join is Good:**
+### Why Merge Join Is Chosen
 
-* Large datasets where one or both tables are sorted on join keys
-* Indexed table → no sort needed (saves time)
-* Ordered output required (e.g., `ORDER BY`)
-* Minimal random I/O, streaming merge
+* Join condition is equality
+* Sorted output required (`ORDER BY`)
+* One side already sorted via index
+* Efficient streaming, no random access
 
-**Why Merge Join is Bad:**
+---
 
+### When Merge Join Is BAD
+
+* Both sides unsorted → expensive sorting
+* No `ORDER BY`, Hash Join usually cheaper
+* Small tables → Nested Loop faster
 * Sorting cost dominates if table has no index (like `table_b` in this case)
-* Non-equality joins cannot use merge join
-* Small tables with indexes → Nested Loop may be faster
 
-**Example Visualization (Assume table_a has index, table_b has no index):**
 
-| Step | Table        | Action                                        |
-| ---- | ------------ | --------------------------------------------- |
-| 1    | table_a      | Already sorted via index → used directly      |
-| 2    | table_b      | Sort node sorts rows by `id`                  |
-| 3    | Both tables  | Walk through rows in order, compare join keys |
-| 4    | Matched rows | Send to parent nodes for further processing   |
+🧠 **Memory Hook**
+
+> Merge Join = sort once, walk both lists once
 
 ---
 
-**Key Insight:**
+## Side-by-Side Comparison (Numbers)
 
-Merge Join is **streaming and memory-efficient**, especially when at least one table is indexed. The unindexed table is sorted once, then the merge can efficiently combine rows without repeated scans.
+| Join Type   | Core Cost Pattern          |
+| ----------- | -------------------------- |
+| Nested Loop | outer × inner lookups      |
+| Hash Join   | build once + probe once    |
+| Merge Join  | sort + single linear merge |
+
+---
+
+### Final Intuition 
+
+* **Nested Loop** → “Do I have very few outer rows AND fast inner lookup?”
+* **Hash Join** → “Do I have large tables with equality join?”
+* **Merge Join** → “Are my inputs already sorted or do I need ordered output?”
+
 
 ---
 
