@@ -5,7 +5,7 @@
 ## Courses & Tutorials
 
 * **Udemy Course:** [Amazon Aurora PostgreSQL from A to Z](https://www.udemy.com/course/aurora-postgresql/)
-* **YouTube Playlist:** [Aurora & PostgreSQL Playlist](https://www.youtube.com/playlist?list=PLhr1KZpdzukeAZuX0pNZ1lLDkaZWBOhQT)
+* **YouTube Playlist:** [PostgreSQL In-Depth Training 2019 - Ireland Playlist](https://www.youtube.com/playlist?list=PLhr1KZpdzukeAZuX0pNZ1lLDkaZWBOhQT)
 
 ---
 
