@@ -253,17 +253,40 @@ SELECT id, COUNT(*) FROM table_a GROUP BY id;
 
 ---
 
-## ## Join Strategies (Critical for Performance)
+## Join Strategies (Critical for Performance)
 
-PostgreSQL evaluates multiple join paths for the same query and picks the one with the lowest estimated cost. The planner considers table size, indexes, memory availability, and join conditions. Join strategy choice affects query speed dramatically.
+When PostgreSQL executes a query with joins, the **planner considers multiple ways** to execute the join and chooses the one with the **lowest estimated cost**. Choosing the right join strategy is **critical for performance**, especially on large tables.
 
-### Join Strategy Summary
+The three main join strategies are:
 
-| Join Type   | When Used      | Good When           | Bad When            |
-| ----------- | -------------- | ------------------- | ------------------- |
-| Nested Loop | Small inputs   | Indexed inner table | Large × large joins |
-| Hash Join   | Equality joins | Large unsorted data | Low memory          |
-| Merge Join  | Sorted inputs  | Ordered data        | Sorting required    |
+| Join Type   | When Used         | Good When                       | Bad When                                 |
+| ----------- | ----------------- | ------------------------------- | ---------------------------------------- |
+| Nested Loop | Small outer table | Indexed inner table             | Large × large tables without indexes     |
+| Hash Join   | Equality joins    | Large unsorted data             | Low memory, non-equality joins           |
+| Merge Join  | Sorted inputs     | Already sorted / ordered output | Inputs unsorted and sorting is expensive |
+
+---
+
+### Key Concepts Before Diving In
+
+1. **Outer table vs Inner table**:
+
+   * Outer table → the table scanned **row by row**.
+   * Inner table → the table that is **probed/matched** against each row of the outer table.
+   * The planner often picks the **smaller table (after filtering) as outer** to reduce work.
+
+2. **Filtered tables can be “small”**:
+
+   * Even if a table has 100,000 rows, a `WHERE` clause can reduce the number of rows drastically.
+   * Example: `WHERE a.id < 100` reduces a 100k row table to ~99 rows → planner treats it as small for Nested Loop.
+
+3. **Memory hooks**:
+
+   * Think of **Nested Loop = outer × inner lookups**
+   * **Hash Join = build once, probe many**
+   * **Merge Join = walk two sorted lists**
+
+---
 
 ### Nested Loop Join
 
@@ -275,25 +298,32 @@ JOIN table_b b ON a.id = b.id
 WHERE a.id < 100;
 ```
 
-**Why Nested Loop?**
+**How Nested Loop Works**
 
-* Outer table is small, inner table has index
-* Rows from outer table are fetched one at a time and matched against inner table rows
+1. Planner chooses the **filtered table_a** as the **outer table** (small: ~99 rows).
+2. table_b is the **inner table** (larger, 100k rows) with an **index on id**.
+3. Executor fetches **one row from table_a** → looks up matching rows in table_b using the index → repeat for next row.
+4. Output of inner table joins is passed up to parent nodes.
 
-**When GOOD**
-
-* Small result sets
-* Indexed inner table
-
-**When BAD**
-
-* Large tables without index, causes O(N × M) comparisons
-
-🧠 Memory Hook:
+**Memory Hook**:
 
 > Nested Loop = outer × inner lookup
 
-### Hash Join (Most Common)
+**Why it’s good**:
+
+* Outer table is small after filter
+* Inner table has an index → fast lookups
+* Small result set
+
+**Why it’s bad**:
+
+* Outer table is large
+* Inner table has no index
+* Performance: O(N × M) → very slow for large tables
+
+---
+
+### Hash Join (Most Common for Large Tables)
 
 ```sql
 EXPLAIN
@@ -302,28 +332,36 @@ FROM table_a a
 JOIN table_b b ON a.id = b.id;
 ```
 
-**Why Hash Join?**
+**How Hash Join Works**
 
-* Equality condition present
-* No pre-sorted input required
+1. Planner identifies equality join condition (`a.id = b.id`)
+2. Builds a **hash table** on the smaller input (could be table_a or table_b depending on row estimates)
+3. Probes hash table with rows from the other table
+4. Matches are output to parent nodes
 
-**How It Works**
-
-1. Build a hash table on the smaller input
-2. Probe the hash table with rows from the larger input
-
-**When GOOD**
-
-* Large equality joins
-
-**When BAD**
-
-* Low memory environments
-* Non-equality joins
-
-🧠 Memory Hook:
+**Memory Hook**:
 
 > Hash Join = build once, probe many
+
+**Why it’s good**:
+
+* Large tables with equality joins
+* Input order doesn’t matter
+
+**Why it’s bad**:
+
+* Low memory environment → hash may spill to disk
+* Non-equality joins
+
+**Example Visualization**:
+
+```
+Build hash on table_a (100k rows)
+Probe with table_b (100k rows)
+Output matching rows
+```
+
+---
 
 ### Merge Join
 
@@ -335,26 +373,73 @@ JOIN table_b b ON a.id = b.id
 ORDER BY a.id;
 ```
 
-**Why Merge Join?**
+**How Merge Join Works**
 
-* Inputs are already sorted or can be sorted efficiently
-* Merges two sorted lists to produce join output
+1. Planner requires **sorted inputs** (or will sort them first).
+2. Executor **walks two sorted lists simultaneously**, matching rows according to join condition.
+3. Output passes to parent nodes (aggregates, filters, etc.).
 
-**When GOOD**
-
-* Large datasets
-* Ordered output required
-
-**When BAD**
-
-* Sorting cost is high
-* Non-sorted inputs without index
-
-🧠 Memory Hook:
+**Memory Hook**:
 
 > Merge Join = walk two sorted lists
 
-**Example Explanation:** Nested Loop processes outer rows one-by-one and probes the inner table, whereas Hash Join builds a hash for faster equality matching, and Merge Join merges sorted lists efficiently. Choosing the wrong join type can cause massive slowdowns, e.g., Nested Loop on large tables without an index becomes O(N×M).*
+**Why it’s good**:
+
+* Large datasets
+* Ordered output required (ORDER BY, GROUP BY)
+* No additional hash memory needed
+
+**Why it’s bad**:
+
+* Sorting cost is high if inputs are not already sorted
+* Non-sorted inputs without indexes → planner may avoid Merge Join
+
+**Example Visualization**:
+
+```
+Sorted table_a: 1, 2, 3, 4
+Sorted table_b: 2, 3, 5
+Walk both lists → output matching rows: 2,3
+```
+
+---
+
+### Choosing the Best Join (Planner Trade-offs)
+
+| Factor                        | Effect on Planner Choice                         |
+| ----------------------------- | ------------------------------------------------ |
+| Outer table size after filter | Small → Nested Loop; Large → Hash/Merge          |
+| Index availability            | Indexed inner → Nested Loop is efficient         |
+| Equality vs inequality        | Equality → Hash Join; Others → Nested Loop/Merge |
+| Sorted inputs / ORDER BY      | Merge Join preferred if sorted                   |
+| Memory limits                 | Low memory may prevent Hash Join                 |
+
+---
+
+### Example: Outer Table After Filter
+
+```sql
+SELECT *
+FROM table_a a
+JOIN table_b b ON a.id = b.id
+WHERE a.id < 100;
+```
+
+* table_a = **outer** (small after filter)
+* table_b = **inner** (large, indexed)
+* Result: Nested Loop is ideal here → 99 × index lookups
+
+> Without filtering: 100,000 × 100,000 → Nested Loop would be very slow
+
+---
+
+### Summary
+
+| Join Type   | Key Idea                                  | Memory Hook            |
+| ----------- | ----------------------------------------- | ---------------------- |
+| Nested Loop | Outer row × inner table lookup            | outer × inner lookup   |
+| Hash Join   | Build hash on smaller input, probe larger | build once, probe many |
+| Merge Join  | Walk two sorted inputs simultaneously     | walk two sorted lists  |
 
 ---
 
