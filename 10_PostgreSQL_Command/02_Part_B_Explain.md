@@ -100,7 +100,7 @@ SELECT * FROM table_b WHERE id = 10;
 **When Seq Scan is BAD**
 
 * Large tables
-* Highly selective predicates: conditions that match only a small fraction of rows in a table, making indexes highly effective.  If a query returns 0.01% of the table (like a specific User ID), the predicate is highly selective because it successfully excluded almost everything else.
+* Highly selective predicates: Highly selective predicates: conditions that match only a small fraction of rows in a table, making indexes highly effective. If a query returns 0.01% of the table (like a specific User ID), the predicate is highly selective because it successfully excluded almost everything else.
 * Index exists but not used
 
 🧠 Memory Hook:
@@ -253,9 +253,9 @@ SELECT id, COUNT(*) FROM table_a GROUP BY id;
 
 ---
 
-## Join Strategies (Critical for Performance)
+## ## Join Strategies (Critical for Performance)
 
-Planner evaluates **multiple join paths** and selects the cheapest.
+PostgreSQL evaluates multiple join paths for the same query and picks the one with the lowest estimated cost. The planner considers table size, indexes, memory availability, and join conditions. Join strategy choice affects query speed dramatically.
 
 ### Join Strategy Summary
 
@@ -264,8 +264,6 @@ Planner evaluates **multiple join paths** and selects the cheapest.
 | Nested Loop | Small inputs   | Indexed inner table | Large × large joins |
 | Hash Join   | Equality joins | Large unsorted data | Low memory          |
 | Merge Join  | Sorted inputs  | Ordered data        | Sorting required    |
-
----
 
 ### Nested Loop Join
 
@@ -279,24 +277,21 @@ WHERE a.id < 100;
 
 **Why Nested Loop?**
 
-* Small outer input
-* Index on inner side
+* Outer table is small, inner table has index
+* Rows from outer table are fetched one at a time and matched against inner table rows
 
 **When GOOD**
 
 * Small result sets
-* Index available
+* Indexed inner table
 
 **When BAD**
 
-* Large joins without index
-* O(N × M) behavior
+* Large tables without index, causes O(N × M) comparisons
 
 🧠 Memory Hook:
 
-> *Nested Loop = outer × inner lookup*
-
----
+> Nested Loop = outer × inner lookup
 
 ### Hash Join (Most Common)
 
@@ -309,13 +304,13 @@ JOIN table_b b ON a.id = b.id;
 
 **Why Hash Join?**
 
-* Equality condition
-* No ordering required
+* Equality condition present
+* No pre-sorted input required
 
 **How It Works**
 
-1. Build hash table on smaller input
-2. Probe with larger input
+1. Build a hash table on the smaller input
+2. Probe the hash table with rows from the larger input
 
 **When GOOD**
 
@@ -323,14 +318,12 @@ JOIN table_b b ON a.id = b.id;
 
 **When BAD**
 
-* Memory constrained systems
+* Low memory environments
 * Non-equality joins
 
 🧠 Memory Hook:
 
-> *Hash Join = build once, probe many*
-
----
+> Hash Join = build once, probe many
 
 ### Merge Join
 
@@ -344,7 +337,8 @@ ORDER BY a.id;
 
 **Why Merge Join?**
 
-* Inputs already sorted or sortable
+* Inputs are already sorted or can be sorted efficiently
+* Merges two sorted lists to produce join output
 
 **When GOOD**
 
@@ -353,11 +347,14 @@ ORDER BY a.id;
 
 **When BAD**
 
-* Sorting cost dominates
+* Sorting cost is high
+* Non-sorted inputs without index
 
 🧠 Memory Hook:
 
-> *Merge Join = walk two sorted lists*
+> Merge Join = walk two sorted lists
+
+**Example Explanation:** Nested Loop processes outer rows one-by-one and probes the inner table, whereas Hash Join builds a hash for faster equality matching, and Merge Join merges sorted lists efficiently. Choosing the wrong join type can cause massive slowdowns, e.g., Nested Loop on large tables without an index becomes O(N×M).*
 
 ---
 
