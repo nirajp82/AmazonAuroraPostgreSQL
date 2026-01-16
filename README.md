@@ -17,8 +17,8 @@
 | PostgreSQL In-Depth Training: Aurora Part 2                                                    | [Link](https://www.youtube.com/watch?v=f3hOKNIZvRU)                              |
 | Monitor Aurora Global Database Replication Lag                                                 | [Link](https://www.youtube.com/watch?v=5vtslKxAFd0)                              |
 | Amazon Aurora Global Database - Managed Planned Failover for Cross Region DR and Data Locality | [Link](https://www.youtube.com/watch?v=yaOnBLmnTcI)                              |
-| Private / Missing Metadata Video                                                               | [Link](https://www.youtube.com/watch?v=1CPOKmptJnA)                              |
-| Private / Missing Metadata Video                                                               | [Link](https://www.youtube.com/watch?v=mLj4ZY0sTEw)                              |
+| AWS re:Invent Launchpad 2017 - Aurora Serverless & Aurora Multi-Master                         | [Link](https://www.youtube.com/watch?v=1CPOKmptJnA)                              |
+| Bi-directional Replication in Amazon Aurora PostgreSQL                                         | [Link](https://www.youtube.com/watch?v=mLj4ZY0sTEw)                              |
 | Amazon Aurora Global Database Deep Dive                                                        | [Link](https://www.youtube.com/watch?v=1vFg1z-2E7Y)                              |
 | Multi-Master Aurora Global Database                                                            | [Link](https://www.youtube.com/watch?v=DNs7WgHD0kI)                              |
 | Amazon Aurora Global Database Design Patterns for HA and DR                                    | [Link](https://www.youtube.com/watch?v=bbiWciJSouY)                              |
