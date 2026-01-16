@@ -519,10 +519,6 @@ Merge Join is **streaming and memory-efficient**, especially when at least one t
 
 ---
 
-Got it! I can expand your FAQ section with more practical questions and answers for beginners and intermediate users, covering indexes, joins, performance issues, planner behavior, and EXPLAIN intricacies. Here’s the extended FAQ section you can append to your README:
-
----
-
 ## FAQ
 
 ### Why does PostgreSQL ignore my index?
@@ -547,9 +543,12 @@ Got it! I can expand your FAQ section with more practical questions and answers 
   * Join condition (equality vs inequality)
   * Memory settings
 
-* **Nested Loop** → small outer table + indexed inner table, works best when the outer table has few rows (after filtering) and the inner table has an index.
-* **Hash Join** → large equality joins, when both tables are large and the join condition is an equality (like `a.id = b.id`).
-* **Merge Join** → sorted inputs or ordered output, works best when one or both tables are already sorted on the join key or when an ordered result is required.
+* **Nested Loop** → small outer table + indexed inner table, works best when the outer table has few rows (after filtering) and the inner table has an index. Since the outer table has few rows, the executor only performs a small number of iterations. Each outer row looks up matching rows in the inner table using the index, which is very fast. Fewer outer rows → fewer lookups → efficient execution.
+Perfect! Here’s the detailed rephrasing for both, in the same style as your Nested Loop one:
+
+* **Hash Join** → large equality joins, works best when both tables are large and the join condition is an equality (like `a.id = b.id`). The executor builds a hash table on the smaller table and then probes it with rows from the larger table. This avoids repeated scans, so even with many rows, matches are found efficiently. Large tables → build once, probe many → fast equality matching.
+
+* **Merge Join** → sorted inputs or ordered output, works best when one or both tables are already sorted on the join key or when an ordered result is required. The executor walks through both sorted lists simultaneously, comparing join keys and outputting matches. Indexed or pre-sorted table → no additional sorting needed → fast merge. Sorted tables → sequential walk → minimal random I/O → efficient execution.
 
 ### When should I use EXPLAIN vs EXPLAIN ANALYZE?
 
