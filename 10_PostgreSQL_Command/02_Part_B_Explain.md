@@ -301,9 +301,11 @@ WHERE a.id < 100;
 **How Nested Loop Works**
 
 1. Planner chooses the **filtered table_a** as the **outer table** (small: ~99 rows).
-2. table_b is the **inner table** (larger, 100k rows) with an **index on id**.
-3. For each row in the outer table (table_a), the executor searches the inner table (table_b) for matching rows, repeating this process for every outer row — hence the term “Nested Loop.”
-4. Output of inner table joins is passed up to parent nodes.
+2. table_b is the **inner table** (larger, 100k rows) with an **index on id**.(PostgreSQL does NOT blindly use Nested Loop just because the outer table is small. It uses Nested Loop only if the inner side can be accessed efficiently (usually via an index). Otherwise, it will often choose a Hash Join, even when one side is small.)
+    - When b.Id is indexed: 99 outer rows × 1 index lookup each ≈ 99 operations (For each outer row (a.id), PostgreSQL does one index lookup in table_b)
+    - When b.Id is not indexed: 99 outer rows × 100,000 inner rows = 9,900,000 comparisons (For each outer row, PostgreSQL must scan all 100,000 rows of table_b)
+4. For each row in the outer table (table_a), the executor searches the inner table (table_b) for matching rows, repeating this process for every outer row — hence the term “Nested Loop.”
+5. Output of inner table joins is passed up to parent nodes.
 
 **Memory Hook**:
 
