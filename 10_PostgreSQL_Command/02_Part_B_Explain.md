@@ -391,8 +391,6 @@ JOIN table_b b ON a.id = b.id;
    Total ≈ 200,000 operations
    ```
 
----
-
 ### Why Hash Join Is Chosen Here
 
 * Both tables are large
@@ -400,7 +398,20 @@ JOIN table_b b ON a.id = b.id;
 * No need for indexes
 * Avoids N × M behavior
 
----
+
+**Why PostgreSQL builds the hash on the smaller table and probes the larger table:**
+
+* PostgreSQL builds the hash table on the **smaller table** and probes the **larger table**.
+* **Why smaller table?**
+
+  * Total operations (build + probe) would be roughly the same either way.
+  * Using fewer rows in memory is faster and safer — e.g., better to hash 100 rows than 100,000 rows.
+  * Keeps **RAM usage low**, storing 100 rows in memory is much cheaper than 100,000 — avoids spilling the hash to disk, and ensures efficient execution.
+* **Probing larger table against smaller hash table** minimizes memory pressure while producing the same result.
+
+🧠 Memory Hook:
+
+> *Hash Join = build small once, probe large many; RAM efficiency matters more than operation count*
 
 ### When Hash Join Is BAD
 
@@ -411,8 +422,6 @@ JOIN table_b b ON a.id = b.id;
 🧠 **Memory Hook**
 
 > Hash Join = build once (100k), probe many (100k)
-
----
 
 ---
 
