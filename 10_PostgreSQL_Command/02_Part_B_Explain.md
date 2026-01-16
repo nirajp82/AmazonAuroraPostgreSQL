@@ -383,7 +383,11 @@ JOIN table_b b ON a.id = b.id;
 
 ---
 
-### Merge Join
+Exactly! Let me clarify that in **Merge Join** and rewrite the section with that extra detail about indexed vs non-indexed tables.
+
+---
+
+### Merge Join (Efficient for Sorted Inputs)
 
 ```sql
 EXPLAIN
@@ -393,34 +397,62 @@ JOIN table_b b ON a.id = b.id
 ORDER BY a.id;
 ```
 
-**How Merge Join Works**
+**How Merge Join Works (Step by Step)**
 
-1. Planner requires **sorted inputs** (or will sort them first).
-2. Executor **walks two sorted lists simultaneously**, matching rows according to join condition.
-3. Output passes to parent nodes (aggregates, filters, etc.).
+1. **Planner identifies join condition:**
+   `a.id = b.id` in this query. Merge Join works best when **inputs are already sorted** or can be sorted efficiently.
 
-**Memory Hook**:
+2. **Prepare sorted inputs:**
 
-> Merge Join = walk two sorted lists
+   * **table_a:** Already sorted because `a.id` has an index → no explicit sort needed
+   * **table_b:** No index on `b.id` → PostgreSQL will use a **Sort node** to sort rows in memory before merge
 
-**Why it’s good**:
+3. **Merge phase:**
 
-* Large datasets
-* Ordered output required (ORDER BY, GROUP BY)
-* No additional hash memory needed
+   * PostgreSQL walks through both sorted lists (table_a and table_b) **simultaneously**:
 
-**Why it’s bad**:
+     1. Start with the first row of each table
+     2. Compare `a.id` and `b.id`
+     3. If they match, combine rows and send to parent node
+     4. If not, advance the pointer of the smaller value to the next row
+   * Repeat until all rows are processed
 
-* Sorting cost is high if inputs are not already sorted
-* Non-sorted inputs without indexes → planner may avoid Merge Join
+4. **Output:**
+   Matched rows are sent to parent nodes for further operations (filtering, aggregation, etc.)
 
-**Example Visualization**:
+**Memory Hook:**
 
-```
-Sorted table_a: 1, 2, 3, 4
-Sorted table_b: 2, 3, 5
-Walk both lists → output matching rows: 2,3
-```
+> *Merge Join = walk two sorted lists, combining matching rows efficiently*
+
+---
+
+**Why Merge Join is Good:**
+
+* Large datasets where one or both tables are sorted on join keys
+* Indexed table → no sort needed (saves time)
+* Ordered output required (e.g., `ORDER BY`)
+* Minimal random I/O, streaming merge
+
+**Why Merge Join is Bad:**
+
+* Sorting cost dominates if table has no index (like `table_b` in this case)
+* Non-equality joins cannot use merge join
+* Small tables with indexes → Nested Loop may be faster
+
+**Example Visualization (Assume table_a has index, table_b has no index):**
+
+| Step | Table        | Action                                        |
+| ---- | ------------ | --------------------------------------------- |
+| 1    | table_a      | Already sorted via index → used directly      |
+| 2    | table_b      | Sort node sorts rows by `id`                  |
+| 3    | Both tables  | Walk through rows in order, compare join keys |
+| 4    | Matched rows | Send to parent nodes for further processing   |
+
+---
+
+**Key Insight:**
+
+Merge Join is **streaming and memory-efficient**, especially when at least one table is indexed. The unindexed table is sorted once, then the merge can efficiently combine rows without repeated scans.
 
 ---
 
