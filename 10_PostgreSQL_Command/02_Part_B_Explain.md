@@ -332,34 +332,54 @@ FROM table_a a
 JOIN table_b b ON a.id = b.id;
 ```
 
-**How Hash Join Works**
+**How Hash Join Works (Step by Step)**
 
-1. Planner identifies equality join condition (`a.id = b.id`)
-2. Builds a **hash table** on the smaller input (could be table_a or table_b depending on row estimates)
-3. Probes hash table with rows from the other table
-4. Matches are output to parent nodes
+1. **Planner identifies equality join condition:**
+   In this query, `a.id = b.id`. Hash Join only works efficiently for equality joins.
 
-**Memory Hook**:
+2. **Build phase (smaller table):**
+   PostgreSQL builds a hash table in memory using all rows from the **smaller table** (in this example, assume **table_b**).
 
-> Hash Join = build once, probe many
+   * Each **hash entry** contains:
 
-**Why it’s good**:
+     1. **Hash key** – result of hashing `b.id`
+     2. **Join key / ID** – the actual `b.id` value
+     3. **Reference / pointer** – points to the full row in `table_b`
 
-* Large tables with equality joins
-* Input order doesn’t matter
+3. **Probe phase (larger table):**
+   PostgreSQL reads each row from the **larger table** (`table_a`).
 
-**Why it’s bad**:
+   * Computes the hash of `a.id`
+   * Looks up matching hash entries in the hash table
+   * Compares actual values to confirm matches (resolves hash collisions)
+   * Combines the matching rows from `table_a` and `table_b`
+
+4. **Output:**
+   Matching rows are passed to the parent nodes for further processing (filtering, aggregation, etc.)
+
+**Memory Hook:**
+
+> *Hash Join = build hash table once on smaller table, probe many rows from larger table using hash + pointer*
+
+---
+
+**Why Hash Join is Good:**
+
+* Large tables with equality join conditions
+* Input order doesn’t matter (no sorting needed)
+
+**Why Hash Join is Bad:**
 
 * Low memory environment → hash may spill to disk
 * Non-equality joins
 
-**Example Visualization**:
+**Example Visualization:**
 
-```
-Build hash on table_a (100k rows)
-Probe with table_b (100k rows)
-Output matching rows
-```
+| Step | Table           | Action                                                     |
+| ---- | --------------- | ---------------------------------------------------------- |
+| 1    | table_b (small) | Build hash table with [hash(id), id, pointer]              |
+| 2    | table_a (large) | For each row, compute hash(a.id), probe table_b hash table |
+| 3    | Both tables     | If match found, combine rows and send to parent node       |
 
 ---
 
