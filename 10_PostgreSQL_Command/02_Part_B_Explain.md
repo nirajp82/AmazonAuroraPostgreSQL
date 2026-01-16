@@ -468,23 +468,6 @@ Merge Join is **streaming and memory-efficient**, especially when at least one t
 
 ---
 
-### Example: Outer Table After Filter
-
-```sql
-SELECT *
-FROM table_a a
-JOIN table_b b ON a.id = b.id
-WHERE a.id < 100;
-```
-
-* table_a = **outer** (small after filter)
-* table_b = **inner** (large, indexed)
-* Result: Nested Loop is ideal here → 99 × index lookups
-
-> Without filtering: 100,000 × 100,000 → Nested Loop would be very slow
-
----
-
 ### Summary
 
 | Join Type   | Key Idea                                  | Memory Hook            |
