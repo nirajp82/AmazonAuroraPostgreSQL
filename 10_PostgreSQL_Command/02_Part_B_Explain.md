@@ -519,26 +519,123 @@ Merge Join is **streaming and memory-efficient**, especially when at least one t
 
 ---
 
+Got it! I can expand your FAQ section with more practical questions and answers for beginners and intermediate users, covering indexes, joins, performance issues, planner behavior, and EXPLAIN intricacies. Here’s the extended FAQ section you can append to your README:
+
+---
+
 ## FAQ
 
 ### Why does PostgreSQL ignore my index?
 
-Planner estimates index is more expensive due to data distribution.
+* The planner might think a **Seq Scan is cheaper** based on row statistics or small table size.
+* Highly selective predicates favor indexes; low selectivity might not.
 
 ### Is Seq Scan always bad?
 
-No. It is optimal for large result sets.
+* No. Seq Scan is efficient for:
+
+  * Small tables
+  * Queries returning a large portion of rows
+  * Tables without useful indexes
 
 ### Which join is fastest?
 
-Depends on data size, indexes, and memory.
+* Depends on:
 
-### When should I use EXPLAIN ANALYZE?
+  * Table sizes (outer vs inner)
+  * Index availability
+  * Join condition (equality vs inequality)
+  * Memory settings
 
-Always when performance matters—it shows actual execution.
+* **Nested Loop** → small outer table + indexed inner table, works best when the outer table has few rows (after filtering) and the inner table has an index.
+* **Hash Join** → large equality joins, when both tables are large and the join condition is an equality (like `a.id = b.id`).
+* **Merge Join** → sorted inputs or ordered output, works best when one or both tables are already sorted on the join key or when an ordered result is required.
 
-### What separates a beginner from an expert?
+### When should I use EXPLAIN vs EXPLAIN ANALYZE?
 
-Understanding planner trade-offs, not memorizing node names.
+* **EXPLAIN** → shows estimated plan, costs, and node types
+* **EXPLAIN ANALYZE** → executes query, shows actual times and row counts
+* Use EXPLAIN ANALYZE to validate planner estimates and find bottlenecks
+
+### Why does my query sometimes use Seq Scan even with an index?
+
+* Low table size → planner chooses simpler plan
+* Statistics outdated → run `ANALYZE table_name`
+* Highly non-selective query → index may not help
+* Multiple conditions → planner may prefer a different scan path
+
+### How do I know if a Nested Loop is a problem?
+
+* Check estimated vs actual rows
+* Large tables with no index → O(N×M) behavior
+* Small filtered outer table + indexed inner table → good
+
+### How does Hash Join handle large tables?
+
+* Builds hash on smaller input
+* Probes with larger input
+* Low memory → hash may spill to disk (slows query)
+
+### How does Merge Join handle unsorted tables?
+
+* Sort nodes may be added for unindexed tables
+* Sorting can be expensive for very large datasets
+* Merge Join still efficient for large sorted data
+
+### What is a highly selective predicate?
+
+* Condition that matches **very few rows**
+* Example: `WHERE id = 12345` in a table with 1 million rows
+* High selectivity → index scans are effective
+
+### Can aggregation use indexes?
+
+* MIN/MAX → yes, if index on column
+* SUM/AVG → no, must read all rows
+* COUNT(*) → Seq Scan unless partial indexes or materialized views used
+
+### How can I reduce planner misestimation?
+
+* Regularly run `ANALYZE` on tables
+* Ensure statistics target is sufficient for large tables
+* Consider `EXPLAIN (ANALYZE, BUFFERS)` to see actual I/O
+
+### How do I choose the right join type?
+
+* **Nested Loop** → small outer table, indexed inner table
+* **Hash Join** → equality joins, large unsorted tables
+* **Merge Join** → sorted inputs or required ordered output
+* Check EXPLAIN output to verify planner choice
+
+### Why does Hash Join sometimes spill to disk?
+
+* Insufficient `work_mem`
+* Large table + low memory → temporary file created
+* Increase `work_mem` for faster hash joins
+
+### Should I always add indexes to speed up queries?
+
+* Not always; indexes help selective queries
+* Too many indexes → slow inserts/updates
+* Use EXPLAIN to verify if a query would benefit
+
+### How do I debug slow queries?
+
+1. Run `EXPLAIN ANALYZE`
+2. Check node types (Seq Scan vs Index Scan)
+3. Check estimated vs actual rows
+4. Check join types and memory usage
+5. Optimize with indexes, rewritten queries, or materialized views
+
+### How can I remember scan nodes and join types?
+
+* 🧠 **Memory Hook:**
+
+  * Seq Scan → read everything
+  * Index Scan → index first, table later
+  * Index Only Scan → table never touched
+  * Nested Loop → outer × inner lookup
+  * Hash Join → build once, probe many
+  * Merge Join → walk two sorted lists
 
 ---
