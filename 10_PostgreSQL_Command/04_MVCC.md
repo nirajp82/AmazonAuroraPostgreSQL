@@ -112,6 +112,7 @@ When a row is inserted:
 Visibility rule:
 
 * Row is visible **only to transactions that start after the inserting transaction commits**
+<img width="1088" height="520" alt="image" src="https://github.com/user-attachments/assets/5f2554f9-d39f-43f8-b66d-b7562b8d316f" />
 
 ### Example
 
