@@ -166,8 +166,9 @@ This means:
 
 Visibility:
 
-* TXID 16 → sees old value
-* TXID 18 → sees new value
+* TXID 16 → sees old value that is id = 1
+* TXID 18 → sees new value that is id = 2
+<img width="1095" height="507" alt="image" src="https://github.com/user-attachments/assets/861f35c3-f128-4150-a8eb-746abdf2dc15" />
 
 ---
 
