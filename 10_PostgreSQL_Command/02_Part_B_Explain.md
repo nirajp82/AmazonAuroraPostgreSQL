@@ -55,7 +55,7 @@ This asymmetry is intentional so we can **observe planner behavior differences**
 ## How PostgreSQL Executes a Query Plan
 
 * **EXPLAIN shows the plan tree produced by the planner**: This tree represents the planner’s chosen execution strategy, including scan methods, join algorithms, and operation order, but not the actual execution results.
-* **Execution happens bottom-up**: The executor starts from the lowest-level nodes and progressively feeds their output upward, which is why understanding leaf nodes is critical.
+* **Execution happens bottom-up**: The executor begins with the lowest-level nodes (leaf nodes) that fetch actual rows from tables or indexes, then passes their output to parent nodes for operations like filtering, aggregation, or joining. For example, in a query joining table_a and table_b, the executor first reads rows from each table (leaf nodes), then the join node combines them, and finally the root node returns the result to the client. Understanding leaf nodes is critical because inefficient scans here can slow the entire execution tree.
 * **Leaf nodes fetch data**: These nodes (Seq Scan, Index Scan, Index Only Scan, Bitmap Scan) are responsible for physically retrieving rows from tables or indexes.
 * **Parent nodes perform operations (filter, join, aggregate)**: Parent nodes consume rows from child nodes and apply logical operations such as WHERE filtering, JOIN conditions, sorting, grouping, and aggregation.
 * **Root node returns results to the client**: The topmost node represents the final step where fully processed rows are returned to the client connection.
@@ -425,4 +425,3 @@ Always when performance matters—it shows actual execution.
 Understanding planner trade-offs, not memorizing node names.
 
 ---
-
