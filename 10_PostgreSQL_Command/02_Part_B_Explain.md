@@ -100,7 +100,7 @@ SELECT * FROM table_b WHERE id = 10;
 **When Seq Scan is BAD**
 
 * Large tables
-* Highly selective predicates
+* Highly selective predicates: conditions that match only a small fraction of rows in a table, making indexes highly effective.  If a query returns 0.01% of the table (like a specific User ID), the predicate is highly selective because it successfully excluded almost everything else.
 * Index exists but not used
 
 🧠 Memory Hook:
