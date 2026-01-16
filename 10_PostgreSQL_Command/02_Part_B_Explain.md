@@ -288,7 +288,7 @@ The three main join strategies are:
 
 ---
 
-### Nested Loop Join
+### Nested Loop Join (Best when the outer table is small and the inner table has an index)
 
 ```sql
 EXPLAIN
@@ -324,7 +324,7 @@ WHERE a.id < 100;
 * Performance: O(N × M) → very slow for large tables
 
 ---
-### Hash Join (Most Common for Large Tables)
+### Hash Join (Mostly common for Large tables + equality join, no index required)
 
 Query:
 
@@ -416,7 +416,7 @@ JOIN table_b b ON a.id = b.id;
 
 ---
 
-## Merge Join – (Efficient for Sorted Inputs)
+## Merge Join (Both sides sorted on join key or ordered output)
 
 Query:
 
