@@ -302,7 +302,7 @@ WHERE a.id < 100;
 
 1. Planner chooses the **filtered table_a** as the **outer table** (small: ~99 rows).
 2. table_b is the **inner table** (larger, 100k rows) with an **index on id**.
-3. Executor fetches **one row from table_a** → looks up matching rows in table_b using the index → repeat for next row.
+3. For each row in the outer table (table_a), the executor searches the inner table (table_b) for matching rows, repeating this process for every outer row — hence the term “Nested Loop.”
 4. Output of inner table joins is passed up to parent nodes.
 
 **Memory Hook**:
