@@ -107,7 +107,7 @@ SELECT txid_current();
 
 PostgreSQL decides **which rows a transaction can see** using transaction IDs — without locking rows.
 
-**A row is visible if:**: “A row is visible if it was created before the snapshot. Once a snapshot is taken, the transaction only sees what existed in that snapshot. Anything that happens after the snapshot is invisible to the transaction.”
+**A row is visible if:**: 
 
 1. **The row was created before your transaction started**
 
