@@ -112,12 +112,12 @@ PostgreSQL decides **which rows a transaction can see** using transaction IDs â€
 1. **The row was created before your transaction started**
 
    * `xmin` is committed
-   * `xmin` â‰¤ your transaction snapshot
+   * current_txid > `xmin` 
 
 2. **The row was deleted after your transaction started (or not deleted at all)**
 
    * `xmax` is `0` (not deleted), **or**
-   * `xmax` is from a transaction that started **after** your snapshot
+   * `xmax` is from a transaction that started **after** your snapshot (current_txid < `xmax`)
 
 **Why this works**
 
