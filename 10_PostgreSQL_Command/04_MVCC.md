@@ -107,17 +107,17 @@ SELECT txid_current();
 
 PostgreSQL decides **which rows a transaction can see** using transaction IDs — without locking rows.
 
-**A row is visible if:**: 
+**A row is visible if:**: `xmin <= current_tx  AND  (xmax = 0 OR current_tx < xmax)`
 
 1. **The row was created before your transaction started**
 
    * `xmin` is committed
-   * current_txid > `xmin` 
+   *  `xmin` <=  current_tx
 
 2. **The row was deleted after your transaction started (or not deleted at all)**
 
    * `xmax` is `0` (not deleted), **or**
-   * `xmax` is from a transaction that started **after** your snapshot (current_txid < `xmax`)
+   * `xmax` is from a transaction that started **after** your snapshot (current_txid < `xmax` || `xmax` = 0)
 
 **Why this works**
 
