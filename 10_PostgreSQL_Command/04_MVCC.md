@@ -103,7 +103,7 @@ SELECT txid_current();
 
 ---
 
-## Visibility Rules (Simplified)
+## Visibility Rules
 
 PostgreSQL decides **which rows a transaction can see** using transaction IDs — without locking rows.
 
