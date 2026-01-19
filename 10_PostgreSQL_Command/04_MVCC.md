@@ -105,15 +105,32 @@ SELECT txid_current();
 
 ## Visibility Rules (Simplified)
 
-A row is visible to a transaction if:
+PostgreSQL decides **which rows a transaction can see** using transaction IDs — without locking rows.
 
-* `xmin` is **committed** and **less than or equal to** the transaction’s snapshot
-* `xmax` is either:
+**A row is visible if:**
 
-  * `0`, or
-  * Greater than the transaction’s snapshot
+1. **The row was created before your transaction started**
 
-These rules allow PostgreSQL to decide visibility **without locking**.
+   * `xmin` is committed
+   * `xmin` ≤ your transaction snapshot
+
+2. **The row has not been deleted for your transaction**
+
+   * `xmax` is `0` (not deleted), **or**
+   * `xmax` is from a transaction that started **after** your snapshot
+
+**Why this works**
+
+* Old versions of rows stay in the table
+* Each transaction sees its own “version” of the data
+* No blocking reads, no read locks
+
+**Memory hook**
+
+> *“If it existed before I started, and wasn’t deleted for me — I can see it.”*
+
+This is the core of PostgreSQL’s MVCC behavior.
+
 
 ---
 
