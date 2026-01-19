@@ -69,6 +69,21 @@ Key fields in every row:
 
 > A row is never physically deleted immediately.
 
+### 1. The Core Mechanics: xmin and xmax
+
+Every row in Postgres has hidden "system columns" that track its lifespan:
+
+* **`xmin`**: The ID of the transaction that **created** (inserted) the row.
+* **`xmax`**: The ID of the transaction that **deleted** or **updated** the row. (If it's `0`, the row hasn't been deleted).
+
+---
+
+### 2. How Actions Work
+
+* **INSERT**: Creates a new row with `xmin = MyID` and `xmax = 0`.
+* **DELETE**: Doesn't actually erase the row; it just sets `xmax = MyID`.
+* **UPDATE**: This is a **DELETE + INSERT**. It sets `xmax` on the old version and creates a brand-new row with a new `xmin`.
+
 ---
 
 ## Transaction IDs (TXID)
