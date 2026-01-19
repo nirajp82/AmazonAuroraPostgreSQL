@@ -148,10 +148,18 @@ Visibility rule:
 
 ### Example
 
-* TXID 10 inserts a row → `xmin=10`, `xmax=0`
-* TXID 11 starts before TXID 10 commits → row is invisible
-* TXID 12 starts after commit → row is visible
-
+* Transaction 10 starts
+* Transaction 11 starts immediately after
+* Transaction 12 starts after that
+* Row inserts
+  - Transaction 10 inserts Row A
+    - xmin = 10, xmax = 0
+  - Transaction 12 inserts Row B
+    - xmin = 12, xmax = 0
+* Both transactions commit.
+* Which rows are visible to Transaction 11 when it runs:
+* Only Row A is visible.
+  * Transaction 11 started after Transaction 10
 ---
 
 ## DELETE Under MVCC
