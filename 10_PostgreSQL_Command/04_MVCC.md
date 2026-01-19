@@ -114,7 +114,7 @@ PostgreSQL decides **which rows a transaction can see** using transaction IDs â€
    * `xmin` is committed
    * `xmin` â‰¤ your transaction snapshot
 
-2. **The row has not been deleted for your transaction**
+2. **The row was deleted after your transaction started (or not deleted at all)**
 
    * `xmax` is `0` (not deleted), **or**
    * `xmax` is from a transaction that started **after** your snapshot
