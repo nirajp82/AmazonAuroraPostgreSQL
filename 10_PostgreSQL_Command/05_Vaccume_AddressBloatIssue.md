@@ -161,7 +161,7 @@ Whenever a tuple is deleted or updated:
 
 -Suppose that the table consists of three pages, and the 0th and 2nd pages contain dead tuples and the 1st page does not. The VM of this table holds information about which pages contain dead tuples. In this case, vacuum processing skips the 1st page by referring to the VM’s information.
 
-- <img width="1865" height="798" alt="image" src="https://github.com/user-attachments/assets/6a8c2130-34fd-4129-a5f9-fd7531cb008b" />
+<img width="1865" height="798" alt="image" src="https://github.com/user-attachments/assets/6a8c2130-34fd-4129-a5f9-fd7531cb008b" />
   
 ---
 
