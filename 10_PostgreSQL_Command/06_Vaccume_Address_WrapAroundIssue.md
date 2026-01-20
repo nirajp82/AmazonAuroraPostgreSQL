@@ -66,26 +66,41 @@ This boundary continuously shifts as new transactions start.
 
 ---
 
-## How Wraparound Happens
+## How TXID Wraparound Happens
 
-Consider this simplified sequence:
+PostgreSQL transaction IDs (TXIDs) are **32-bit numbers** that go from **1 up to about 4.29 billion**.
+To handle visibility, PostgreSQL treats TXIDs as a **circle**. This is why very old rows can eventually appear “in the future” if wraparound is not prevented.
 
-1. TXID = 1 inserts a row (`xmin = 1`)
-2. Millions or billions of transactions execute
-3. Current TXID advances close to `2^31 + 1`
+### Step-by-step example
 
-Up to this point, the row created by TXID 1 is still considered **in the past** and remains visible.
+1. **Row is inserted**
 
-Now the critical moment:
+   * **TXID = 1** inserts a row (`xmin = 1`)
+   * Millions or billions of transactions happen afterward
+   * The **current TXID** advances, but TXID 1 is still considered in the **past**
+   * ✅ The row remains **visible**
 
-4. Current TXID advances to `2^31 + 2`
+2. **Approaching the halfway point**
 
-At this point:
+   * Current TXID gets close to **2.1 billion** (half of the TXID range)
+   * TXID 1 is still behind the current TXID
+   * ✅ The row is **still visible**
 
-* TXID 1 is now considered **in the future**
-* The row created by TXID 1 becomes **invisible to all new transactions**
+3. **The critical moment**
 
-This is the **wraparound catastrophe**.
+   * Current TXID passes **2.1 billion + 1**
+   * Now, because of **circular TXID logic**, TXID 1 is considered in the **future**
+   * ❌ The row created by TXID 1 becomes **invisible** to all new transactions
+
+**Result:**
+Even though the row still exists on disk, PostgreSQL “thinks” it hasn’t been created yet. This is the **wraparound problem**.
+
+---
+
+### Key takeaway
+
+> TXIDs are not linear forever — they **wrap around after half of the 4.29-billion space**, and PostgreSQL uses circular arithmetic to decide visibility.
+> Without proper maintenance (like **VACUUM**), very old rows can temporarily disappear from queries.
 
 ---
 
