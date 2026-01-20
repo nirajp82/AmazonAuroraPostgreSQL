@@ -2,10 +2,6 @@
 
 To understand how **VACUUM** fixes table bloat, you must first understand how PostgreSQL stores table and index data on disk.
 
-Got it! I can rewrite your README-style content and integrate the clarification about **which file is being extended** when a new page is added. I’ll keep it detailed, structured, and retain all technical info. Here’s the revised version:
-
----
-
 ### PostgreSQL Data File and Page Layout
 
 PostgreSQL stores **relations** (tables, indexes, free space maps, and visibility maps) as **physical data files on disk**. Each relation is divided into **pages (blocks)** of **8192 bytes (8 KB)** by default.
@@ -55,17 +51,7 @@ Each page contains **three main components**:
   * **Offset number** – Line pointer pointing to the tuple.
 * TID is commonly used in **indexes** for tuple referencing.
 <img width="1897" height="645" alt="image" src="https://github.com/user-attachments/assets/54eea615-a797-4f5e-a255-195e3966932f" />
-
----
-
-This version adds:
-
-* Clear explanation of **which file is being extended**.
-* Notes on **1 GB file size limits** and multi-file storage.
-* Keeps all previous details about **page structure and TID**.
-
-
-
+- Reference: http://interdb.jp/pg/pgsql01/03.html
 ---
 
 ## How Inserts Work at Page Level
