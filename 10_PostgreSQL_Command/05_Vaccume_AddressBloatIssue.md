@@ -2,42 +2,69 @@
 
 To understand how **VACUUM** fixes table bloat, you must first understand how PostgreSQL stores table and index data on disk.
 
-PostgreSQL data files are made up of **fixed-size 8 KB pages**.
-
-* Files always grow in **8 KB increments**
-* Reads and writes always happen in **8 KB chunks**
-
-This design is fundamental to how space reuse and vacuuming work.
+Got it! I can rewrite your README-style content and integrate the clarification about **which file is being extended** when a new page is added. I’ll keep it detailed, structured, and retain all technical info. Here’s the revised version:
 
 ---
 
-## Heap Page Structure (Table Pages)
+### PostgreSQL Data File and Page Layout
 
-Each table page consists of three logical areas:
+PostgreSQL stores **relations** (tables, indexes, free space maps, and visibility maps) as **physical data files on disk**. Each relation is divided into **pages (blocks)** of **8192 bytes (8 KB)** by default.
 
-1. **Page Header**
-2. **Item Pointer Array (Line Pointers)**
-3. **Heap Tuples (Actual Rows)**
+* Pages are **numbered sequentially from 0**, called **block numbers**.
+* When all existing pages in a data file are full, PostgreSQL **adds a new empty page to that file**.
+* **File extension details:**
 
-### Page Header
+  * Each data file can grow up to **1 GB**.
+  * If the relation exceeds this limit, PostgreSQL **creates additional files** with numeric suffixes (e.g., `tablename.1`, `tablename.2`) to continue storing pages.
 
-* Stores metadata about the page
-* Tracks free space boundaries
+#### Page Layout in Heap Tables
 
-### Item Pointers (Line Pointers)
+Each page contains **three main components**:
 
-* A dynamic array in the page header
-* Each entry points to a tuple in the heap
-* Item pointer #1 points to the first row in the page
+1. **Heap Tuples**
 
-> Item pointers do not disappear when a row is deleted.
+   * Store the actual **record data**.
+   * Stacked **from the bottom of the page upward**.
+   * Internal structure depends on **concurrency control (CC)** and **write-ahead logging (WAL)** (covered in Sections 5.2 and 9).
 
-### Heap Tuples
+2. **Line Pointers (Item Pointers)**
 
-* Actual row data
-* Grows **from the end of the page backward** toward the header
+   * Each is **4 bytes**, pointing to a heap tuple.
+   * Form a **sequential array**, acting as an **index to the tuples**.
+   * Numbered sequentially from **1**, called **offset numbers**.
+   * Adding a new tuple automatically adds a **new line pointer** in the array.
 
-Free space lives between the item pointer array and the heap tuples.
+3. **Header Data (`PageHeaderData`)**
+
+   * Located at the **beginning of the page**, **24 bytes** long.
+   * Stores general page information, including:
+
+     * **pd_lsn** – LSN of the last XLOG change (8 bytes, WAL-related).
+     * **pd_checksum** – Page checksum (PostgreSQL 9.3+; earlier versions stored `pd_tli`).
+     * **pd_lower** – Points to the **end of line pointers**.
+     * **pd_upper** – Points to the **start of newest tuple**.
+     * **pd_special** – Reserved for indexes; in tables, points to **end of page**; in indexes, points to **special data area** (e.g., B-tree, GiST, GIN).
+
+* **Free Space / Hole** – Space between the end of line pointers (`pd_lower`) and the start of the newest tuple (`pd_upper`).
+
+#### Tuple Identification
+
+* Each tuple is identified by a **Tuple Identifier (TID)**, which consists of:
+
+  * **Block number** – Page containing the tuple.
+  * **Offset number** – Line pointer pointing to the tuple.
+* TID is commonly used in **indexes** for tuple referencing.
+<img width="1897" height="645" alt="image" src="https://github.com/user-attachments/assets/54eea615-a797-4f5e-a255-195e3966932f" />
+
+---
+
+This version adds:
+
+* Clear explanation of **which file is being extended**.
+* Notes on **1 GB file size limits** and multi-file storage.
+* Keeps all previous details about **page structure and TID**.
+
+
 
 ---
 
