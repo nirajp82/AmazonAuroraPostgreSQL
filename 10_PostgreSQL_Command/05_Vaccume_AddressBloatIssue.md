@@ -243,6 +243,8 @@ VACUUM FULL should be used:
 * Only during maintenance windows
 * Only when table bloat is severe
 
+<img width="1667" height="755" alt="image" src="https://github.com/user-attachments/assets/ceadef31-4fe6-439a-b359-c0200cc23241" />
+
 ---
 
 ## Concurrent VACUUM vs VACUUM FULL
