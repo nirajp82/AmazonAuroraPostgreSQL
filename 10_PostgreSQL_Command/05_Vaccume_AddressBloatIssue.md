@@ -65,6 +65,7 @@ Each page contains **three main components**:
   * A new 8 KB page is appended to the table file
 
 Over time, a table accumulates many pages as data grows.
+<img width="673" height="230" alt="image" src="https://github.com/user-attachments/assets/6e4555dd-bc63-4ad1-90f7-4efaae7606bb" />
 
 ---
 
