@@ -10,15 +10,48 @@ This design enables efficient comparisons but introduces a serious risk known as
 
 TXIDs do not grow forever. Instead, they wrap around after reaching their maximum value.
 
-Conceptually:
+### Circular TXID Space
 
-* At any moment, there is a **current TXID**
-* Roughly **2 billion TXIDs are in the past**
-* Roughly **2 billion TXIDs are in the future**
+PostgreSQL transaction IDs (TXIDs) are **32-bit values**, so they do not grow forever.
+After reaching the maximum value, they **wrap around**, forming a circular ID space.
 
-Only rows created by **past transactions** are visible to the current transaction.
+#### How PostgreSQL interprets TXIDs
 
-> Visibility is determined by comparing row metadata against the transaction’s snapshot, not by wall-clock time.
+At any moment, PostgreSQL has a **current TXID**.
+This current TXID conceptually divides the entire TXID space into **two logical halves**:
+
+* **Past TXIDs** – transactions that started **before the current transaction’s snapshot**
+* **Future TXIDs** – transactions that started **after the snapshot was taken**
+
+Because the TXID space is circular, this division always results in:
+
+* Roughly **2 billion TXIDs considered “past”**
+* Roughly **2 billion TXIDs considered “future”**
+
+This is why PostgreSQL describes the TXID space as **circular** rather than linear.
+
+#### Important clarification: “past” and “future” are not time-based
+
+The terms **past** and **future** do **not** refer to wall-clock time.
+
+They mean only:
+
+* **Past TXID** → a transaction that started **before the snapshot**
+* **Future TXID** → a transaction that started **after the snapshot**
+
+#### Visibility rule
+
+A transaction can see **only rows created by past transactions** relative to its snapshot.
+
+Row visibility is determined by comparing:
+
+* the row’s transaction metadata (`xmin`, `xmax`)
+* against the transaction’s snapshot
+
+**Wall-clock time is never used** for visibility decisions.
+
+For ex: When the current TXID is 2, PostgreSQL treats TXIDs 2 to 2³¹ + 1 as belonging to the future and therefore invisible, while TXIDs 2³¹ + 2 through 0 (after wraparound) are treated as the past and are visible.
+<img width="1113" height="482" alt="image" src="https://github.com/user-attachments/assets/2b6c4f3e-a4d4-4381-a29f-5ca40adee867" />
 
 ---
 
