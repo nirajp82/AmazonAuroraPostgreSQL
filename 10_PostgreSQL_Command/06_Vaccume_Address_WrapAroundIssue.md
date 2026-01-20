@@ -131,6 +131,7 @@ PostgreSQL prevents wraparound using a process called **tuple freezing**.
 * Marks old rows as **frozen**
 * Frozen rows are visible to **all transactions, forever**
 * Visibility no longer depends on `xmin`
+<img width="1012" height="406" alt="image" src="https://github.com/user-attachments/assets/d97380e8-708e-4153-8b88-edadae244211" />
 
 Once frozen, a row is immune to wraparound.
 
