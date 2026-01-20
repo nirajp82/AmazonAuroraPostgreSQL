@@ -169,6 +169,7 @@ Example:
 
 * First 3 rows frozen → always visible
 * Remaining rows → normal MVCC rules apply
+<img width="1111" height="506" alt="image" src="https://github.com/user-attachments/assets/68800519-3efa-4c22-9c4b-f08d215cb2ca" />
 
 ---
 
