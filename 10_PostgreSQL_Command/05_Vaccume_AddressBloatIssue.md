@@ -88,6 +88,8 @@ These dead tuples:
 * Appear during sequential scans
 
 This is known as **table bloat**.
+- In the below data page, item 3, 6 and 16 marked as deleted. 
+<img width="677" height="232" alt="image" src="https://github.com/user-attachments/assets/edf0141a-a2a6-4023-9738-cdcbf3e7e9cd" />
 
 ---
 
