@@ -94,6 +94,7 @@ To handle visibility, PostgreSQL treats TXIDs as a **circle**. This is why very 
 
 **Result:**
 Even though the row still exists on disk, PostgreSQL “thinks” it hasn’t been created yet. This is the **wraparound problem**.
+<img width="1043" height="518" alt="image" src="https://github.com/user-attachments/assets/ca4ecaa4-ec44-45a6-9c20-680a79f1a2db" />
 
 ---
 
