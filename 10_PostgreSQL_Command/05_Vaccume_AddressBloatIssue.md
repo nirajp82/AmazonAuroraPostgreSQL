@@ -206,8 +206,8 @@ This is the most commonly used vacuuming mode.
 * Does **not lock the table**
 * Reads and writes continue during vacuum
 * Page count before and after vacuum remains the same
-
-Space is reused **inside existing pages**, not released.
+* Space is reused **inside existing pages**, not released.
+* Performance improvement *may* not be significant. 
 <img width="1850" height="855" alt="image" src="https://github.com/user-attachments/assets/d9d22fc2-b9ac-45de-8389-de38ae713b9c" />
 
 ---
