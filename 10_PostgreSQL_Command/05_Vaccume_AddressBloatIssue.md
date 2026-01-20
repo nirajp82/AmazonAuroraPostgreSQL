@@ -144,7 +144,7 @@ This extension allows you to:
 
 ## Visibility Map (VM)
 
-The **Visibility Map** tracks whether a page contains any dead tuples.
+The **Visibility Map** tracks whether a page contains any dead tuples. The basic concept of the VM is simple. Each table has an individual visibility map that holds the visibility of each page in the table file. The visibility of pages determines whether or not each page has dead tuples. Vacuum processing can skip a page that does not have dead tuples by using the corresponding visibility map (VM).
 
 * Maintained **per page**, not per row
 
@@ -159,6 +159,10 @@ Whenever a tuple is deleted or updated:
 
 * VM bit for that page is set to **0**
 
+-Suppose that the table consists of three pages, and the 0th and 2nd pages contain dead tuples and the 1st page does not. The VM of this table holds information about which pages contain dead tuples. In this case, vacuum processing skips the 1st page by referring to the VM’s information.
+
+- <img width="1865" height="798" alt="image" src="https://github.com/user-attachments/assets/6a8c2130-34fd-4129-a5f9-fd7531cb008b" />
+  
 ---
 
 ## How VACUUM Uses the Visibility Map
