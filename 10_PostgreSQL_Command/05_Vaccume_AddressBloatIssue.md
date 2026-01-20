@@ -51,7 +51,9 @@ Each page contains **three main components**:
   * **Offset number** – Line pointer pointing to the tuple.
 * TID is commonly used in **indexes** for tuple referencing.
 <img width="1897" height="645" alt="image" src="https://github.com/user-attachments/assets/54eea615-a797-4f5e-a255-195e3966932f" />
+
 - Reference: http://interdb.jp/pg/pgsql01/03.html
+
 ---
 
 ## How Inserts Work at Page Level
