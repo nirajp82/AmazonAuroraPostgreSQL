@@ -208,6 +208,7 @@ This is the most commonly used vacuuming mode.
 * Page count before and after vacuum remains the same
 
 Space is reused **inside existing pages**, not released.
+<img width="1850" height="855" alt="image" src="https://github.com/user-attachments/assets/d9d22fc2-b9ac-45de-8389-de38ae713b9c" />
 
 ---
 
