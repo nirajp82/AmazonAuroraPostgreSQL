@@ -1,7 +1,5 @@
 # Amazon Aurora PostgreSQL – Global Database
 
-## Overview
-
 **Amazon Aurora Global Database** is designed to run a single logical database across multiple AWS regions. It is the premier solution for:
 
 * **Region-level disaster recovery** (protection against entire AWS region outages).
