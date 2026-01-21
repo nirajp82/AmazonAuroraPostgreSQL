@@ -25,6 +25,10 @@
 | Amazon Aurora Global Database Design Patterns for HA and DR                                    | [Link](https://www.youtube.com/watch?v=bbiWciJSouY)                              |
 ---
 
+- https://aws.amazon.com/blogs/database/automate-amazon-aurora-global-database-endpoint-management/
+- https://aws.amazon.com/blogs/database/deploy-multi-region-amazon-aurora-applications-with-a-failover-blueprint/.
+- https://github.com/nirajp82/amazon-aurora-global-database-endpoint-automation
+
 ## GitHub Repositories
 
 * [Amazon-RDS-Aurora-Postgres-v1](https://github.com/acloudfan/Amazon-RDS-Aurora-Postgres-v1)
