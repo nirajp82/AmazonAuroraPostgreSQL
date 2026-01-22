@@ -221,7 +221,19 @@ Aurora Global Database
 │
 └── (up to 5 secondary clusters)
 ```
+
+### Aurora Global Database – Replica & Cluster Limits (With Examples)
+
+| Item                                     | Limit                                 | What It Means                                                           | Example                                                                                         |
+| ---------------------------------------- | ------------------------------------- | ----------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| **Writer instances**                     | Exactly **1**                         | Only one instance in the entire Global DB can accept writes at any time | `us-east-1` has **1 writer**. All tenant DB writes go here                                      |
+| **Secondary clusters**                   | Up to **5**                           | You can attach up to 5 additional regional clusters for reads / DR      | Primary in `us-east-1`, secondary in `us-west-2`, `eu-west-1`, `ap-southeast-1` (3 secondaries) |
+| **Total replicas per cluster (primary)** | **15 − number of secondary clusters** | Primary cluster loses replica capacity as you add secondary clusters    | 3 secondary clusters → `15 − 3 = 12` readers allowed in primary                                 |
+| **Replicas per secondary cluster**       | Up to **16**                          | Each secondary cluster can scale read replicas independently            | `eu-west-1` secondary has **8 readers** to serve EU traffic, and can scale up to 16 readers     |
+| **Total clusters in a Global DB**        | **1 primary + up to 5 secondary**     | Maximum of 6 regional clusters per Global DB                            | Regions: `us-east-1` (primary) + 5 others                                                       |
+
 ---
+
 
 ## Benefits of Aurora Global Database
 
