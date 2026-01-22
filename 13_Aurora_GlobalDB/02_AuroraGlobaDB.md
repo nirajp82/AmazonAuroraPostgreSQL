@@ -312,8 +312,6 @@ Consider a Global Database with:
 
 This ensures continuity with **minimal data loss (RPO ~1 sec)** and **rapid recovery (RTO ~1 min)**.
 
-Ah! I see—they were missing in the last version. Let’s add a proper **FAQ section** at the end of your README, aligned with all the updated details:
-
 ---
 
 ## FAQ – Aurora Global Database
