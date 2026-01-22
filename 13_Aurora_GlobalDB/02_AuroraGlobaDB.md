@@ -207,6 +207,20 @@ Be aware of the following constraints:
 * Each secondary cluster: **up to 16 replicas**
 * Primary cluster: **15 − number of secondary clusters** replicas
 
+```pgsql
+Aurora Global Database
+├── Primary Cluster (1 region)
+│   ├── 1 Writer instance
+│   ├── N Reader instances
+│
+├── Secondary Cluster (region 2)
+│   ├── 0–16 Reader instances
+│
+├── Secondary Cluster (region 3)
+│   ├── 0–16 Reader instances
+│
+└── (up to 5 secondary clusters)
+```
 ---
 
 ## Benefits of Aurora Global Database
