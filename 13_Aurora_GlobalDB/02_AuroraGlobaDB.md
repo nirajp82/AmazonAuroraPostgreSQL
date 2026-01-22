@@ -360,6 +360,3 @@ A secondary cluster with **no database instances** but a fully replicated storag
 * RPO-critical workloads
 * Cost optimization
 * Workloads where longer RTO is acceptable
-
-
-
