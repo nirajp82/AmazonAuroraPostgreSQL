@@ -150,6 +150,7 @@ A secondary cluster:
 * May have **no database instances** (headless)
 * Still maintains a replicated storage volume
 * Has replication lag typically under one second
+<img width="1261" height="579" alt="image" src="https://github.com/user-attachments/assets/b23eaf2a-96d6-4c9d-8c9d-2a477d059da1" />
 
 ### Use Case
 
@@ -163,6 +164,7 @@ If the primary fails:
 
 * Instances can be added to the headless cluster
 * The cluster is promoted to primary
+<img width="1267" height="478" alt="image" src="https://github.com/user-attachments/assets/2f1f06dd-0ee1-45e0-a326-4ccce0206b2f" />
 
 ---
 
