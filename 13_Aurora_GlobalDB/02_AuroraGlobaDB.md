@@ -150,7 +150,7 @@ A secondary cluster:
 * May have **no database instances** (headless)
 * Still maintains a replicated storage volume
 * Has replication lag typically under one second
-<img width="1261" height="579" alt="image" src="https://github.com/user-attachments/assets/b23eaf2a-96d6-4c9d-8c9d-2a477d059da1" />
+<img width="1227" height="474" alt="image" src="https://github.com/user-attachments/assets/1a9afc66-7f4b-463b-b9ca-f3d550ddbd24" />
 
 ### Use Case
 
@@ -282,6 +282,7 @@ Use a **regular Aurora cluster** when:
 
 * Cross-region reads are unnecessary
 * Region-level DR is not required
+<img width="1272" height="546" alt="image" src="https://github.com/user-attachments/assets/8d6d1fb3-66ff-4e37-bc63-bac8e210d773" />
 
 ---
 
