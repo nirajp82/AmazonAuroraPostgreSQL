@@ -17,6 +17,8 @@ A Global Database:
 * Can have **up to five secondary clusters**
 * Can span **a maximum of six regions**
 
+<img width="1092" height="516" alt="Global Database Topology" src="https://github.com/user-attachments/assets/abf04c33-ffa9-4425-b723-8bacf481b593" />
+
 ### Cluster Roles
 
 | Cluster Type      | Role                             |
@@ -46,6 +48,25 @@ Aurora Global Database uses **physical replication**:
 
 ---
 
+## Physical vs Logical Replication (Performance Insight)
+
+Independent benchmarking (referenced from AWS blogs) compared:
+
+* **Logical replication** across regions
+* **Aurora Global Database physical replication**
+
+### Observations
+
+| Metric             | Logical Replication | Global DB Physical Replication |
+| ------------------ | ------------------- | ------------------------------ |
+| Peak QPS           | ~35,000             | ~200,000                       |
+| Replication lag    | Grows exponentially | < 1 second                     |
+| Performance impact | High                | Minimal                        |
+
+**Conclusion:** Physical replication allows **much higher throughput and stability** at scale.
+
+---
+
 ## Writer, Readers, and Replicators
 
 ### Writer Behavior
@@ -60,6 +81,8 @@ Aurora Global Database uses **physical replication**:
 * Data changes are streamed at the storage layer
 
 > This replication mechanism is **proprietary to Amazon Aurora**.
+
+<img width="1072" height="508" alt="Replication Flow" src="https://github.com/user-attachments/assets/2a223704-e4d8-49ae-bdfc-83c4932c5bcf" />
 
 ---
 
@@ -288,3 +311,55 @@ Consider a Global Database with:
 * Applications reconnect to the new primary writer endpoint
 
 This ensures continuity with **minimal data loss (RPO ~1 sec)** and **rapid recovery (RTO ~1 min)**.
+
+Ah! I see—they were missing in the last version. Let’s add a proper **FAQ section** at the end of your README, aligned with all the updated details:
+
+---
+
+## FAQ – Aurora Global Database
+
+**Q1: Can a secondary cluster accept writes?**
+No. Secondary clusters are **read-only** unless promoted to primary. All writes go to the single **writer instance** in the primary cluster.
+
+**Q2: How many secondary clusters can I have?**
+Up to **5 secondary clusters**, so a Global Database can span a maximum of **6 regions** including the primary.
+
+**Q3: How many read replicas can each cluster have?**
+
+* **Primary cluster:** `15 − number of secondary clusters` replicas
+* **Secondary cluster:** Up to **16 replicas** each
+
+**Q4: What happens if the primary cluster fails?**
+
+* Applications experience an outage until failover occurs
+* One of the secondary clusters is promoted to primary by AWS
+* Applications must reconnect to the new writer endpoint
+* Typical **RPO ~1 second**, **RTO ~1 minute** with proper automation
+
+**Q5: Can clusters be stopped?**
+No. Once part of a Global Database, clusters **cannot be stopped**.
+
+**Q6: Are replication and failover automatic?**
+
+* **Replication:** Continuous and automatic at the storage level
+* **Failover:** **Cross-region failover is triggered manually** or via automation; AZ-level failover within a region is automatic
+
+**Q7: Can I mix instance classes and replicas across clusters?**
+Yes. Each cluster is managed independently:
+
+* Replica count can vary
+* Instance classes can differ per region
+* Parameter groups are cluster-specific (with some limitations)
+
+**Q8: Can I use automatic minor version upgrades?**
+No. The option exists in the console but **has no effect** for Global Database clusters.
+
+**Q9: What is a headless secondary cluster?**
+A secondary cluster with **no database instances** but a fully replicated storage volume. Instances can be added later if the cluster is promoted to primary. Useful for:
+
+* RPO-critical workloads
+* Cost optimization
+* Workloads where longer RTO is acceptable
+
+
+
