@@ -80,6 +80,7 @@ Independent benchmarking (referenced from AWS blogs) compared:
 * Data changes are streamed at the storage layer
 
 > This replication mechanism is **proprietary to Amazon Aurora**.
+<img width="1072" height="508" alt="image" src="https://github.com/user-attachments/assets/2a223704-e4d8-49ae-bdfc-83c4932c5bcf" />
 
 ---
 
