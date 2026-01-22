@@ -16,6 +16,7 @@ A Global Database:
 * Has **exactly one primary cluster**
 * Can have **up to five secondary clusters**
 * Can span **a maximum of six regions**
+<img width="1092" height="516" alt="image" src="https://github.com/user-attachments/assets/abf04c33-ffa9-4425-b723-8bacf481b593" />
 
 ### Cluster Roles
 
