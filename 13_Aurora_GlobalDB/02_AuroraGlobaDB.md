@@ -16,7 +16,6 @@ A Global Database:
 * Has **exactly one primary cluster**
 * Can have **up to five secondary clusters**
 * Can span **a maximum of six regions**
-<img width="1092" height="516" alt="image" src="https://github.com/user-attachments/assets/abf04c33-ffa9-4425-b723-8bacf481b593" />
 
 ### Cluster Roles
 
@@ -47,25 +46,6 @@ Aurora Global Database uses **physical replication**:
 
 ---
 
-## Physical vs Logical Replication (Performance Insight)
-
-Independent benchmarking (referenced from AWS blogs) compared:
-
-* **Logical replication** across regions
-* **Aurora Global Database physical replication**
-
-### Observations
-
-| Metric             | Logical Replication | Global DB Physical Replication |
-| ------------------ | ------------------- | ------------------------------ |
-| Peak QPS           | ~35,000             | ~200,000                       |
-| Replication lag    | Grows exponentially | < 1 second                     |
-| Performance impact | High                | Minimal                        |
-
-**Conclusion:** Physical replication allows **much higher throughput and stability** at scale.
-
----
-
 ## Writer, Readers, and Replicators
 
 ### Writer Behavior
@@ -80,7 +60,6 @@ Independent benchmarking (referenced from AWS blogs) compared:
 * Data changes are streamed at the storage layer
 
 > This replication mechanism is **proprietary to Amazon Aurora**.
-<img width="1072" height="508" alt="image" src="https://github.com/user-attachments/assets/2a223704-e4d8-49ae-bdfc-83c4932c5bcf" />
 
 ---
 
@@ -103,20 +82,19 @@ This is a deliberate trade-off to achieve:
 
 Secondary clusters are **pre-configured promotion targets**.
 
-### Failure Scenario
-
-Assume:
+### Example Scenario
 
 * Primary cluster in **Region 1**
 * Secondary clusters in **Region 2** and **Region 3**
+* All **writes** are handled by the primary cluster
 
-If the primary region fails:
+If the primary cluster fails:
 
 1. Applications connected to the primary writer experience an outage
 2. Replication from primary to secondary stops (expected)
 3. A user or automation **initiates failover**
 4. One secondary cluster is promoted to primary
-5. The promoted cluster becomes read/write
+5. The promoted cluster becomes **read/write**
 6. Applications reconnect to the new writer endpoint
 
 > Database promotion is handled by AWS. Applications must reconnect.
@@ -236,7 +214,6 @@ Aurora Global Database
 
 ---
 
-
 ## Benefits of Aurora Global Database
 
 * Low-latency reads across regions
@@ -291,3 +268,23 @@ Use a **regular Aurora cluster** when:
 * **Secondary = failover target**
 * **AWS handles DB roles, apps handle reconnection**
 * **Powerful but costly**
+
+---
+
+## Failover Summary Example
+
+Consider a Global Database with:
+
+* Primary cluster in **Region 1**
+
+* Secondary clusters in **Region 2** and **Region 3**
+
+* All **writes** go to the primary cluster
+
+* If primary fails, replication stops
+
+* Failover can be triggered to promote a secondary cluster
+
+* Applications reconnect to the new primary writer endpoint
+
+This ensures continuity with **minimal data loss (RPO ~1 sec)** and **rapid recovery (RTO ~1 min)**.
