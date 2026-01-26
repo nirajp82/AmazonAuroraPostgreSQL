@@ -110,6 +110,7 @@ Instead, change what the application **resolves**.
 4. Point the CNAME to:
 
    * Writer endpoint of the **active primary cluster**
+<img width="1019" height="437" alt="image" src="https://github.com/user-attachments/assets/7ed90014-970e-4054-8fd9-632f22509f18" />
 
 ---
 
