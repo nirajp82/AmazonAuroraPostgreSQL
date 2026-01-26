@@ -238,6 +238,43 @@ Allows applications connected to a **secondary cluster** to issue writes:
 
 > This does NOT create multi-writer behavior.
 
+## Step-by-Step: What Actually Happens
+
+### 1️⃣ Application Connects to a Secondary Cluster
+
+Example:
+
+* App is running in **Europe**
+* Connected to **EU secondary cluster**
+* App sends an `INSERT` or `UPDATE`
+
+
+### 2️⃣ Write Is Forwarded to the Primary
+
+* The **secondary cluster detects** this is a write
+* It **forwards the write request** to the **primary cluster**
+* This happens internally over AWS’s private backbone
+
+🧠 The secondary acts like a **proxy**, not a writer.
+
+### 3️⃣ Commit Happens on the Primary
+
+* The **primary cluster executes the write**
+* Transaction is committed **only on the primary**
+* All durability guarantees apply **only at the primary**
+
+✅ There is still **one source of truth**
+
+### 4️⃣ Result Is Returned Transparently
+
+* Success or failure is sent back:
+
+  * Primary → Secondary → Application
+* To the application:
+
+  * It **looks like the write succeeded locally**
+  * No special logic is required
+
 ---
 
 ## Disaster Recovery and Failover
