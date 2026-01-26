@@ -9,7 +9,7 @@ You will learn:
 * Core **DR concepts (RPO & RTO)**
 * Why different applications need different DR strategies
 * How **Managed RPO** works internally in Aurora Global Database
-* Performance and operational trade-offs
+* Performance and operational trade‑offs
 * Monitoring metrics and functions related to Managed RPO
 
 This README is written for **beginners** and intended for **quick revision** later.
@@ -42,7 +42,7 @@ The **maximum amount of data loss** an application can tolerate.
 
 **Examples:**
 
-* **E-commerce application:** RPO = **1 minute** (very sensitive)
+* **E‑commerce application:** RPO = **1 minute** (very sensitive)
 * **Reporting application:** RPO = **6 hours** (less sensitive)
 
 Lower RPO ⇒ **higher complexity and cost**
@@ -56,7 +56,7 @@ The **maximum time allowed** to restore the application after a failure.
 
 **Examples:**
 
-* **E-commerce application:** RTO = **1 minute**
+* **E‑commerce application:** RTO = **1 minute**
 * **Reporting application:** RTO = **24 hours**
 
 Lower RTO ⇒ **faster failover and higher operational cost**
@@ -74,13 +74,13 @@ Lower RTO ⇒ **faster failover and higher operational cost**
 
 **Key Insight:**
 
-> *There is no one-size-fits-all DR solution.*
+> *There is no one‑size‑fits‑all DR solution.*
 
 ---
 
 ## Aurora Global Database – Default RPO Limitation
 
-* Out-of-the-box Aurora Global Database typically provides:
+* Out‑of‑the‑box Aurora Global Database typically provides:
 
   * **~1 minute RPO**
 
@@ -88,32 +88,116 @@ For some applications, this is **not acceptable**.
 
 ---
 
-## Managed RPO – What Problem Does It Solve?
+## Why Managed RPO Exists and When to Use It
 
-**Scenario:**
-An application **cannot lose more than 20 seconds of data**.
+### The Problem Managed RPO Solves
 
-**Challenge:**
-Default Global DB RPO (~1 minute) is too high.
+By default, **Aurora Global Database** provides an RPO of roughly **~1 minute**.
+For many workloads this is acceptable, but for **data-sensitive applications**, even 60 seconds of data loss is too much.
 
-**Solution:**
-👉 **Aurora Global Database – Managed RPO**
+**Example:**
+
+* A payment or order-processing system cannot afford to lose more than **20 seconds** of transactions.
+
+This creates a gap between:
+
+* **Business requirement** → very low data loss
+* **Default Global DB behavior** → best-effort asynchronous replication
+
+Managed RPO exists to **bridge this gap**.
 
 ---
 
-## Managed RPO – Key Concept
+### What Managed RPO Actually Does
 
-**Managed RPO** ensures that:
+**Managed RPO enforces a hard upper bound on data loss** by controlling when transactions are allowed to commit.
 
-* Aurora **blocks transaction commits** unless replication lag stays **within a defined RPO window**
+It works by:
 
-**Supported RPO Range:**
+* Continuously monitoring **replication lag** to secondary clusters
+* Allowing a commit **only if the lag is within the configured RPO**
+
+**Supported RPO range:**
 
 * From **20 seconds** up to **68 years**
 
 ---
 
-## How Managed RPO Works (Step-by-Step)
+### How Managed RPO Helps Prioritize Recovery Effort
+
+When a regional failure happens:
+
+* Applications with **Managed RPO** are already operating within a known, enforced data-loss window
+* This allows teams to:
+
+  * Prioritize **low-RPO applications first**
+  * Make faster, more confident failover decisions
+
+**Key idea:**
+
+> *Managed RPO turns an unknown data-loss risk into a controlled, measurable limit.*
+
+---
+
+## How Managed RPO Works (Clear Explanation)
+
+### Example Setup
+
+* Primary cluster → Region 1
+* Secondary cluster → Region 2
+* Secondary cluster → Region 3
+* Managed RPO configured to **20 seconds**
+
+This means:
+
+> The application can lose **no more than 20 seconds of committed data** during a regional failure.
+
+---
+
+### Commit Decision Logic (Step-by-Step)
+
+Aurora evaluates replication lag **at commit time**.
+
+**Rule:**
+
+> A commit is allowed **only if at least one secondary cluster** has lag **less than the configured RPO**.
+
+---
+
+#### Case 1: Both Secondaries Within RPO
+
+* Secondary A lag = 12s
+* Secondary B lag = 15s
+
+✅ Commit succeeds
+
+---
+
+#### Case 2: One Secondary Within RPO
+
+* Secondary A lag = 25s
+* Secondary B lag = 18s
+
+✅ Commit succeeds (one replica is safe)
+
+---
+
+#### Case 3: All Secondaries Exceed RPO
+
+* Secondary A lag = 22s
+* Secondary B lag = 21s
+
+⛔ Commit is **blocked**
+
+Aurora **pauses the application** until:
+
+* At least one secondary recovers to lag < 20s
+
+Then the commit proceeds.
+
+---
+
+## How Managed RPO Works (Step‑by‑Step)
 
 ### Example Setup
 
@@ -193,7 +277,7 @@ Then commit is sent.
 
 **Key Insight:**
 
-> *Managed RPO is a trade-off between safety and speed.*
+> *Managed RPO is a trade‑off between safety and speed.*
 
 ---
 
@@ -229,7 +313,7 @@ SELECT * FROM aurora_global_db_status();
 
 **What it provides:**
 
-* Point-in-time RPO lag values for each secondary cluster
+* Point‑in‑time RPO lag values for each secondary cluster
 
 **Important Note:**
 
@@ -246,7 +330,7 @@ Use Managed RPO when:
 
 Avoid or carefully test when:
 
-* Latency-sensitive workloads
+* Latency‑sensitive workloads
 * Applications with aggressive timeout settings
 
 ---
@@ -283,7 +367,7 @@ Because commits are **paused** until replication lag meets RPO requirements.
 
 ---
 
-### Q4: Is Managed RPO suitable for read-heavy workloads?
+### Q4: Is Managed RPO suitable for read‑heavy workloads?
 
 Yes, but write latency impact must still be tested.
 
@@ -295,6 +379,6 @@ Application commits are **blocked** until at least one secondary recovers.
 
 ---
 
-## Memory Summary (One-Line Recall)
+## Memory Summary (One‑Line Recall)
 
 > *Managed RPO protects data by slowing the app when replicas fall behind.*
