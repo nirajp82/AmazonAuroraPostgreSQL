@@ -75,6 +75,8 @@ Changing application configuration during an outage is:
 **Key takeaway:**
 
 > *If possible, avoid application changes during recovery.*
+<img width="686" height="344" alt="image" src="https://github.com/user-attachments/assets/dc5524b0-7daf-495a-9077-1b4878af9ecd" />
+<img width="1020" height="354" alt="image" src="https://github.com/user-attachments/assets/8eaa389c-0b65-4a27-a6bc-c88e6aef4073" />
 
 ---
 
