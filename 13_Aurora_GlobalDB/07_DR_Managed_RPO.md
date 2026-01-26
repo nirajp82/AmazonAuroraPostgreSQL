@@ -244,6 +244,7 @@ Aurora **pauses the application** until:
 * At least one secondary lag < 20s
 
 Then commit is sent.
+<img width="1308" height="583" alt="image" src="https://github.com/user-attachments/assets/4d8b495e-80a4-42c4-820c-61d77edd265f" />
 
 ---
 
