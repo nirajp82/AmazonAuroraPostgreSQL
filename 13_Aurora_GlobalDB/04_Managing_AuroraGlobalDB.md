@@ -64,26 +64,40 @@ Aurora Global Database **does not automatically failover** like a local cluster.
 #### Steps:
 
 1. **Stop DML operations**: Pause all write operations to avoid inconsistencies.
-2. **Detach all secondary clusters**: Each becomes a standalone cluster.
-
+   <img width="1691" height="518" alt="image" src="https://github.com/user-attachments/assets/4142787b-8edf-496b-b019-b0c0cf240abd" />
+3. **Detach all secondary clusters**: Each becomes a standalone cluster. (In this case it would be 3 indepedent cluster) 
+   <img width="1707" height="524" alt="image" src="https://github.com/user-attachments/assets/3bc72cf5-c41e-4f64-92a3-14a337971a2b" />
    * This prevents a **split-brain scenario** (applications writing to different clusters, causing data inconsistencies or loss).
-3. **Point applications to one standalone cluster**: Preferably the one with the **lowest replication lag**.
-4. **Delete unused clusters**: They still consume resources and cost money.
-5. **Recreate the Global Database**: Add clusters back, possibly with the same names to minimize application reconfiguration.
-6. **Recover lost data** (if any) and perform **managed failover** to preferred region if needed.
+4. **Point applications to one standalone cluster**: Preferably the one with the **lowest replication lag**.
+    <img width="1740" height="539" alt="image" src="https://github.com/user-attachments/assets/e5a68129-71f3-4d29-85d5-c0d3bad28aed" />
+6. **Delete unused clusters**: They still consume resources and cost money.
+    <img width="1020" height="427" alt="image" src="https://github.com/user-attachments/assets/008aed0f-c418-42ad-92a4-ed4fdb4a4074" />
+8. **Recreate the Global Database**: Add clusters back, possibly with the same names to minimize application reconfiguration.
+    <img width="1024" height="421" alt="image" src="https://github.com/user-attachments/assets/215ea17f-f1ac-48b5-9ff6-679c963b1cd2" />
+9. **Recover lost data** (if any) and perform **managed failover** to preferred region if needed.
 
 **Memory Hook:** Unplanned failover = emergency evacuation; pick the safest cluster first.
+<img width="1706" height="546" alt="image" src="https://github.com/user-attachments/assets/284ea873-4fea-4f99-9db1-d81dfa7d1aae" />
 
 ---
 
 ## 4. Best Practices
 
 * **Consistency:** Keep configuration parameters identical across clusters.
-* **Redundancy:** Maintain **at least 2 secondary clusters** for resilience.
-* **Lag Awareness:** Route applications to the secondary cluster with the **smallest lag**.
-* **Recovery Playbook:** Prepare a documented procedure for unplanned events, covering **both database and application recovery**.
+  This ensures **consistent behavior of the primary cluster before and after a failover or when deleting the Global Database**.
 
-**Memory Hook:** Treat secondary clusters like lifeboats—know where they are and how to use them.
+* **Proper Deletion Order:**
+  When deleting a Global Database, **each individual cluster must first be detached from the Global Database and then deleted individually**.
+  The Global Database itself cannot be deleted until all member clusters are detached and removed.
+
+* **Redundancy:** Maintain **at least 2 secondary clusters** to improve resilience and regional fault tolerance.
+
+* **Lag Awareness:** Route applications to the secondary cluster with the **smallest replication lag**, especially during unplanned failover scenarios.
+
+* **Recovery Playbook:** Maintain a documented recovery playbook for unplanned events.
+  The playbook should cover **both database recovery steps and application-level actions** (endpoint updates, DNS changes, validation checks).
+
+**Memory Hook:** *Consistent configs, clean detach-before-delete, and a rehearsed playbook keep global failures predictable.*
 
 ---
 
