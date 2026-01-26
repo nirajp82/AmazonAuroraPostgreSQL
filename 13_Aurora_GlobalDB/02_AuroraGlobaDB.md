@@ -280,8 +280,8 @@ Be aware of the following constraints:
 ### Structural Requirements
 
 * Minimum: **1 primary + 1 secondary** cluster
-* Maximum: **1 primary + 5 secondary** clusters
-* Only **one writer instance** (in the primary cluster)
+* Maximum: **1 primary + 10 secondary** clusters (total up to 11 regions)
+* Only **one writer instance** exists in the primary cluster
 
 ### Replica Limits
 
@@ -300,7 +300,7 @@ Aurora Global Database
 ├── Secondary Cluster (region 3)
 │   ├── 0–16 Reader instances
 │
-└── (up to 5 secondary clusters)
+└── (up to 10 secondary clusters)
 ```
 
 ### Aurora Global Database – Replica & Cluster Limits (With Examples)
@@ -308,10 +308,12 @@ Aurora Global Database
 | Item                                     | Limit                                 | What It Means                                                           | Example                                                                                         |
 | ---------------------------------------- | ------------------------------------- | ----------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
 | **Writer instances**                     | Exactly **1**                         | Only one instance in the entire Global DB can accept writes at any time | `us-east-1` has **1 writer**. All tenant DB writes go here                                      |
-| **Secondary clusters**                   | Up to **5**                           | You can attach up to 5 additional regional clusters for reads / DR      | Primary in `us-east-1`, secondary in `us-west-2`, `eu-west-1`, `ap-southeast-1` (3 secondaries) |
+| **Secondary clusters**                   | Up to **10**                          | You can attach up to 10 additional regional clusters for reads / DR     | Primary in `us-east-1`, secondary in `us-west-2`, `eu-west-1`, `ap-southeast-1` (3 secondaries) |
 | **Total replicas per cluster (primary)** | **15 − number of secondary clusters** | Primary cluster loses replica capacity as you add secondary clusters    | 3 secondary clusters → `15 − 3 = 12` readers allowed in primary                                 |
 | **Replicas per secondary cluster**       | Up to **16**                          | Each secondary cluster can scale read replicas independently            | `eu-west-1` secondary has **8 readers** to serve EU traffic, and can scale up to 16 readers     |
-| **Total clusters in a Global DB**        | **1 primary + up to 5 secondary**     | Maximum of 6 regional clusters per Global DB                            | Regions: `us-east-1` (primary) + 5 others                                                       |
+| **Total clusters in a Global DB**        | **1 primary + up to 10 secondary**    | Maximum of 11 regional clusters per Global DB                           | Regions: `us-east-1` (primary) + 10 others                                                      |
+
+**Memory Hook:** *1 writer anywhere, 10 regions reading locally, replication offloads primary compute.*
 
 ---
 
