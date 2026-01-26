@@ -6,8 +6,6 @@ Amazon Aurora is a **cloud-native relational database** compatible with PostgreS
 
 Aurora is not a traditional database running on cloud infrastructure. It is a **re-architected system** that separates compute from storage and assumes that **failures are normal and continuous**.
 
-This README explains Aurora **from the ground up**, starting with single-region architecture and extending logically to **Aurora Global Database** for region-level disaster recovery and global reads.
-
 ---
 
 ## Part 1: Aurora Architecture Fundamentals
