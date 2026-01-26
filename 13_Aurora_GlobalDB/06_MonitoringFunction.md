@@ -227,6 +227,7 @@ Returns detailed replication and durability information for **each DB instance**
 
 **Operational Tip:**
 Run this query repeatedly during load tests to observe real-time replication behavior.
+<img width="1137" height="513" alt="image" src="https://github.com/user-attachments/assets/4d1bdbb6-2f2f-4b62-944b-624b3942c3d9" />
 
 ---
 
