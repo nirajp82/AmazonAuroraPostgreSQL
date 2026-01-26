@@ -311,6 +311,7 @@ Then commit is sent.
 ```sql
 SELECT * FROM aurora_global_db_status();
 ```
+<img width="1235" height="312" alt="image" src="https://github.com/user-attachments/assets/cea000a1-a9be-4908-b8f9-770d27f29c4c" />
 
 **What it provides:**
 
