@@ -48,6 +48,7 @@ Aurora Global Database **does not automatically failover** like a local cluster.
 
 * Initiated by the user (e.g., for maintenance).
 * Moves the primary role to another region.
+* Failover takes ~1 minute.
 * Aurora ensures **full data synchronization** before the switch.
 * **Zero data loss.**
 
