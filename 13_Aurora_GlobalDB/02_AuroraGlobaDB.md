@@ -103,6 +103,80 @@ This is a deliberate trade-off to achieve:
 
 ---
 
+# Amazon Aurora Global Database – How Writes and Replication Work
+
+### 1 Aurora Storage in a Single Region (Quorum Model)
+
+* **Each data item is stored in 6 copies** across 3 Availability Zones (AZs)
+* **Write quorum:** 4 out of 6 nodes must confirm the write for it to succeed
+* **Read quorum:** 3 out of 6 nodes are enough for repairs or recovery
+
+**Why it matters:**
+
+* Protects against AZ failures **and an additional node failure** (AZ+1)
+* Guarantees **strong consistency** within a region
+* Writes **commit only after quorum** → no data is lost in a region
+
+**Memory Hook:**
+
+> *Writes in a region = quorum-based; strong consistency.*
+
+### 2 Aurora Global Database (Cross-Region Replication)
+
+* **Primary cluster:** only cluster that accepts writes
+* **Secondary clusters:** read-only clusters in other regions
+* **Replication between regions is asynchronous**
+
+### How it works:
+
+1. Application writes to **primary cluster**
+2. Primary cluster commits write **locally** using quorum (strong consistency within region)
+3. **Outbound replication agent** sends redo log changes to secondary regions
+4. **Inbound replication agent** in each secondary region applies changes
+5. Secondary clusters eventually reflect the writes (**eventual consistency**)
+
+**Memory Hook:**
+
+> *Primary writes = immediate & consistent; secondaries = catch up asynchronously.*
+
+### 3 Key Concepts: Async + Quorum Together
+
+| Aspect            | Within Region           | Across Regions                              |
+| ----------------- | ----------------------- | ------------------------------------------- |
+| Write Model       | **Quorum (4/6)**        | **Asynchronous**                            |
+| Consistency       | Strong                  | Eventual                                    |
+| Lag               | <1 ms                   | ~50 ms – 1 s (across continents)            |
+| Failure Tolerance | AZ+1 failures tolerated | Small lag possible; no data lost on primary |
+
+**Explanation:**
+
+* Quorum ensures **safe, consistent writes inside a region**
+* Async replication allows **fast writes globally** without slowing down the primary
+* This is why **Aurora Global Database can handle 200k writes/sec** across regions
+
+### 4: Mental Model
+
+Think of it like **local mail vs international mail**:
+
+* **Quorum in-region:** You hand your letter to 4 out of 6 trusted local friends → everyone in the city can trust it exists
+* **Async cross-region:** You send copies to other countries → they arrive after a short delay, but eventually everyone worldwide has the same letter
+
+## 5️⃣ Write Forwarding (Optional)
+
+* Applications can issue writes to **secondary clusters**
+* Writes are **forwarded to primary**, committed there, results returned transparently
+* **Does NOT create multi-master writes**
+* Useful for developer convenience, but the **single-writer model is unchanged**
+
+## ✅ Quick Memory Hooks
+
+1. **Quorum (4/6) → regionally strong consistency**
+2. **Async → secondary clusters eventually consistent**
+3. **Primary writes first → secondaries catch up later**
+4. **Write Forwarding = convenience, not multi-master**
+
+---
+
 ## Secondary Clusters as Failover Targets
 
 Secondary clusters are **pre-configured promotion targets**.
