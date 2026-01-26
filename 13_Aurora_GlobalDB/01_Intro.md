@@ -31,9 +31,12 @@ If a region becomes unavailable:
 
 Aurora Global Database mitigates these issues by:
 
-* Continuously replicating data to **up to 5 secondary regions**
-* Using AWS-managed, high-speed backbone networking
-* Offloading replication from the primary compute layer
+* Continuously replicating data **from one primary Region to up to 10 read-only secondary Regions** using **asynchronous replication** (typically sub-second lag)
+* Using **AWS-managed, private high-speed global backbone networking**, avoiding the public internet
+* **Offloading replication to the distributed storage layer**, reducing CPU and write overhead on the primary DB compute and improving write performance
+
+**Memory Hook:** *One Region writes, many Regions read — storage handles replication, not the database engine.*
+
 
 Typical outcomes (workload dependent):
 
