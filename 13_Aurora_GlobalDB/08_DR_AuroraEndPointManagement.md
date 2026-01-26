@@ -110,8 +110,9 @@ Instead, change what the application **resolves**.
 4. Point the CNAME to:
 
    * Writer endpoint of the **active primary cluster**
-<img width="1019" height="437" alt="image" src="https://github.com/user-attachments/assets/7ed90014-970e-4054-8fd9-632f22509f18" />
+  <img width="1019" height="437" alt="image" src="https://github.com/user-attachments/assets/7ed90014-970e-4054-8fd9-632f22509f18" />
 
+* https://aws.amazon.com/blogs/database/automate-amazon-aurora-global-database-endpoint-management/
 ---
 
 ## How the Application Connects
@@ -119,6 +120,7 @@ Instead, change what the application **resolves**.
 * Application connects using the **CNAME**, not the Aurora endpoint
 * DNS resolution happens via the **private hosted zone**
 * Application automatically resolves to the active writer
+<img width="558" height="448" alt="image" src="https://github.com/user-attachments/assets/f886e56a-8e8e-459c-a788-18b7b67cd184" />
 
 ---
 
