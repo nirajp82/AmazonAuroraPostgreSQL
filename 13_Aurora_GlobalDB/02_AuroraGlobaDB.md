@@ -8,14 +8,16 @@ The focus here is not just *what* Global Database does, but *how and why* it beh
 
 ---
 
-## Global Database Topology
+**Global Database Topology**
 
 A Global Database:
 
-* Spans **multiple AWS regions**
-* Has **exactly one primary cluster**
-* Can have **up to five secondary clusters**
-* Can span **a maximum of six regions**
+* Spans **multiple AWS Regions**
+* Has **exactly one primary cluster** (the only cluster that accepts writes)
+* Can have **up to 10 read-only secondary clusters**
+* Can span a **maximum of 11 Regions** (1 primary + up to 10 secondary)
+
+**Memory Hook:** *1 writer Region, up to 10 reader Regions — globally distributed, centrally written.*
 
 <img width="1092" height="516" alt="Global Database Topology" src="https://github.com/user-attachments/assets/abf04c33-ffa9-4425-b723-8bacf481b593" />
 
