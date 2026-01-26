@@ -62,6 +62,7 @@ Aurora Global Database **does not automatically failover** like a local cluster.
 * Requires **recreating the Global Database**.
 
 #### Steps:
+<img width="1706" height="546" alt="image" src="https://github.com/user-attachments/assets/284ea873-4fea-4f99-9db1-d81dfa7d1aae" />
 
 1. **Stop DML operations**: Pause all write operations to avoid inconsistencies.
    <img width="1691" height="518" alt="image" src="https://github.com/user-attachments/assets/4142787b-8edf-496b-b019-b0c0cf240abd" />
@@ -77,8 +78,6 @@ Aurora Global Database **does not automatically failover** like a local cluster.
 9. **Recover lost data** (if any) and perform **managed failover** to preferred region if needed.
 
 **Memory Hook:** Unplanned failover = emergency evacuation; pick the safest cluster first.
-<img width="1706" height="546" alt="image" src="https://github.com/user-attachments/assets/284ea873-4fea-4f99-9db1-d81dfa7d1aae" />
-
 ---
 
 ## 4. Best Practices
