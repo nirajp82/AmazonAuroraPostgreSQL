@@ -232,27 +232,78 @@ This distributed redo log design makes Aurora:
 
 ---
 
-## Working with Logical Replication Slots
+Absolutely! Let’s add a **dedicated section** for **Understanding Logical Replication and Logical Decoding** with all the key details you just mentioned. I’ll make it beginner-friendly and keep it consistent with the rest of your README.
 
-### Create a Logical Slot
+---
+
+## Understanding Logical Replication and Logical Decoding
+
+Amazon RDS for PostgreSQL supports **streaming database changes** using:
+
+* **Logical replication slots** → track WAL changes
+* **Logical decoding** → converts WAL changes into readable formats
+
+This allows you to stream changes to a client such as `pg_recvlogical`, AWS DMS, or a custom-managed host on an EC2 instance.
+
+**Key Points:**
+
+* **Slots are per database:** Each slot supports replication connections to a single database.
+* **Slots don’t know the client:** They simply hold WAL changes until a subscriber reads them.
+* **Target doesn’t need to be a replica:** You can stream changes to any database or application.
+* **WAL accumulation risk:** If you create a slot but no client reads from it, WAL keeps piling up and can fill your storage.
+
+---
+
+### Enabling Logical Replication and Decoding on RDS
+
+To enable logical replication and decoding:
+
+1. **Roles required:**
+
+   * `rds_superuser` → to enable logical replication
+   * `rds_replication` → to manage replication slots and stream data
+
+2. **Parameter changes:**
+
+   * `rds.logical_replication = 1` (static)
+   * Also configure: `wal_level`, `max_wal_senders`, `max_replication_slots`, `max_connections`
+   * ⚠️ These changes increase WAL generation. Enable only when using logical slots.
+
+3. **Reboot required:**
+
+   * After changing `rds.logical_replication`, the DB instance must be rebooted for the changes to take effect.
+
+---
+
+### Creating a Logical Replication Slot
+
+* You must specify a **decoding plugin** when creating a slot.
+* Supported plugins in RDS for PostgreSQL:
+
+  * `test_decoding` → simple, human-readable (good for learning/debugging)
+  * `wal2json` → JSON output (commonly used for CDC pipelines and AWS DMS)
+
+Example:
 
 ```sql
 SELECT * FROM pg_create_logical_replication_slot('test_slot', 'test_decoding');
 ```
 
-### List Existing Slots
+* Verify slots:
 
 ```sql
 SELECT * FROM pg_replication_slots;
 ```
 
-### Drop a Logical Slot
+* Drop a slot when no longer needed:
 
 ```sql
 SELECT pg_drop_replication_slot('test_slot');
 ```
 
-⚠️ Always drop unused slots to avoid WAL bloat.
+**Memory Hook 🧠:**
+
+> “Create a slot → PostgreSQL holds WAL until someone reads it. No slot → WAL can be discarded after commit.”
 
 ---
 
@@ -356,12 +407,6 @@ ALTER SUBSCRIPTION testsub REFRESH PUBLICATION;
 | **Forgetting to refresh subscription after adding tables** | If you add new tables to a publication, the subscriber won’t see them; changes to new tables aren’t replicated.                         | Run `ALTER SUBSCRIPTION <sub> REFRESH PUBLICATION` after adding tables        |
 | **Schema mismatch between source and target**              | Column types, names, or constraints don’t match; replication errors or failed inserts/updates occur.                                    | Ensure source and target tables match in column names, types, and constraints |
 | **Insufficient replication slots or WAL senders**          | If you run out of available slots or WAL sender connections, new subscriptions can’t start, and replication may fail or stall.          | Increase `max_replication_slots` and `max_wal_senders` in DB parameters       |
-
----
-
-This keeps it **short, visual, and beginner-friendly**, while including all the key risks and remedies.
-
-If you want, I can **integrate this table directly into your main README** in the “Common Pitfalls” section so it flows nicely. Do you want me to do that next?
 
 ---
 
