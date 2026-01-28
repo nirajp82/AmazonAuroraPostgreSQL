@@ -227,6 +227,54 @@ That’s why:
 * **Why do logical replication slots work?** → Because PostgreSQL engine still produces WAL, which slots can track reliably.
 * **Can multiple subscribers share one slot?** → No; each subscriber requires its own slot, and WAL is retained until all slots have consumed it.
 
+---
+## WAL and Logical Replication Explained
+
+### 1️⃣ WAL is Always Generated
+
+* PostgreSQL (including Aurora) **records every change** in the WAL, regardless of whether replication is enabled.
+* WAL ensures **durability and crash recovery**.
+* WAL exists independently of logical replication.
+
+### 2️⃣ Logical Replication Just Reads WAL
+
+* Logical replication **doesn’t create WAL**; it simply **consumes existing WAL**.
+* The **replication slot acts as a bookmark**, keeping track of how much WAL has been sent to the subscriber.
+* Subscribers can start reading **anytime after the slot is created**, ensuring no changes are missed.
+
+### 3️⃣ Replication Slot = Bookmark
+
+* Logical replication **creates a bookmark** (replication slot) for retention.
+* **No slot → no retention:** WAL is removed after commit if no slot exists.
+* **Slot exists → WAL retained:** WAL is kept until the subscriber reads it, even if temporarily disconnected.
+
+### 4️⃣ Why This Matters
+
+* WAL is independent of replication; logical replication simply **reads WAL to stay in sync**.
+* Ensures **reliable replication**: subscribers never miss changes.
+* Multiple subscribers require multiple slots; WAL is retained until **all slots** have consumed it.
+
+### 5️⃣ Analogies 🧠
+
+* **Continuous video analogy:**
+
+  * WAL = video recording of all DB changes
+  * Replication slot = bookmark showing where you left off
+  * Logical replication = watching the video from your bookmark
+  * Video keeps recording even if no one watches
+
+* **Newspaper analogy:**
+
+  * WAL = stack of newspapers delivered daily
+  * No bookmark (slot) = newspapers recycled immediately after delivery
+  * Bookmark exists = hold newspapers until the reader (subscriber) has read them
+
+### ✅ Summary
+
+* **Slot = bookmark for retention**
+* **No slot = WAL can be removed after commit**
+* **Slot exists = WAL retained until read**
+* Logical replication **reads existing WAL** to apply changes to subscribers reliably.
 
 ---
 
