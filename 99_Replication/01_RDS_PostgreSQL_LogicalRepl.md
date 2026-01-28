@@ -350,14 +350,12 @@ ALTER SUBSCRIPTION testsub REFRESH PUBLICATION;
 
 ### Common Pitfalls ⚠️
 
-## Common Replication Issues ⚠️
-
-| Issue                                 | What Happens                                 | How to Fix / Prevent                                                          |
-| ------------------------------------- | -------------------------------------------- | ----------------------------------------------------------------------------- |
-| **Leaving logical slots unused**              | WAL keeps piling up → disk fills             | Drop unused slots or ensure subscribers read regularly                        |
-| **Forgetting to refresh subscription after adding tables**       | New tables in publication aren’t replicated  | Run `ALTER SUBSCRIPTION <sub> REFRESH PUBLICATION` after adding tables        |
-| **Schema mismatch between source and target**                   | Replication errors / failed inserts          | Ensure source and target tables match in column names, types, and constraints |
-| **Insufficient replication slots or WAL senders** | New subscriptions fail or replication stalls | Increase `max_replication_slots` and `max_wal_senders` in DB parameters       |
+| Issue                                                      | What Happens                                                                                                                            | How to Fix / Prevent                                                          |
+| ---------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------- |
+| **Leaving logical slots unused**                           | If a replication slot exists but no subscriber reads from it, WAL keeps piling up, consuming storage until the slot is read or dropped. | Drop unused slots or ensure subscribers read regularly                        |
+| **Forgetting to refresh subscription after adding tables** | If you add new tables to a publication, the subscriber won’t see them; changes to new tables aren’t replicated.                         | Run `ALTER SUBSCRIPTION <sub> REFRESH PUBLICATION` after adding tables        |
+| **Schema mismatch between source and target**              | Column types, names, or constraints don’t match; replication errors or failed inserts/updates occur.                                    | Ensure source and target tables match in column names, types, and constraints |
+| **Insufficient replication slots or WAL senders**          | If you run out of available slots or WAL sender connections, new subscriptions can’t start, and replication may fail or stall.          | Increase `max_replication_slots` and `max_wal_senders` in DB parameters       |
 
 ---
 
