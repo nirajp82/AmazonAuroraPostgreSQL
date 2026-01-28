@@ -412,42 +412,105 @@ ALTER SUBSCRIPTION testsub REFRESH PUBLICATION;
 
 ## FAQ
 
-**Q1:** Is logical replication the same as read replicas?
+Here’s a **refined and fully integrated FAQ** for your README, combining all the earlier questions, clarifications, and `pg_recvlogical` details. I’ve removed duplicates, ensured clarity, and added missing points based on our discussion:
+
+---
+
+## FAQ: Logical Replication, WAL, Slots, and `pg_recvlogical`
+
+**Q1: Is logical replication the same as read replicas?**
 
 * No. Logical replication works at **table/row level**, while read replicas use **physical replication**.
 
-**Q2:** Does the target have to be PostgreSQL?
+**Q2: Does the target have to be PostgreSQL?**
 
 * No. Logical replication streams changes; the consumer can transform or load data elsewhere.
 
-**Q3:** What happens if the consumer stops reading?
+**Q3: What happens if the consumer stops reading?**
 
-* WAL accumulates and can **exhaust storage**.
+* WAL accumulates in the replication slot and can **exhaust storage**. Unread WAL is retained until the slot is read or dropped.
 
-**Q4:** Can I replicate only specific tables?
+**Q4: Can I replicate only specific tables?**
 
-* Yes, using **publications**.
+* Yes, using **publications**. You can also add tables to an existing publication and refresh subscriptions to start replication for new tables.
 
-**Q5:** Is a reboot required?
+**Q5: Is a reboot required?**
 
-* Yes, when enabling `rds.logical_replication`.
+* Yes, when enabling the static parameter `rds.logical_replication` in RDS PostgreSQL.
 
-**Q6:** Which plugin should I use?
+**Q6: Which logical decoding plugin should I use?**
 
-* `test_decoding` → learning/debugging
-* `wal2json` → production CDC pipelines
+* `test_decoding` → simple, human-readable output for learning or debugging.
+* `wal2json` → JSON output, suitable for production CDC pipelines and integrations like DMS.
 
-**Q7:** Why does DMS work?
+**Q7: Why does AWS DMS work with Aurora PostgreSQL?**
 
-* DMS reads decoded WAL through the replication slot, independent of Aurora storage layer.
+* DMS reads **decoded WAL** from replication slots at the PostgreSQL engine level, independent of Aurora’s internal redo log storage.
 
-**Q8:** Why do logical replication slots work?
+**Q8: Why do logical replication slots work?**
 
-* Because PostgreSQL engine still produces WAL, which slots can track reliably.
+* Because PostgreSQL **always generates WAL**, and slots reliably track consumption, ensuring subscribers don’t miss changes.
 
-**Q9:** Can multiple subscribers share one slot?
+**Q9: Can multiple subscribers share one slot?**
 
-* No; each subscriber requires its own slot, and WAL is retained until all slots have consumed it.
+* No. Each subscriber requires its own replication slot. WAL is retained until **all slots** consuming it have read it.
+
+**Q10: What is `pg_recvlogical`?**
+
+* A PostgreSQL **command-line tool** that reads WAL changes from a logical replication slot, acting as a subscriber or consumer.
+
+**Q11: Is `pg_recvlogical` the same as a replication slot?**
+
+* No. A **replication slot is the bookmark**, while `pg_recvlogical` is the **client that reads WAL using that slot**.
+
+**Q12: What permissions are needed to use `pg_recvlogical`?**
+
+* The connecting user must have **replication privileges**, typically via the `rds_replication` role.
+
+**Q13: What does `pg_recvlogical` do with WAL?**
+
+* Streams WAL changes decoded by a plugin (`test_decoding` or `wal2json`) to a file, stdout, or another consumer. Once WAL is read, the replication slot moves forward, freeing old WAL.
+
+**Q14: Can multiple clients read from the same slot using `pg_recvlogical`?**
+
+* **No.** Each slot supports **one active reader at a time**. Multiple subscribers require **separate slots**.
+
+**Q15: What are common use cases for `pg_recvlogical`?**
+
+* Debugging or learning SQL changes (`test_decoding`).
+* Building custom CDC pipelines (`wal2json`).
+* Testing logical replication manually.
+* Integration with external systems like AWS DMS (as a lower-level alternative).
+
+**Q16: Do I need to create a slot manually before using `pg_recvlogical`?**
+
+* Yes, unless your subscriber or tool (like DMS) auto-creates it. Example:
+
+```sql
+SELECT * FROM pg_create_logical_replication_slot('test_slot', 'test_decoding');
+```
+
+**Q17: What happens if a replication slot is unused?**
+
+* WAL continues to accumulate, consuming storage. Always drop unused slots or ensure subscribers read regularly.
+
+**Q18: Why is schema matching important?**
+
+* Source and target tables must have matching **column names, types, and constraints**. Mismatches can cause replication errors or failed inserts/updates.
+
+**Q19: What if I run out of replication slots or WAL senders?**
+
+* New subscriptions cannot start, and replication may fail or stall. Increase `max_replication_slots` and `max_wal_senders` in DB parameters if needed.
+
+---
+
+✅ **Key Takeaways:**
+
+* WAL is always generated; logical replication **reads it using slots**.
+* Replication slots = bookmarks that retain WAL until subscribers read it.
+* `pg_recvlogical` is a client that reads WAL for testing, debugging, or custom CDC pipelines.
+* Multiple subscribers → multiple slots. Unread WAL → storage risk.
+* Proper schema, slot management, and parameter tuning are critical for reliable logical replication.
 
 ---
 
