@@ -10,7 +10,7 @@ Logical replication works at a **database level** and allows **table-level repli
 
 Think of **logical replication** as:
 
-> **"PostgreSQL narrating table changes instead of copying disk blocks."**
+> **"PostgreSQL tells what changed in the table instead of copying the whole data."**
 
 * Physical replication = copies blocks
 * Logical replication = streams **row-level changes**
