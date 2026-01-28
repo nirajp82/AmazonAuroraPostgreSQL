@@ -74,6 +74,7 @@ Aurora maintains **>99.99% availability** by storing **six copies of data across
 
 * One **primary cluster (writes)** + up to **10 secondary clusters (read-only)** in other Regions
 * Sub-second replication lag
+<img width="1083" height="520" alt="image" src="https://github.com/user-attachments/assets/65b4a860-ea6c-4a3a-bfc0-51e521ba5b98" />
 
 **Architecture (Text Diagram)**
 
@@ -319,15 +320,5 @@ Monitor via CloudWatch, `pg_replication_slots`, `aurora_replica_status()`
 
 * [AWS Aurora PostgreSQL Replication](https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/AuroraPostgreSQL.Replication.html)
 * [Aurora Global Database](https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/aurora-global-database.html)
-* Historical blog post (2021)
-
----
-
-✅ This README now includes:
-
-* **Full detailed use cases for all replication types**
-* **Step-by-step logical replication flow with WAL & slot details**
-* **Memory hooks**
-* **Limitations** for each type
-* **FAQ covering PostgreSQL and third-party targets**
-* **Monitoring and common pitfalls**
+[* Historical blog post (2021)
+](https://aws.amazon.com/blogs/database/understand-replication-capabilities-in-amazon-aurora-postgresql/)
