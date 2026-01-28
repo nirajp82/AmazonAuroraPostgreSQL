@@ -566,6 +566,38 @@ SELECT * FROM pg_create_logical_replication_slot('test_slot', 'test_decoding');
 
 * New subscriptions cannot start, and replication may fail or stall. Increase `max_replication_slots` and `max_wal_senders` in DB parameters if needed.
 
+**Q20:** Do I always need tools like `pg_recvlogical` to replicate changes?
+
+* No. If your **target is another PostgreSQL database**, subscriptions automatically:
+
+  * Connect to the source publication
+  * Read WAL via the replication slot
+  * Apply changes to target tables
+* No external tool is needed in this case.
+
+**Q21:** When would I need `pg_recvlogical` or similar tools?
+
+* When your **target is not PostgreSQL**, e.g., streaming to MySQL, S3, Redshift, Kafka, Elasticsearch, or a custom application.
+* When you want to **manually consume changes** for debugging, learning, or building custom CDC pipelines.
+
+**Q22:** Can AWS DMS replace `pg_recvlogical`?
+
+* Yes. DMS is a **managed CDC tool**. It reads logical replication slots and applies changes automatically.
+* You **don’t need `pg_recvlogical`** if you are using DMS.
+
+**Q23:** How do subscriptions compare to `pg_recvlogical`?
+
+| Feature                          | Subscription (PostgreSQL → PostgreSQL) | `pg_recvlogical` / CDC tool   |
+| -------------------------------- | -------------------------------------- | ----------------------------- |
+| Automatic application of changes | ✅ Yes                                  | ❌ No, must handle manually    |
+| Requires external tool           | ❌ No                                   | ✅ Yes                         |
+| Target must be PostgreSQL        | ✅ Yes                                  | ❌ No, can be any consumer     |
+| Ideal for beginners              | ✅ Yes                                  | ⚠️ More advanced / custom use |
+
+**Q24:** Memory Hook 🧠
+
+> “Replication slot = source of changes. Subscription = automatic reader for PostgreSQL targets. `pg_recvlogical` = manual reader for non-PostgreSQL targets or debugging.”
+
 ---
 
 ✅ **Key Takeaways:**
