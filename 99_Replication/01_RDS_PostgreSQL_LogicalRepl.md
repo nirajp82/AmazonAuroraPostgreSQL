@@ -613,3 +613,6 @@ SELECT * FROM pg_create_logical_replication_slot('test_slot', 'test_decoding');
 ## Quick Mental Summary 🧠
 
 **Enable → Create Slot → Publish Tables → Subscribe → Stream Changes**
+
+---
+Reference: https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/PostgreSQL.Concepts.General.FeatureSupport.LogicalReplication.html
