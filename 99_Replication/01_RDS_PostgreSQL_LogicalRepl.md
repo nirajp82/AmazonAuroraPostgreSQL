@@ -625,7 +625,7 @@ Yes,
 
     * The slot **does not read WAL**
     * The slot **does not decode WAL**
-    * The slot only **stores progress**
+    * The slot only **stores progress (State)**
   * The slot acts like a **bookmark**, not a reader.
 
 * **3. Logical decoding reads WAL using the slot**
