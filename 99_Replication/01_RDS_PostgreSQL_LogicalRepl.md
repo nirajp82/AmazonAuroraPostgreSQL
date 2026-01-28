@@ -73,9 +73,12 @@ Logical replication happens **before** data reaches the storage layer:
 
 That’s why:
 
-* Logical replication slots work
-* AWS DMS works
-* Unconsumed slots can still cause WAL retention
+### Logical replication slots work
+ > **Logical replication slots work because Aurora PostgreSQL still generates WAL at the database engine level, which slots can safely track and consume.**
+### AWS DMS works
+ > **AWS DMS works because it reads decoded WAL changes from PostgreSQL logical replication slots, not from Aurora’s internal storage layer.**
+### (For consistency, your WAL retention line)
+ > **If a replication slot is created but no client reads from it, PostgreSQL keeps the WAL instead of deleting it, which can cause storage growth.**
 
 ### Summary Table
 
