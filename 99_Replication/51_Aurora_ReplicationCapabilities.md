@@ -175,10 +175,6 @@ Secondary Region 10
 
 * Supports bidirectional replication and cross-version upgrades
 
-Ah yes — good catch. For **pglogical**, the step-by-step flow is conceptually similar to **native logical replication** (it still reads WAL, uses a replication slot, decodes, and applies changes), but it has **enhancements**: row/column filtering, conflict resolution, delayed replication, and optional DDL replication.
-
-So it **does need a step-by-step flow**, but we can highlight the differences from native logical replication. Here's how it looks:
-
 ### 6a. pglogical Extension – Step-by-Step Flow
 
 1. **WAL Records Generated**
