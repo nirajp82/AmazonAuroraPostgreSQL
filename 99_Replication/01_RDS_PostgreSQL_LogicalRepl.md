@@ -594,9 +594,47 @@ SELECT * FROM pg_create_logical_replication_slot('test_slot', 'test_decoding');
 | Target must be PostgreSQL        | ✅ Yes                                  | ❌ No, can be any consumer     |
 | Ideal for beginners              | ✅ Yes                                  | ⚠️ More advanced / custom use |
 
-**Q24:** Memory Hook 🧠
+Here’s a FAQ you can **append directly** to your existing section to cover **logical decoding**, integrating all the points we discussed:
 
-> “Replication slot = source of changes. Subscription = automatic reader for PostgreSQL targets. `pg_recvlogical` = manual reader for non-PostgreSQL targets or debugging.”
+---
+
+**Q25:** What is logical decoding?
+
+* Logical decoding **reads WAL changes and converts them into a readable format**, like INSERT, UPDATE, and DELETE statements.
+
+**Q26:** How is logical decoding used in logical replication?
+
+* Logical replication **uses logical decoding** to stream changes from the source database to subscribers or external clients. Without decoding, WAL is just binary data used internally.
+
+**Q27:** Do I need a replication slot to use logical decoding?
+
+* Yes. Replication slots act as **bookmarks**, tracking which WAL changes have been consumed so subscribers or clients don’t miss data.
+
+**Q28:** What output plugins are supported for logical decoding?
+
+* `test_decoding` → simple, human-readable output for learning or debugging.
+* `wal2json` → JSON output, suitable for production CDC pipelines and external integrations like AWS DMS.
+
+**Q29:** Can logical decoding stream changes to non-PostgreSQL targets?
+
+* Yes. Any client capable of consuming the replication stream (e.g., custom apps, Kafka, S3, Redshift, Elasticsearch) can use logical decoding.
+
+**Q30:** Do I always need logical decoding to replicate tables within PostgreSQL?
+
+* No. If the target is **another PostgreSQL database**, subscriptions handle decoding automatically.
+* Logical decoding is primarily required for **non-PostgreSQL targets** or custom CDC pipelines.
+
+**Q31:** What happens if I stop reading from a logical decoding stream?
+
+* The replication slot retains all **unread WAL**, which can accumulate and consume storage until read or dropped.
+
+**Q32:** How do I start consuming changes via logical decoding?
+
+* Use **`pg_recvlogical`** or another replication client to connect to the logical replication slot, decode WAL changes, and apply them to your target system.
+
+**Memory Hook 🧠:**
+ - “Logical decoding = translating WAL into a language the subscriber or external system can understand. Replication slots = bookmarks tracking progress.”
+ - “Replication slot = source of changes. Subscription = automatic reader for PostgreSQL targets. `pg_recvlogical` = manual reader for non-PostgreSQL targets or debugging.”
 
 ---
 
