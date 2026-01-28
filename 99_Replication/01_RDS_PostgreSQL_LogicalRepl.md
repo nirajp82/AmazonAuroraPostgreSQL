@@ -603,93 +603,78 @@ SELECT * FROM pg_create_logical_replication_slot('test_slot', 'test_decoding');
 * Logical replication **uses logical decoding** to stream changes from the source database to subscribers or external clients. Without decoding, WAL is just binary data used internally.
 
 **Q27:** Do I need a replication slot to use logical decoding?
-Yes, 
-* **1. WAL records are generated**
+* **PostgreSQL target**
 
-  * Every change in PostgreSQL (INSERT, UPDATE, DELETE) is first written to the **Write-Ahead Log (WAL)**.
-  * At this point:
+  * No. If your target is another PostgreSQL database, logical decoding is **handled internally** by the subscription worker.
+  * The subscription reads WAL from the replication slot, converts changes into SQL operations, and applies them automatically to the target tables.
+  * Step-by-step for PostgreSQL target replication:
 
-    * WAL contains **physical change records**
-    * Nothing has been decoded yet
-    * WAL can normally be recycled after commit
+    * **1. WAL records are generated**
 
-* **2. Replication slot holds the read position (state only)**
+      * Every change (INSERT, UPDATE, DELETE) is written to the **Write-Ahead Log (WAL)**.
+      * At this point:
 
-  * A **logical replication slot is created** to support logical decoding.
-  * The slot stores:
+        * WAL contains **physical change records**
+        * No decoding occurs yet
+        * WAL can normally be recycled after commit
+    * **2. Replication slot tracks state**
 
-    * The **starting WAL position (LSN)**
-    * The **last WAL position confirmed as read**
-    * Information about **which WAL must be retained**
-  * Important:
+      * A replication slot is created automatically when you create a **subscription**.
+      * The slot stores:
 
-    * The slot **does not read WAL**
-    * The slot **does not decode WAL**
-    * The slot only **stores progress (State)**
-  * The slot acts like a **bookmark**, not a reader.
+        * Starting WAL position (LSN)
+        * Last WAL position confirmed as applied by the subscription
+        * Which WAL must be retained
+      * The slot acts as a **bookmark** — it **does not decode or apply changes itself**.
+    * **3. Subscription worker reads and applies changes**
 
-* **3. Logical decoding reads WAL using the slot**
+      * Reads WAL starting from the position in the replication slot
+      * Converts WAL records into SQL changes
+      * Automatically applies changes to the target tables
+    * **4. Progress is updated**
 
-  * Logical decoding:
+      * The subscription updates the slot’s **confirmed_flush_lsn** as changes are applied
+      * WAL before that point can be safely deleted
+      * WAL after that point is retained until the subscription applies it
+    * **5. Result**
 
-    * Reads WAL **starting from the LSN stored in the replication slot**
-    * Uses a decoding plugin (`test_decoding`, `wal2json`, etc.)
-    * Converts physical WAL records into **logical changes** (rows, columns, values)
-  * Without the slot:
+      * PostgreSQL → PostgreSQL replication is automatic
+      * No external tools (`pg_recvlogical` or plugins) are needed
 
-    * Decoding would not know **where to begin**
-    * PostgreSQL would not know **which WAL must be retained**
+* **Non-PostgreSQL (third-party) target**
 
-* **4. Decoded changes are sent to the client**
+  * Yes. If the target is a non-PostgreSQL system (e.g., MySQL, S3, Redshift, Kafka, Elasticsearch), you **must use logical decoding**.
+  * Step-by-step for third-party target replication:
 
-  * Decoded changes are:
+    * **1. WAL records are generated**
 
-    * Streamed to a PostgreSQL subscriber
-    * Sent to tools like `pg_recvlogical`
-    * Consumed by AWS DMS or other CDC systems
-  * At this stage:
+      * Every change is written to WAL
+    * **2. Replication slot tracks state**
 
-    * WAL has been read
-    * Changes have been decoded
-    * PostgreSQL is waiting for confirmation
+      * Stores starting LSN, last read LSN, and retention info
+      * Acts as a **bookmark**
+    * **3. Logical decoding reads WAL using the slot**
 
-* **5. Logical decoding reports progress back**
+      * Uses a plugin (`test_decoding`, `wal2json`)
+      * Converts WAL records into **logical changes** (rows, columns, values)
+    * **4. Decoded changes are sent to the client**
 
-  * After reading WAL, logical decoding reports:
+      * Streamed to `pg_recvlogical`, AWS DMS, Debezium, or another CDC system
+    * **5. Progress is reported back**
 
-    * “I have successfully read up to WAL position **X**”
-  * PostgreSQL then:
+      * Logical decoding reports how far it has read
+      * PostgreSQL updates **confirmed_flush_lsn** in the slot
+      * WAL before that point can be deleted
+    * **6. PostgreSQL manages WAL retention using the slot**
 
-    * Updates the replication slot’s **confirmed_flush_lsn**
-    * Marks older WAL as safe to delete
-    * Retains WAL **after** that position
+      * Ensures no unread WAL is removed
+      * Prevents data loss if client disconnects
 
-* **6. PostgreSQL manages WAL retention using the slot**
+* **Always required**
 
-  * PostgreSQL uses the replication slot to:
+  * The **replication slot is always required**, for both PostgreSQL and third-party targets, because it tracks **where to start reading WAL and how far it has been consumed**.
 
-    * Prevent removal of unread WAL
-    * Free WAL that has already been consumed
-    * Ensure **no data loss**, even if the consumer disconnects
-
-* **What happens without a replication slot**
-
-  * Without a slot:
-
-    * Logical decoding has **no starting point**
-    * PostgreSQL cannot track read progress
-    * WAL may be deleted immediately after commit
-    * Decoding **cannot guarantee delivery of all changes**
-
-* **Final mental model**
-
-  * **Replication slot** → Stores where decoding should start and stop
-  * **Logical decoding** → Reads and translates WAL
-  * **PostgreSQL** → Updates the slot and manages WAL cleanup
-
-* **One-line summary**
-
-  * **Logical decoding reads WAL starting from the position stored in the replication slot and reports progress back so PostgreSQL can advance the slot and safely retain or remove WAL.**
+> Summary: For PostgreSQL → PostgreSQL replication, everything is handled automatically by the subscription worker. Logical decoding is only explicitly needed for non-PostgreSQL targets. The replication slot is always necessary for both.
 
 
 **Q28:** What output plugins are supported for logical decoding?
