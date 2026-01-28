@@ -594,10 +594,6 @@ SELECT * FROM pg_create_logical_replication_slot('test_slot', 'test_decoding');
 | Target must be PostgreSQL        | ✅ Yes                                  | ❌ No, can be any consumer     |
 | Ideal for beginners              | ✅ Yes                                  | ⚠️ More advanced / custom use |
 
-Here’s a FAQ you can **append directly** to your existing section to cover **logical decoding**, integrating all the points we discussed:
-
----
-
 **Q25:** What is logical decoding?
 
 * Logical decoding **reads WAL changes and converts them into a readable format**, like INSERT, UPDATE, and DELETE statements.
