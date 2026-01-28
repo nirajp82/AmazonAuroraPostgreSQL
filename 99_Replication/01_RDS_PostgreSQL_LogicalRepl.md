@@ -603,12 +603,7 @@ SELECT * FROM pg_create_logical_replication_slot('test_slot', 'test_decoding');
 * Logical replication **uses logical decoding** to stream changes from the source database to subscribers or external clients. Without decoding, WAL is just binary data used internally.
 
 **Q27:** Do I need a replication slot to use logical decoding?
-Here you go — **plain bullets + sub-bullets**, same details, no fancy wording, ready to paste.
-
----
-
-### Step-by-Step: How Replication Slot and Logical Decoding Work Together
-
+Yes, 
 * **1. WAL records are generated**
 
   * Every change in PostgreSQL (INSERT, UPDATE, DELETE) is first written to the **Write-Ahead Log (WAL)**.
