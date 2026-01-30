@@ -366,3 +366,185 @@ PostgreSQL blocks new transactions to prevent data corruption.
 
 Because it performs real I/O work; cost-based controls limit the impact.
 
+### Q: If TXIDs are only 32-bit, doesn’t PostgreSQL eventually run out of TXIDs?
+
+**No. PostgreSQL does not run out of TXIDs.**
+
+TXIDs are **designed to wrap around**. Reuse of TXID values is intentional and safe **as long as old rows are frozen**.
+
+PostgreSQL does **not** require TXIDs to be globally unique forever. It only requires that **unfrozen rows never become ambiguous** during wraparound.
+
+---
+
+### Q: Then why does “TXID wraparound” sound so dangerous?
+
+Because wraparound becomes dangerous **only if old rows are still unfrozen**.
+
+The real problem is not “TXIDs wrapping”, but this situation:
+
+* An old row still has an unfrozen `xmin`
+* The TXID counter advances past half the TXID space
+* PostgreSQL can no longer tell whether that `xmin` is in the past or the future
+
+That ambiguity breaks MVCC visibility rules — **that’s what PostgreSQL must prevent at all costs**.
+
+---
+
+### Q: How does freezing prevent running out of TXIDs?
+
+Freezing **removes the dependency on TXIDs entirely** for old rows.
+
+When a row is frozen:
+
+* Its `xmin` is no longer compared to transaction snapshots
+* PostgreSQL treats it as “created before all possible transactions”
+* TXID wraparound becomes irrelevant for that row
+
+Once rows are frozen, PostgreSQL can reuse TXIDs indefinitely without confusion.
+
+---
+
+### Q: If all rows are frozen, can PostgreSQL keep allocating new TXIDs forever?
+
+**Yes.**
+
+If all existing rows are frozen:
+
+* `relfrozenxid` advances
+* `datfrozenxid` advances
+* Database “age” stays low
+
+At that point, PostgreSQL can allocate **billions of new TXIDs**, wrap around the TXID counter, and continue operating safely.
+
+This is exactly how PostgreSQL is designed to run long-term.
+
+---
+
+### Q: What happens when TXIDs actually wrap?
+
+Nothing bad — **if freezing has kept up**.
+
+In a healthy system:
+
+1. TXIDs advance
+2. Old rows get frozen
+3. TXIDs wrap around
+4. Visibility still works correctly
+5. The database keeps running
+
+Wraparound itself is normal and expected.
+**Unfrozen old rows are the only risk.**
+
+---
+
+### Q: Why doesn’t PostgreSQL just use 64-bit TXIDs instead?
+
+Because wraparound would still happen eventually, just later.
+
+Using a larger counter would:
+
+* Delay the problem
+* Increase storage and comparison costs
+* Not eliminate the need for freezing
+
+Freezing is the **fundamental solution**, not counter size. PostgreSQL optimizes for efficiency and correctness rather than infinite counters.
+
+---
+
+### Q: If everything is frozen, is there “no room left” for new rows?
+
+No. Freezing has **nothing to do with storage space or row limits**.
+
+Freezing only affects:
+
+* Visibility rules
+* TXID comparisons
+
+You can always:
+
+* INSERT new rows
+* UPDATE existing rows
+* DELETE rows
+
+New rows simply start as **unfrozen** and will be frozen later by VACUUM.
+
+---
+
+### Q: Can frozen rows ever become unfrozen?
+
+**No. Frozen means frozen forever — for that tuple version.**
+
+A frozen tuple:
+
+* Will never be unfrozen
+* Will never depend on TXIDs again
+
+However:
+
+* If a frozen row is **updated**, PostgreSQL creates a **new tuple version**
+* That new version starts **unfrozen**
+* It will later be frozen by VACUUM
+
+So freezing is permanent per tuple, not per logical row.
+
+---
+
+### Q: Can a database be in a state where everything is frozen?
+
+Yes — temporarily.
+
+At a given moment:
+
+* All existing rows may be frozen
+* Database age may be very low
+* Wraparound risk is minimal
+
+As soon as new writes happen, new unfrozen rows appear and the normal freeze cycle continues.
+
+This is a **healthy and desirable state**.
+
+---
+
+### Q: What actually causes PostgreSQL to shut down for wraparound?
+
+PostgreSQL shuts down **before** wraparound causes corruption, when it detects that:
+
+* `datfrozenxid` is dangerously old
+* There exist unfrozen rows that cannot be safely compared after wraparound
+* Freezing is being blocked (often by long-running transactions)
+
+This shutdown is a **protective correctness measure**, not a failure of design.
+
+---
+
+### Q: What are the real operational risks related to TXIDs?
+
+The real risks are:
+
+* Autovacuum disabled or misconfigured
+* Very large tables not vacuumed often enough
+* Long-running or idle-in-transaction sessions blocking freezing
+* Ignoring wraparound warnings in logs
+
+Not TXID exhaustion.
+
+---
+
+### Q: What is the correct mental model for TXIDs?
+
+**Incorrect model ❌**
+
+> TXIDs must remain unique forever
+
+**Correct model ✅**
+
+> TXIDs are temporary labels; old data must stop depending on them
+
+Freezing is how PostgreSQL safely forgets old TXIDs.
+
+---
+
+### One-sentence summary
+
+> **PostgreSQL never “runs out” of TXIDs — it only runs out of safety if old rows are not frozen before TXIDs wrap.**
+
