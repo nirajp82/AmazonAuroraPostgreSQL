@@ -36,6 +36,7 @@ Think of **replication as “replaying the transaction movie”**:
 * RDS PostgreSQL uses **native PostgreSQL streaming replication**
 * **How it works**: WAL changes stream continuously from source to replica
 * **Replication lag occurs** if streaming is delayed or if WAL needs restoration from archives
+<img width="772" height="503" alt="image" src="https://github.com/user-attachments/assets/369bcf83-aea3-410c-b092-570a9cea68e5" />
 
 ### Key Parameter: `wal_keep_size`
 
