@@ -108,14 +108,29 @@ Cluster WAL
 
 ### Slot health: wal_status
 
-The `pg_replication_slots.wal_status` column indicates whether the WAL needed by the slot is still available:
+| wal_status     | Meaning                                                                                                                                                                | Color Hint              |
+| -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------- |
+| **reserved**   | Required WAL is within normal limits (`max_wal_size`).                                                                                                                 | 🟢 Green = healthy      |
+| **extended**   | More WAL is retained than usual (e.g. slot is lagging); files are still kept. Indicates elevated WAL retention.                                                        | 🟡 Yellow = warning     |
+| **unreserved** | Some required WAL is scheduled for removal at the next checkpoint (e.g. due to `max_slot_wal_keep_size`). Slot may soon become **lost**.                               | 🟠 Orange = action soon |
+| **lost**       | Required WAL has been removed; the slot is **no longer usable**. The slot must be dropped and recreated; the subscriber must be re-set up from a new consistent state. | 🔴 Red = critical       |
 
-| wal_status     | Meaning                                                                                                                                                                |
-| -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **reserved**   | Required WAL is within normal limits (`max_wal_size`).                                                                                                                 |
-| **extended**   | More WAL is retained than usual (e.g. slot is lagging); files are still kept. Indicates elevated WAL retention.                                                        |
-| **unreserved** | Some required WAL is scheduled for removal at the next checkpoint (e.g. due to `max_slot_wal_keep_size`). Slot may soon become **lost**.                               |
-| **lost**       | Required WAL has been removed; the slot is **no longer usable**. The slot must be dropped and recreated; the subscriber must be re-set up from a new consistent state. |
+**Useful Queries (color-friendly for Confluence with code macros):**
+
+```sql
+-- Highlight slots with extended or lost WAL
+SELECT slot_name,
+       wal_status,
+       CASE
+           WHEN wal_status = 'lost' THEN ' Critical'
+           WHEN wal_status = 'unreserved' THEN 'Warning'
+           WHEN wal_status = 'extended' THEN 'Warning'
+           ELSE 'Healthy'
+       END AS health_status,
+       pg_size_pretty(pg_wal_lsn_diff(pg_current_wal_lsn(), restart_lsn)) AS wal_retained
+FROM pg_replication_slots;
+```
+
 
 **Useful Queries:**
 
