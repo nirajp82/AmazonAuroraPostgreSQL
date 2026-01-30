@@ -320,3 +320,199 @@ PostgreSQL blocks new transactions to prevent data corruption.
 ### Q: Why does vacuum sometimes slow the system?
 
 Because it performs real I/O work; cost-based controls limit the impact.
+-------
+# Transaction ID (TXID) Wraparound in PostgreSQL
+
+## What Is a Transaction ID (TXID)?
+
+In PostgreSQL, every transaction gets a unique **transaction ID** (TXID):
+
+- TXIDs increase: 1, 2, 3, …
+- They are used for **MVCC** (Multi-Version Concurrency Control): each row stores which TXID created it and which TXID deleted it (if any).
+- Visibility rules use TXIDs to decide which rows a transaction can see: “visible” means created by a transaction that committed before the current one and not deleted by a transaction visible to the current one.
+
+So TXIDs are central to how PostgreSQL decides what data is visible to each transaction.
+
+---
+
+## Why Is TXID Stored as 32-Bit?
+
+Historically, TXIDs were stored as **32-bit integers**:
+
+- Range: 1 to **2³¹ − 1** (about 2.1 billion).
+- After 2³¹ − 1, the next value would be 2³¹, which doesn’t fit in the signed 32-bit space, so the counter “wraps” (e.g. back to a small number).
+
+So there is a fixed “circle” of TXIDs; after the maximum, the numbering wraps. That’s the basis of the wraparound problem.
+
+---
+
+## What Is the TXID Wraparound Problem?
+
+### The situation
+
+- TXIDs only go up to **2³¹ − 1**.
+- Old rows keep the TXID of the transaction that created/updated them.
+- Visibility is decided by comparing “row TXID” with “current TXID” and “oldest active TXID,” etc.
+- If the current TXID wraps (e.g. from 2³¹ − 1 to 2), PostgreSQL can no longer correctly tell whether an old row (e.g. created at TXID 5) is “in the past” or “in the future” relative to the current TXID.
+
+So **wraparound** means: the TXID space has been used so much that the 32-bit counter has (or is about to) wrap, and the database can no longer reliably decide visibility for some rows.
+
+### What PostgreSQL does if wraparound is not prevented
+
+To avoid returning wrong data, PostgreSQL:
+
+1. **Stops accepting writes** — the database effectively becomes read-only.
+2. **Forces emergency operations** — e.g. aggressive VACUUM to “freeze” old rows (see below).
+3. **Can shut down** — if it can’t fix the situation in time, it may shut down to prevent corruption.
+
+So the “TXID wraparound problem” is: **running out of TXIDs causes the instance to go read-only or shut down unless old rows are frozen in time.**
+
+---
+
+## How PostgreSQL “Solves” Wraparound: Row Freezing
+
+The fix is to **freeze** old rows so they no longer depend on the 32-bit TXID for visibility.
+
+### What “freeze” means
+
+- A **frozen** row is treated as if it was committed “before any possible current transaction.”
+- Frozen rows use a special marker (e.g. `FrozenTransactionId`) instead of a normal TXID.
+- Once frozen, that row’s visibility no longer depends on the current TXID, so **wraparound does not affect it**.
+
+So: **freezing = making old rows permanent in terms of visibility, so we don’t need to allocate new TXIDs for them.**
+
+### Who does the freezing?
+
+- **VACUUM** (and **autovacuum**) scans tables and **freezes** old row versions.
+- When a row’s “creation” TXID is old enough (below the “freeze horizon”), VACUUM replaces that TXID with the frozen marker.
+- PostgreSQL tracks how old the unfrozen data is per table and per database so it knows when freezing is urgent.
+
+So the “solution” to TXID wraparound in PostgreSQL is: **run VACUUM (autovacuum) often enough so that all old rows are frozen before the TXID counter gets close to wraparound.**
+
+---
+
+## Key Concepts and Parameters
+
+### Freeze horizon
+
+- **Freeze horizon** = “TXID age beyond which rows must be frozen.”
+- Conceptually: “Any row older than (current_txid - freeze_limit) must be frozen.”
+- If any row is not frozen and its TXID age is too high (e.g. &gt; ~200 million), the database will force anti-wraparound work.
+
+### Per-table tracking
+
+- **`relfrozenxid`** (in `pg_class`): the TXID before which all rows in that table have been frozen.
+- **Table “age”** = current TXID − `relfrozenxid`. High age means many TXIDs have been used since the last freeze; if age gets too large, wraparound is risky.
+
+### Per-database tracking
+
+- **`datfrozenxid`** (in `pg_database`): the oldest freeze horizon across all tables in that database.
+- **Database “age”** = current TXID − `datfrozenxid`. This is the main number PostgreSQL uses to decide “how close are we to wraparound?”
+
+### Autovacuum and freeze
+
+- **Autovacuum** runs periodically and, among other things, **freezes** old rows.
+- Parameters that affect when freezing happens:
+  - **`vacuum_freeze_min_age`**: don’t freeze a row until its TXID is at least this many TXIDs old (default 50 million). Reduces unnecessary freezing.
+  - **`vacuum_freeze_table_age`**: when a table’s age (current TXID − `relfrozenxid`) exceeds this, autovacuum will do a full-table scan to freeze that table (default 150 million). So freezing is triggered **before** age gets dangerously high.
+
+So the “solution” in practice is: **tune autovacuum (and these parameters) so that every table is frozen often enough that both table age and database age stay well below 2³¹.**
+
+---
+
+## How to Monitor TXID Age (Wraparound Risk)
+
+### Database age (main indicator)
+
+```sql
+SELECT datname, age(datfrozenxid) AS database_age
+FROM pg_database
+ORDER BY age(datfrozenxid) DESC;
+```
+
+- **age(datfrozenxid)** = “how many TXIDs have been used since the oldest unfrozen data in this database.”
+- PostgreSQL starts warning when this approaches **200 million** and takes aggressive action when it gets close to **2³¹** (e.g. ~2 billion).
+- So you “solve” wraparound by **keeping database age low** (e.g. &lt; 200 million) by freezing often.
+
+### Table age
+
+```sql
+SELECT relname, age(relfrozenxid) AS table_age
+FROM pg_class
+WHERE relkind = 'r'
+ORDER BY age(relfrozenxid) DESC
+LIMIT 20;
+```
+
+- Shows which tables have the “oldest” unfrozen data.
+- Tables with high `age(relfrozenxid)` are the ones that need VACUUM (freeze) next.
+
+### Current TXID (for context)
+
+```sql
+SELECT txid_current();
+```
+
+So: **monitor database and table age; if they grow toward 200 million (or more), freezing is not keeping up and you risk wraparound.**
+
+---
+
+## How to “Solve” or Prevent Wraparound
+
+### 1. Rely on autovacuum (normal case)
+
+- Ensure **autovacuum is enabled** (`autovacuum = on`).
+- Let autovacuum run regularly so it freezes old rows.
+- If database age stays low (e.g. &lt; 200 million), wraparound is “solved” by routine freezing.
+
+### 2. Tune autovacuum for busy or large tables
+
+- Increase **`autovacuum_max_workers`** if many tables need vacuuming.
+- Lower **`vacuum_freeze_table_age`** so tables are frozen earlier (e.g. 100 million instead of 150 million).
+- Increase **`autovacuum_naptime`** frequency so autovacuum runs more often.
+- Give autovacuum enough **`work_mem`** (via `maintenance_work_mem` for VACUUM) so it can do its job efficiently.
+
+### 3. Manual VACUUM FREEZE (if age is high)
+
+- If a table (or database) age is already high, run:
+
+```sql
+VACUUM FREEZE tablename;
+-- or for whole database (each table):
+VACUUM FREEZE;
+```
+
+- **VACUUM FREEZE** forces freezing of old rows even if they’re above `vacuum_freeze_min_age`. Use it when you need to reduce age quickly.
+- For very large tables, this can be I/O-heavy; schedule during low load.
+
+### 4. Avoid long-running transactions
+
+- The **oldest active transaction** influences the freeze horizon: PostgreSQL cannot freeze rows that might still be needed by that transaction.
+- Long-running transactions (or idle-in-transaction sessions) can block freezing and cause age to grow.
+- So: **keep transactions short; avoid holding transactions open for hours.** That’s part of “solving” wraparound in practice.
+
+### 5. In emergencies (age very high, warnings in logs)
+
+- PostgreSQL may force **aggressive autovacuum** or refuse new writes.
+- Actions:
+  - Run **VACUUM FREEZE** on the oldest tables (from the table-age query above).
+  - Kill long-running/idle transactions that block freezing.
+  - Increase **`vacuum_freeze_min_age`** only with care (it doesn’t fix age; it affects when we freeze). The main lever is running VACUUM FREEZE and making sure autovacuum can run (no long transactions).
+
+So: **TXID wraparound is “solved” by freezing old rows (VACUUM / autovacuum) and by not blocking freezing with long transactions.**
+
+---
+
+## Summary
+
+| Topic | Explanation |
+|-------|-------------|
+| **What is TXID?** | Unique 32-bit ID per transaction; used for MVCC visibility. |
+| **What is wraparound?** | TXID counter reaches 2³¹ − 1 and wraps; visibility can no longer be decided correctly for very old rows. |
+| **What does PostgreSQL do?** | Protects data by going read-only and/or forcing emergency VACUUM; can shut down if not fixed. |
+| **How is it solved?** | **Freeze** old rows (replace their TXID with a special “frozen” marker) so they no longer depend on the 32-bit TXID. |
+| **Who freezes?** | **VACUUM** and **autovacuum**; they run periodically and freeze rows older than the freeze horizon. |
+| **How to monitor?** | `age(datfrozenxid)` and `age(relfrozenxid)`; keep them well below 200 million (and far below 2 billion). |
+| **What you must do?** | Keep autovacuum on and effective; avoid long-running transactions; if age is high, run VACUUM FREEZE and tune autovacuum. |
+
+In short: **the TXID wraparound problem is the risk of running out of 32-bit transaction IDs; PostgreSQL solves it by freezing old rows so their visibility no longer depends on TXID, and by monitoring and reducing “age” through VACUUM and autovacuum.**
