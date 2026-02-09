@@ -343,3 +343,54 @@ Aurora tracks:
 ### Final Memory Hook
 
 > “Aurora writes redo, commits at 4, reads at 1 — and only reads at 3 when recovering.”
+---
+**Q1: What are redo logs in Aurora?**
+**A:** Redo logs (XLog/WAL) are **small, sequential records of every database change** (INSERT, UPDATE, DELETE). They are the **source of truth** in Aurora and are stored in distributed storage.
+
+**Q2: Why does Aurora use redo logs instead of writing full pages?**
+**A:** Redo logs are **smaller, sequential, and cheaper to replicate**. Full-page writes are large and slow, especially in a distributed, multi-AZ environment.
+
+**Q3: When are redo logs applied to data pages?**
+**A:** Storage nodes **apply redo logs lazily**:
+
+* When a page is requested for read
+* When caching pages in memory or optionally writing to disk
+  Compute nodes **never apply redo logs themselves**.
+
+**Q4: Are redo logs durable immediately?**
+**A:** Yes. Redo logs are sent to **all 6 storage nodes**, and once **4 nodes acknowledge**, the transaction is committed.
+
+**Q5: Do redo logs reside in memory?**
+**A:** Only recent redo logs for in-flight transactions are buffered in memory. The rest are persisted in storage.
+
+**Q6: How do redo logs affect crash recovery?**
+**A:** Aurora **rebuilds pages from redo logs on demand**, so crash recovery is extremely fast. There’s **no WAL replay backlog** like traditional PostgreSQL.
+
+**Q7: Can I see redo logs directly?**
+**A:** No. Redo logs are **internal to Aurora storage** and are not user-accessible. You interact with them indirectly via **database changes and replication metrics**.
+
+**Q8: How do redo logs interact with global databases?**
+**A:** Redo logs are shipped to all regions for replication. Secondary regions **rebuild pages from redo logs**, ensuring global consistency without full-page replication.
+
+**Q9: How do redo logs help with caching?**
+**A:** When a page is not in memory, storage uses redo logs to **reconstruct the latest page** and optionally caches it in memory or disk for future reads.
+
+**Q10: What happens when a page is not in memory?**
+**A:** Storage rebuilds the page as follows:
+
+1. **Check if the base page exists on disk**
+2. **If base page exists:**
+
+   * Read the base page
+   * Apply all redo logs since that base
+   * Return the fully up-to-date page to compute
+3. **If base page does NOT exist:**
+
+   * Start from an **empty/initial page**
+   * Apply all redo logs for that page from the beginning
+   * Return the fully reconstructed page to compute
+
+This ensures that **queries always see the latest consistent state**, even if neither memory nor disk has the latest page.
+
+**Q11: What happens to redo logs after they are applied to pages?**
+**A:** Redo logs remain the **authoritative source of truth**, even after pages are cached or written to disk. Pages are just a **materialized view** of redo.
