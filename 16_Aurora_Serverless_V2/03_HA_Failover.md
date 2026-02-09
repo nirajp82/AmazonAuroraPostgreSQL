@@ -1,9 +1,5 @@
 # Aurora Serverless v2 – High Availability & Failover
 
-This guide explains **high availability (HA), failover behavior, and capacity management** in Aurora Serverless v2 clusters, including mixed clusters with provisioned and serverless instances.
-
----
-
 ## High Availability in Aurora Serverless v2
 
 * Aurora Serverless clusters are **highly available**, similar to provisioned clusters.
