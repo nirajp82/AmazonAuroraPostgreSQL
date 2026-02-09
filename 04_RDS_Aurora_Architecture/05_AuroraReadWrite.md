@@ -122,7 +122,7 @@ This is the **most critical difference** between Aurora and traditional PostgreS
 
 <img width="1088" height="588" alt="Aurora Quorum Write Flow" src="https://github.com/user-attachments/assets/3b76e89f-4a0e-4e18-b614-732cc3e0439a" />
 
-     ```
+```
            ┌───────────────────┐
            │    Client SQL     │
            │ INSERT/UPDATE/    │
@@ -160,11 +160,35 @@ This is the **most critical difference** between Aurora and traditional PostgreS
            │  Result     │
            └─────────────┘
 ```
-
+```
+      ┌───────────────┐
+      │ Compute Node  │
+      │  Memory Cache │  <-- fast
+      └──────┬────────┘
+             │ miss
+             ▼
+      ┌───────────────┐
+      │ Storage Node  │
+      │  Storage Cache│  <-- shared hot pages
+      └──────┬────────┘
+             │ miss
+             ▼
+      ┌───────────────┐
+      │   Redo Logs   │  <-- durable source of truth
+      └───────────────┘
+```
 **Memory Hook:**
 
 > “Aurora ships redo, not pages — and commits at 4.”
+> In Aurora PostgreSQL, compute executes SQL and generates redo, while storage durably stores redo and builds data pages only when needed — data pages are just a cache, redo is the database.
+> In Aurora PostgreSQL, the compute node handles SQL execution: it parses the query, modifies pages in memory, and generates redo logs. These redo logs are immediately sent to the storage node, which is the durable, replicated source of truth. Data pages are never written by compute. Storage applies redo logs to build data pages lazily when requested for reads, caches them in memory, and may optionally write them to disk for optimization. SELECT queries read from memory or request pages from storage, which reconstructs them from redo logs if needed. This separation ensures fast commits, instant failover, and scalable multi-AZ consistency, independent of database size.
 
+| Statement | Compute Node                    | Storage Node      |
+| --------- | ------------------------------- | ----------------- |
+| INSERT    | Modify memory + generate redo   | Store redo        |
+| UPDATE    | Modify memory + generate redo   | Store redo        |
+| DELETE    | Modify memory + generate redo   | Store redo        |
+| SELECT    | Read from cache or request page | Build/return page |
 ---
 
 ## 6. Why Aurora Writes Are Fast
