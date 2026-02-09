@@ -46,8 +46,7 @@ Cluster configuration:
 * Failover occurs, reader with priority 1 is promoted to writer.
 * Reader capacity = 8 ACU (insufficient for previous writer load of 48 ACU)
 * **Impact:** Temporary performance degradation until load stabilizes.
-
-> **Memory Hook:** Capacity mismatch after failover is like moving from a big kitchen to a small one — tasks slow down until adjustments happen.
+<img width="1116" height="475" alt="image" src="https://github.com/user-attachments/assets/c8176846-c66b-4172-b2cd-09d7fa0c32cd" />
 
 ---
 
