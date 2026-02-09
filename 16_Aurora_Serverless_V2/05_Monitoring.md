@@ -130,6 +130,8 @@ Percentage of ACU currently in use relative to the **maximum ACU** defined in th
 * Free Memory increases as ACU decreases for low-load replicas
 * Temp Storage IOPS indicates storage activity
 
+<img width="1024" height="579" alt="image" src="https://github.com/user-attachments/assets/1638342b-f6cb-4334-8d73-169a887dbd8d" />
+
 **Actionable Insights:**
 
 * If ACU stays near max → increase maximum ACU
