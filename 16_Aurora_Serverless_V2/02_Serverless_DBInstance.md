@@ -100,6 +100,7 @@ Aurora Serverless v2 is a **production-ready, scalable relational database** tha
 * First 10 seconds: load = 4 ACU → cost = 4 × 10 × ACU/sec
 * Next 20 seconds: load = 6 ACU → cost = 6 × 20 × ACU/sec
 * Total cost = sum of all intervals
+<img width="1536" height="1024" alt="image" src="https://github.com/user-attachments/assets/e1911dc4-dba9-42b9-ab0a-9bf0526a68a1" />
 
 **Memory Hook:** Think of it like a **pay-as-you-go taxi**: pay only for the power (ACU) used per second.
 
