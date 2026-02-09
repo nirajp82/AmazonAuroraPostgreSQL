@@ -111,14 +111,55 @@ This is the **most critical difference** between Aurora and traditional PostgreS
 
 6. Storage nodes:
 
-   * Apply redo records **directly to data pages**
-   * Do **not** write local WAL files
+   * Apply redo records **directly to in-memory pages**
+   * Cache pages in memory
+   * **Optionally write pages to disk** for optimization
+   * Do not write local WAL files
 
 7. As soon as **4 acknowledgements** are received:
 
    * Database engine returns **COMMIT SUCCESS** to client
 
 <img width="1088" height="588" alt="Aurora Quorum Write Flow" src="https://github.com/user-attachments/assets/3b76e89f-4a0e-4e18-b614-732cc3e0439a" />
+
+     ```
+           ┌───────────────────┐
+           │    Client SQL     │
+           │ INSERT/UPDATE/    │
+           │ DELETE/SELECT     │
+           └─────────┬─────────┘
+                     │
+                     ▼
+           ┌───────────────────┐
+           │  Compute Node     │
+           │  (per-node memory)│
+           │ - Parse & plan    │
+           │ - Modify pages in │
+           │   memory cache    │
+           │ - Generate redo   │
+           │ - Send redo logs  │
+           │   to storage      │
+           └─────────┬─────────┘
+                     │
+                     ▼
+           ┌──────────────────────────┐
+           │  Storage Node (Durable)  │
+           │ - Append redo logs (truth│
+           │   6 copies / 3 AZs)     │
+           │ - Lazily build data pages│
+           │   in memory when needed │
+           │ - Store pages in storage│
+           │   cache and optionally  │
+           │   write to disk         │
+           └─────────┬──────────────┘
+                     │
+         Return pages to compute node (SELECT or cache)
+                     ▼
+           ┌─────────────┐
+           │  Client     │
+           │  Result     │
+           └─────────────┘
+```
 
 **Memory Hook:**
 
