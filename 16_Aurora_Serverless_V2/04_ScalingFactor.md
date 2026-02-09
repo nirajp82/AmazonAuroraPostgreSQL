@@ -37,6 +37,8 @@ Factors influencing instance capacity:
 
 > Memory Hook: Think of **base capacity** as the guaranteed minimum power your cluster always has, while **peak capacity** is the max “boost” available during spikes.
 
+<img width="1088" height="588" alt="image" src="https://github.com/user-attachments/assets/87f6e0de-b484-4c4d-97a0-e55eca1b4320" />
+
 ---
 
 ## 3. How Factors Influence Serverless v2 Capacity
