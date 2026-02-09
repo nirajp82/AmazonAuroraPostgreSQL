@@ -65,7 +65,7 @@ Tracks the number of **ACUs allocated** to a Serverless v2 instance at a point i
 * Reader P2/P5: remains at 2.5 ACU
 
 > **Memory Hook:** The allocated ACU reflects the “power level” of your instance. Monitoring this metric ensures your cluster always has enough capacity for current workloads.
-<img width="1030" height="481" alt="image" src="https://github.com/user-attachments/assets/e6f4c2c6-4b89-47ef-8d97-7dc6b34bbd24" />
+<img width="1367" height="410" alt="image" src="https://github.com/user-attachments/assets/5f16d555-2b65-4db7-9415-410665f67939" />
 
 ---
 
