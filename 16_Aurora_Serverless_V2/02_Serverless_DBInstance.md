@@ -35,6 +35,93 @@ Aurora Serverless v2 is a **production-ready, scalable relational database** tha
 
 **Memory Hook:** ACU is like a "unit of work" – think of it as a **slice of server power** that can grow or shrink automatically.
 
+#### What 1 ACU Means
+
+* **ACU** = Aurora Capacity Unit
+* **1 ACU ≈ 2 GB memory + equivalent CPU + network bandwidth**
+* **All three scale together automatically** — you do not configure them separately.
+
+**Memory Hook:** Think of 1 ACU as a **unit of “server power”**: it bundles memory, CPU, and network together.
+
+#### Breakdown of ACU Components
+
+| Component             | Role                                                                                                                      |
+| --------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| **Memory (RAM)**      | Stores active data, caches query results, temporary buffers for inserts/updates, working space for aggregations and joins |
+| **CPU**               | Processes queries, calculations, sorting, joins, aggregations, indexes, triggers, constraints                             |
+| **Network Bandwidth** | Transfers data between client apps and DB, handles replication traffic, moves bulk data during inserts/updates            |
+
+#### Why More CPU & Network are Needed
+
+Memory alone cannot handle high workloads. CPU and network scale proportionally to:
+
+1. **Bulk Inserts / Updates**
+
+   * Example: Insert **1 million rows** into a table
+   * Memory: buffers data before commit
+   * CPU: validates constraints, updates indexes, executes triggers efficiently
+   * Network: transfers large data streams from application or ETL pipelines
+
+2. **Complex Queries / Aggregations**
+
+   * Example: `SELECT SUM(amount), COUNT(*) FROM orders WHERE created_at > now() - interval '1 month';`
+   * CPU: scans rows, evaluates filters, performs aggregation
+   * Memory: caches temporary results
+   * Network: returns large datasets to application clients
+
+3. **Replication / Read Traffic**
+
+   * Example: Read replicas serving thousands of queries per second
+   * CPU: executes queries for each request
+   * Memory: caches results to speed repeated queries
+   * Network: transfers data to replicas or application servers
+
+#### Real-World Example: Bulk Insert Scenario
+
+Assume a **Serverless v2 instance**:
+
+* Cluster capacity: 4 ACU → 8 GB memory
+* Table: `orders` with 1 million rows
+
+| Situation                                   | Memory | CPU      | Network | Result                                                                                   |
+| ------------------------------------------- | ------ | -------- | ------- | ---------------------------------------------------------------------------------------- |
+| **Low ACU / insufficient resources**        | 8 GB   | ~4 vCPUs | ~4 Gbps | Slow inserts; CPU bottleneck; network slows bulk transfer                                |
+| **High ACU / sufficient resources (8 ACU)** | 16 GB  | ~8 vCPUs | ~8 Gbps | Inserts execute faster; CPU and network scale with memory; bulk data handled efficiently |
+
+**Memory Hook:** Memory buffers data, CPU crunches it, and network carries it. If any of the three is too low, the workload slows down.
+
+#### Example: Serverless Instance Scaling
+
+Cluster capacity range: 1–4 ACUs
+
+| Load Situation  | ACU Allocated | Memory | CPU      | Network |
+| --------------- | ------------- | ------ | -------- | ------- |
+| Initial load    | 1 ACU         | 2 GB   | ~1 vCPU  | ~1 Gbps |
+| High load spike | 3 ACU         | 6 GB   | ~3 vCPUs | ~3 Gbps |
+| Load subsides   | 1 ACU         | 2 GB   | ~1 vCPU  | ~1 Gbps |
+
+* **Scaling up:** almost instantaneous
+* **Scaling down:** slower, depends on load and cluster size
+* Each instance in a cluster **scales independently**
+
+**Memory Hook:** ACU acts like a **combo pack**: more ACUs → more memory, CPU, and network proportionally.
+
+#### Summary Table: ACU vs Resources vs Use Case
+
+| ACU     | Memory | CPU       | Network  | Use Case Example                                        |
+| ------- | ------ | --------- | -------- | ------------------------------------------------------- |
+| 1 ACU   | 2 GB   | ~1 vCPU   | ~1 Gbps  | Small queries, occasional inserts                       |
+| 4 ACU   | 8 GB   | ~4 vCPUs  | ~4 Gbps  | Medium workload, bulk insert 100k rows                  |
+| 8 ACU   | 16 GB  | ~8 vCPUs  | ~8 Gbps  | Large workload, bulk insert 1M+ rows, heavy analytics   |
+| 128 ACU | 256 GB | 128 vCPUs | 128 Gbps | Enterprise production, very large analytics / batch ETL |
+
+#### Key Takeaways
+
+1. **ACU bundles memory, CPU, and network**; they scale together.
+2. **Higher ACU → faster processing, more parallelism, and faster data transfer.**
+3. **Serverless v2 instances scale automatically** based on load.
+4. CPU, memory, and network must scale together; otherwise, one becomes a bottleneck.
+5. Serverless v2 instances are **drop-in replacements** for provisioned instances.
 ---
 
 ### 3. Scaling Behavior
@@ -120,19 +207,25 @@ Aurora Serverless v2 is a **production-ready, scalable relational database** tha
 ## FAQ
 
 **Q1: What is an ACU?**
-**A:** Aurora Capacity Unit – 1 ACU ≈ 2 GB memory + CPU + network. Used to define compute capacity.
+**A:** Aurora Capacity Unit – 1 ACU ≈ 2 GB memory + CPU + network bandwidth. It defines the compute capacity of serverless instances.
 
 **Q2: Can serverless instances scale automatically?**
-**A:** Yes, Aurora v2 instances monitor load and scale up or down automatically.
+**A:** Yes, Aurora v2 instances monitor load and scale up or down automatically based on demand.
 
-**Q3: What happens if min ACU = max ACU?**
-**A:** No scaling occurs; the instance behaves like a static, provisioned instance.
+**Q3: Why does CPU scale with ACU?**
+**A:** CPU handles query execution, indexing, triggers, aggregations, and other computations. Without sufficient CPU, heavy workloads such as bulk inserts or complex queries slow down.
 
-**Q4: Can a cluster have both provisioned and serverless instances?**
-**A:** Yes, Aurora supports mixed clusters with independent scaling of serverless instances.
+**Q4: Why does network scale with ACU?**
+**A:** Network bandwidth is required to transfer data between clients and the database, as well as between replicas. High-volume inserts, updates, and queries need more bandwidth for efficient processing.
 
-**Q5: How is cost calculated for serverless instances?**
-**A:** Compute cost is billed **per second** based on ACU usage. Storage and I/O costs are separate.
+**Q5: What happens if min ACU = max ACU?**
+**A:** No scaling occurs. The instance behaves like a static provisioned instance with fixed capacity.
 
-**Q6: Is scaling instantaneous?**
-**A:** Scaling up is nearly instant; scaling down is slower and depends on load and cluster configuration.
+**Q6: Can a cluster have both provisioned and serverless instances?**
+**A:** Yes. Aurora supports mixed clusters. Serverless instances scale independently, while provisioned instances remain static.
+
+**Q7: How is cost calculated for serverless instances?**
+**A:** Compute cost is billed per second based on actual ACU usage. Storage and I/O costs are separate.
+
+**Q8: Is scaling instantaneous?**
+**A:** Scaling up is nearly instantaneous, while scaling down is slower and depends on load, instance size, and cluster configuration.
