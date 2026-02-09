@@ -76,9 +76,7 @@ Percentage of ACU currently in use relative to the **maximum ACU** defined in th
 
 **Calculation:**
 
-[
-\text{ACU Utilization (%)} = \frac{\text{Serverless DB Capacity (ACU allocated)}}{\text{Maximum ACU in Cluster}} \times 100
-]
+<img width="500" height="56" alt="image" src="https://github.com/user-attachments/assets/8aa2a8f4-8679-400f-8d8d-fa681529a0d0" />
 
 **Example:**
 
@@ -109,12 +107,7 @@ Percentage of ACU currently in use relative to the **maximum ACU** defined in th
 
 * Tracks **unused memory** on a Serverless v2 instance.
 * **Calculation:**
-  [
-  \text{Allocated Memory (GB)} = \text{ACU Allocated} \times 2
-  ]
-  [
-  \text{Free Memory (GB)} = \text{Max Memory at max ACU} - \text{Allocated Memory}
-  ]
+  <img width="1512" height="80" alt="image" src="https://github.com/user-attachments/assets/143f3a38-788e-4dae-9008-1ac68db074b5" />
 
 **Behavior:** As ACU allocation decreases, free memory increases, and vice versa.
 
