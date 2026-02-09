@@ -132,6 +132,8 @@ Percentage of ACU currently in use relative to the **maximum ACU** defined in th
 
 <img width="1024" height="579" alt="image" src="https://github.com/user-attachments/assets/1638342b-f6cb-4334-8d73-169a887dbd8d" />
 
+<img width="1087" height="519" alt="image" src="https://github.com/user-attachments/assets/75aa8b58-0223-431a-8923-f717e6613f29" />
+
 **Actionable Insights:**
 
 * If ACU stays near max → increase maximum ACU
