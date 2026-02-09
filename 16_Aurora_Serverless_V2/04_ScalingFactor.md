@@ -54,6 +54,7 @@ Factors influencing instance capacity:
 
 * Enable detailed monitoring of DB activity.
 * Consumes **CPU, memory, and network**, causing temporary ACU increases.
+<img width="1108" height="587" alt="image" src="https://github.com/user-attachments/assets/df6b8f2a-6029-4947-bfd9-31266e56e12f" />
 
 ---
 
