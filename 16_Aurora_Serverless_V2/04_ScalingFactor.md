@@ -70,6 +70,8 @@ Factors influencing instance capacity:
 | Metrics        | Average across replicas (connections) | Real-time CPU, memory, network pressure |
 | Cluster Impact | Adds new replicas to scale reads      | Adjusts individual instance ACU         |
 | Use Case       | Gradual read scaling                  | Instant load spikes on writer/reader    |
+| Event          | Emits events on scaling               | No Events - CloudWatch                  |
+
 
 **Example:**
 
