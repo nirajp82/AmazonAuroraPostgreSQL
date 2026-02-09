@@ -10,11 +10,26 @@
 
 ---
 
-## Failover Behavior
+### Mixed Configuration Clusters – Failover Behavior
 
-* In case of primary (writer) failure, the **replica with the lowest failure priority** is promoted as the new writer.
-* **Mixed configuration clusters**: whether writer or reader is provisioned or serverless, failover works the same way.
-* **Capacity considerations:** The new writer must have enough capacity to handle the current write load.
+In a **mixed cluster**, some instances may be **provisioned** (fixed capacity) while others are **serverless** (scales automatically).
+
+* **Failover works the same way regardless of instance type:**
+
+  * When the **writer fails**, the replica with the **lowest failure priority** is promoted as the new writer.
+  * Whether the promoted replica is provisioned or serverless, it assumes the **writer role** and starts handling write traffic.
+
+* **Capacity considerations:**
+
+  * If the new writer is **serverless**, its ACU may need to scale up to handle the write load.
+  * If the new writer is **provisioned**, capacity is fixed and may not fully match the previous writer’s dynamic load.
+
+* **Reader behavior during failover:**
+
+  * Serverless readers with **priority 0/1** follow the new writer’s capacity in lockstep to ensure smooth failover.
+  * Other readers continue to handle read traffic independently.
+
+> **Memory Hook:** Think of a mixed cluster as a **team with different skill sets** — when the leader (writer) goes down, the best available teammate (lowest priority reader) takes over. How quickly the team adapts depends on their abilities (capacity) and flexibility (serverless vs. provisioned).
 
 ---
 
