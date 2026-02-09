@@ -229,4 +229,3 @@ A: Compute cost is billed per second based on actual ACU usage. Storage and I/O 
 
 **Q8: Is scaling instantaneous?**
 A: Scaling up is nearly instantaneous, while scaling down is slower and depends on load, instance size, and cluster configuration.
-?
