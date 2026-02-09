@@ -207,25 +207,26 @@ Cluster capacity range: 1–4 ACUs
 ## FAQ
 
 **Q1: What is an ACU?**
-**A:** Aurora Capacity Unit – 1 ACU ≈ 2 GB memory + CPU + network bandwidth. It defines the compute capacity of serverless instances.
+A: Aurora Capacity Unit – 1 ACU ≈ 2 GB memory + CPU + network bandwidth. It defines the compute capacity of serverless instances.
 
 **Q2: Can serverless instances scale automatically?**
-**A:** Yes, Aurora v2 instances monitor load and scale up or down automatically based on demand.
+A: Yes, Aurora v2 instances monitor load and scale up or down automatically based on demand.
 
 **Q3: Why does CPU scale with ACU?**
-**A:** CPU handles query execution, indexing, triggers, aggregations, and other computations. Without sufficient CPU, heavy workloads such as bulk inserts or complex queries slow down.
+A: CPU handles query execution, indexing, triggers, aggregations, and other computations. Without sufficient CPU, heavy workloads such as bulk inserts or complex queries slow down.
 
 **Q4: Why does network scale with ACU?**
-**A:** Network bandwidth is required to transfer data between clients and the database, as well as between replicas. High-volume inserts, updates, and queries need more bandwidth for efficient processing.
+A: Network bandwidth is required to transfer data between clients and the database, as well as between replicas. High-volume inserts, updates, and queries need more bandwidth for efficient processing.
 
 **Q5: What happens if min ACU = max ACU?**
-**A:** No scaling occurs. The instance behaves like a static provisioned instance with fixed capacity.
+A: No scaling occurs. The instance behaves like a static provisioned instance with fixed capacity.
 
 **Q6: Can a cluster have both provisioned and serverless instances?**
-**A:** Yes. Aurora supports mixed clusters. Serverless instances scale independently, while provisioned instances remain static.
+A: Yes. Aurora supports mixed clusters. Serverless instances scale independently, while provisioned instances remain static.
 
 **Q7: How is cost calculated for serverless instances?**
-**A:** Compute cost is billed per second based on actual ACU usage. Storage and I/O costs are separate.
+A: Compute cost is billed per second based on actual ACU usage. Storage and I/O costs are separate.
 
 **Q8: Is scaling instantaneous?**
-**A:** Scaling up is nearly instantaneous, while scaling down is slower and depends on load, instance size, and cluster configuration.
+A: Scaling up is nearly instantaneous, while scaling down is slower and depends on load, instance size, and cluster configuration.
+?
