@@ -20,6 +20,32 @@ These metrics help you:
 
 ---
 
+## 1a. Detailed Serverless v2 Metrics Table
+
+| Metric                                           | Definition                                                                                                                                              | When to Monitor / Use Case                                                                                                | Example                                                                                                 |
+| ------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
+| **Serverless Database Capacity (ACU allocated)** | Number of ACUs allocated to a Serverless v2 instance at a point in time. Reflects the effective “power level” of the instance (CPU + memory + network). | Ensure enough capacity for workloads. Sudden spikes indicate heavy queries or bulk operations.                            | Writer scales to 16 ACU; Reader P1 scales to 11.5 ACU; Reader P2 remains at 2.5 ACU.                    |
+| **ACU Utilization (%)**                          | Percentage of allocated ACU relative to maximum ACU defined in cluster.                                                                                 | Determine if min/max ACU settings are optimal. High values → increase max ACU; low values → reduce min ACU to save costs. | Max ACU = 16; Writer ACU = 11.5 → 72%; Reader ACU = 2.5 → 16%.                                          |
+| **CPU Utilization (%)**                          | % of vCPUs used vs max vCPUs available.                                                                                                                 | Detect CPU-heavy workloads like complex queries or bulk inserts. High CPU may indicate need for scaling.                  | Writer max ACU = 128 → 32 vCPUs; CPU usage = 20% during peak ACU allocation.                            |
+| **Free Memory (GB)**                             | Unused memory on instance.                                                                                                                              | Monitor memory pressure; low free memory may require higher ACU allocation.                                               | Writer ACU = 16 → Allocated = 32 GB; Free = 0 GB. Reader P2 ACU = 2.5 → Allocated = 5 GB; Free = 27 GB. |
+| **Temp Storage IOPS**                            | Number of IOPS on local storage attached to the instance.                                                                                               | Identify disk activity causing unexpected ACU scaling.                                                                    | Bulk insert spikes Temp Storage IOPS to 8000/sec.                                                       |
+| **Network Throughput (Bytes/sec)**               | Data transfer between DB instance and clients/replicas.                                                                                                 | Monitor high data movement workloads (ETL, replication, large queries). High throughput may trigger ACU scaling.          | Writer streaming data → network throughput = 800 MB/s.                                                  |
+| **Database Connections**                         | Number of active connections.                                                                                                                           | Monitor connection load; spikes indicate bursts or leaks.                                                                 | 150 active connections during peak load.                                                                |
+| **Active Transactions**                          | Number of running transactions.                                                                                                                         | Detect long-running transactions that may block resources.                                                                | 120 active transactions during batch ETL.                                                               |
+| **Commit Rate / Rollback Rate**                  | Number of commits or rollbacks per second.                                                                                                              | Monitor transaction throughput; high rollback rate may indicate errors or deadlocks.                                      | Commit rate = 200/sec; Rollback spikes to 50/sec.                                                       |
+| **Replication Lag**                              | Delay (in seconds) between writer and replicas.                                                                                                         | Ensure replicas are ready for failover; high lag indicates replication issues.                                            | Replication lag = 0.2 sec → healthy; >5 sec → investigate.                                              |
+| **Storage Used / Free**                          | Disk usage and remaining capacity.                                                                                                                      | Prevent running out of disk space; monitor long-running analytics or bulk writes.                                         | Storage used = 120 GB / 200 GB total → 60% used.                                                        |
+| **Performance Insights Metrics**                 | DB engine counters + serverless-specific counters (queries/sec, wait events, cache metrics).                                                            | Deep performance analysis, identify slow queries, contention, and ACU bottlenecks.                                        | High buffer cache hit → no need to scale ACU; high latch waits → may need more CPU.                     |
+
+> **Best Practices:**
+>
+> * Correlate CPU, memory, ACU, IOPS, and network together to identify scaling triggers.
+> * Use ACU utilization and free memory to optimize min/max ACU and costs.
+> * Monitor replication lag for failover readiness.
+> * Enable Performance Insights for production clusters; remember it consumes some ACU.
+
+---
+
 ## 2. Serverless Database Capacity Metric
 
 **Definition:**
@@ -134,6 +160,8 @@ Percentage of ACU currently in use relative to the **maximum ACU** defined in th
 
 <img width="1087" height="519" alt="image" src="https://github.com/user-attachments/assets/75aa8b58-0223-431a-8923-f717e6613f29" />
 
+<img width="947" height="493" alt="image" src="https://github.com/user-attachments/assets/9f63def5-1d2f-4ffc-87ab-66441e7c1073" />
+
 **Actionable Insights:**
 
 * If ACU stays near max → increase maximum ACU
@@ -172,4 +200,3 @@ A: By monitoring minimum and maximum ACU usage, you can adjust cluster ranges to
 
 **Q6: Should I enable Performance Insights for Serverless v2?**
 A: Recommended for detailed monitoring, but ensure minimum ACU is set ≥2 to accommodate additional load.
-
