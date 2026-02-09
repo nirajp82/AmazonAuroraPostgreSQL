@@ -101,6 +101,8 @@ Cluster configuration:
 * Result: Reader capacity reduces to 4 ACU (cluster max)
 * Writer load exceeds 4 ACU → reader stays at 4 ACU
 
+<img width="1083" height="594" alt="image" src="https://github.com/user-attachments/assets/58324b7b-7d52-47b8-bac8-1b91ed3a90be" />
+
 > **Memory Hook:** Lockstep scaling ensures critical readers are never starved, but adjusting cluster min/max can reduce allocation.
 
 ---
