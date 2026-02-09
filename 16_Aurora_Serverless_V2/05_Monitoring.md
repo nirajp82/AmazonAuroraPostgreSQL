@@ -89,6 +89,7 @@ Percentage of ACU currently in use relative to the **maximum ACU** defined in th
 
 * **Near 100%:** Consider increasing maximum ACU to handle spikes
 * **Near minimum:** Consider lowering minimum ACU to reduce cost
+<img width="1024" height="579" alt="image" src="https://github.com/user-attachments/assets/1638342b-f6cb-4334-8d73-169a887dbd8d" />
 
 ---
 
@@ -99,6 +100,7 @@ Percentage of ACU currently in use relative to the **maximum ACU** defined in th
 * **Example:** Writer max ACU = 128 → 32 vCPUs; CPU usage may be 20% while ACU is fully allocated.
 
 > Memory Hook: ACU allocation depends on **CPU, memory, and network together**, not just CPU utilization.
+<img width="1087" height="519" alt="image" src="https://github.com/user-attachments/assets/75aa8b58-0223-431a-8923-f717e6613f29" />
 
 ---
 
@@ -114,6 +116,8 @@ Percentage of ACU currently in use relative to the **maximum ACU** defined in th
   ]
 
 **Behavior:** As ACU allocation decreases, free memory increases, and vice versa.
+
+<img width="947" height="493" alt="image" src="https://github.com/user-attachments/assets/9f63def5-1d2f-4ffc-87ab-66441e7c1073" />
 
 ---
 
@@ -155,13 +159,7 @@ Percentage of ACU currently in use relative to the **maximum ACU** defined in th
 * ACU Utilization: Writer ≈ 72%, Reader ≈ 16%
 * Free Memory increases as ACU decreases for low-load replicas
 * Temp Storage IOPS indicates storage activity
-
-<img width="1024" height="579" alt="image" src="https://github.com/user-attachments/assets/1638342b-f6cb-4334-8d73-169a887dbd8d" />
-
-<img width="1087" height="519" alt="image" src="https://github.com/user-attachments/assets/75aa8b58-0223-431a-8923-f717e6613f29" />
-
-<img width="947" height="493" alt="image" src="https://github.com/user-attachments/assets/9f63def5-1d2f-4ffc-87ab-66441e7c1073" />
-
+  
 **Actionable Insights:**
 
 * If ACU stays near max → increase maximum ACU
