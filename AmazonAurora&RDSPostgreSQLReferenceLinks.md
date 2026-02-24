@@ -34,6 +34,7 @@
 3. [Aurora PostgreSQL Global Database – knowledge center](https://repost.aws/knowledge-center/aurora-postgresql-global-database)
 4. [Aurora Global Database feature details](https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/Concepts.Aurora_Fea_Regions_DB-eng.Feature.GlobalDatabase.html#Concepts.Aurora_Fea_Regions_DB-eng.Feature.GlobalDatabase.apg)
 5. [Using switchover or failover in Amazon Aurora Global Database](https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/aurora-global-database-disaster-recovery.html)
+6. [Amazon Aurora endpoint connections](https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/Aurora.Overview.Endpoints.html)
 
 ### Disaster Recovery Concepts
 
